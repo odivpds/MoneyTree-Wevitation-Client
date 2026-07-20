@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Preview dan bagikan undangan pernikahan digital Bali Anda. Share via WhatsApp, Instagram, atau link.">
+  <title>Preview Undangan — Undangan Bali</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar scrolled" id="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="navbar__logo">Undangan Bali</a>
+
+      <ul class="navbar__menu" id="navMenu">
+        <li><a href="index.html" class="navbar__link">Beranda</a></li>
+        <li><a href="templates.html" class="navbar__link">Template</a></li>
+        <div class="navbar__actions">
+          <a href="/editor/editor.html" class="btn btn--secondary btn--sm">✏️ Edit Undangan</a>
+          <button class="btn btn--primary btn--sm" id="shareMainBtn">🔗 Bagikan</button>
+        </div>
+      </ul>
+
+      <div class="navbar__toggle" id="navToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== PREVIEW PAGE ===== -->
+  <div class="preview-page bali-pattern-bg">
+    <div class="preview-container">
+
+      <!-- Full Invitation Preview -->
+      <div class="invitation-preview bali-frame" id="fullInvitation" style="animation: scaleIn 0.6s ease forwards;">
+
+        <!-- Sparkle Effects -->
+        <div class="sparkle-container">
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="invitation-preview__header">
+          <div class="invitation-preview__ornament-top">
+            🕉️
+          </div>
+
+          <p
+            style="font-family: var(--font-heading); font-size: var(--text-sm); color: var(--accent-gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: var(--space-2); margin-top: var(--space-8);">
+            Om Swastyastu</p>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-6);">Kami mengundang
+            Bapak/Ibu/Saudara/i untuk hadir di acara pernikahan kami</p>
+
+          <!-- Couple Photo -->
+          <div class="invitation-preview__photo gold-pulse" id="previewPhoto">
+            <div class="invitation-preview__photo-placeholder" id="photoPlaceholder">
+              👫
+            </div>
+            <img src="" alt="Foto Pasangan" id="previewPhotoImg" style="display: none;">
+          </div>
+
+          <!-- Couple Names -->
+          <h1 class="invitation-preview__names" id="coupleNames">
+            Putu Agus
+            <span style="font-size: 0.5em; display: block; margin: -8px 0;">&</span>
+            Kadek Dewi
+          </h1>
+
+          <!-- Date & Venue -->
+          <p class="invitation-preview__date" id="weddingDate">Sabtu, 26 Oktober 2024</p>
+          <p class="invitation-preview__venue" id="weddingVenue">Puri Saren, Ubud, Bali</p>
+        </div>
+
+        <!-- Countdown Timer -->
+        <div class="invitation-preview__body">
+          <div class="bali-divider bali-divider--sm" style="margin: var(--space-4) 0;"><img
+              src="images/ornaments/divider.png" alt=""></div>
+
+          <p
+            style="font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-4);">
+            Menghitung Hari</p>
+
+          <div class="invitation-preview__countdown">
+            <div class="countdown-item">
+              <span class="countdown-item__value" id="countDays">98</span>
+              <span class="countdown-item__label">Hari</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-item__value" id="countHours">14</span>
+              <span class="countdown-item__label">Jam</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-item__value" id="countMinutes">32</span>
+              <span class="countdown-item__label">Menit</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-item__value" id="countSeconds">45</span>
+              <span class="countdown-item__label">Detik</span>
+            </div>
+          </div>
+
+          <div class="bali-divider bali-divider--sm" style="margin: var(--space-6) 0;"><img
+              src="images/ornaments/divider.png" alt=""></div>
+
+          <!-- Event Details -->
+          <div style="text-align: left; padding: 0 var(--space-2);">
+            <!-- Akad -->
+            <div
+              style="margin-bottom: var(--space-6); padding: var(--space-5); background: var(--surface-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3);">
+                <span style="font-size: var(--text-2xl);">🏛️</span>
+                <p style="font-family: var(--font-heading); font-size: var(--text-xl); color: var(--accent-gold);">Akad
+                  / Pawiwahan</p>
+              </div>
+              <div style="padding-left: calc(var(--text-2xl) + var(--space-3));">
+                <p style="font-size: var(--text-base); color: var(--text-primary); font-weight: 600;">Sabtu, 26 Oktober
+                  2024</p>
+                <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-1);">09:00
+                  WITA - Selesai</p>
+                <p style="font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-1);">📍 Pura
+                  Keluarga, Br. Taman Kaja</p>
+              </div>
+            </div>
+
+            <!-- Resepsi -->
+            <div
+              style="padding: var(--space-5); background: var(--surface-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3);">
+                <span style="font-size: var(--text-2xl);">🎉</span>
+                <p style="font-family: var(--font-heading); font-size: var(--text-xl); color: var(--accent-gold);">
+                  Resepsi</p>
+              </div>
+              <div style="padding-left: calc(var(--text-2xl) + var(--space-3));">
+                <p style="font-size: var(--text-base); color: var(--text-primary); font-weight: 600;">Sabtu, 26 Oktober
+                  2024</p>
+                <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-1);">18:00
+                  WITA - Selesai</p>
+                <p style="font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--space-1);">📍 The Royal
+                  Pita Maha, Ubud</p>
+              </div>
+            </div>
+
+            <!-- Map Button -->
+            <div style="text-align: center; margin-top: var(--space-6);">
+              <a href="#" class="btn btn--secondary" style="width: 80%;">
+                🗺️ Lihat Lokasi di Maps
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RSVP Section -->
+        <div class="rsvp-section">
+          <h3 class="rsvp-section__title">Konfirmasi Kehadiran</h3>
+
+          <div style="max-width: 400px; margin: 0 auto;">
+            <div class="form-group">
+              <input type="text" class="form-group__input" placeholder="Nama Anda" id="rsvpName">
+            </div>
+            <div class="form-group">
+              <select class="form-group__input" id="rsvpAttendance" style="cursor: pointer;">
+                <option value="">— Pilih Konfirmasi —</option>
+                <option value="hadir">✅ Saya akan hadir</option>
+                <option value="tidak">❌ Maaf, saya tidak bisa hadir</option>
+                <option value="ragu">🤔 Masih belum pasti</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-group__input" placeholder="Jumlah tamu (termasuk Anda)" id="rsvpGuests"
+                min="1" max="5">
+            </div>
+            <div class="form-group">
+              <textarea class="form-group__input" placeholder="Ucapan & doa untuk kedua mempelai..." id="rsvpMessage"
+                rows="3"></textarea>
+            </div>
+            <button class="btn btn--primary" style="width: 100%;" id="rsvpSubmitBtn">
+              💌 Kirim Konfirmasi
+            </button>
+          </div>
+        </div>
+
+        <!-- Wishes / Guestbook -->
+        <div style="padding: var(--space-8); border-top: 1px solid var(--border-color);">
+          <h3
+            style="font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); text-align: center; margin-bottom: var(--space-6);">
+            💝 Ucapan & Doa
+          </h3>
+
+          <div id="wishesContainer">
+            <!-- Sample wishes -->
+            <div
+              style="padding: var(--space-4); background: var(--surface-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: var(--space-4);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <div
+                  style="width: 36px; height: 36px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--accent-gold), var(--bright-gold)); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); color: var(--text-primary); font-weight: 700;">
+                  M</div>
+                <div>
+                  <p style="font-weight: 600; font-size: var(--text-sm); color: var(--text-primary);">Made Surya</p>
+                  <p style="font-size: var(--text-xs); color: var(--text-muted);">✅ Akan hadir</p>
+                </div>
+              </div>
+              <p
+                style="font-size: var(--text-sm); color: var(--text-secondary); padding-left: calc(36px + var(--space-3));">
+                Selamat menempuh hidup baru! Semoga menjadi keluarga yang Sakinah, Mawaddah, Warahmah. 🙏✨</p>
+            </div>
+
+            <div
+              style="padding: var(--space-4); background: var(--surface-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: var(--space-4);">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <div
+                  style="width: 36px; height: 36px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light)); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); color: white; font-weight: 700;">
+                  K</div>
+                <div>
+                  <p style="font-weight: 600; font-size: var(--text-sm); color: var(--text-primary);">Komang Ayu</p>
+                  <p style="font-size: var(--text-xs); color: var(--text-muted);">✅ Akan hadir</p>
+                </div>
+              </div>
+              <p
+                style="font-size: var(--text-sm); color: var(--text-secondary); padding-left: calc(36px + var(--space-3));">
+                Happy Wedding! Semoga langgeng sampai kakek nenek ya! 💕🎉</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Closing -->
+        <div
+          style="text-align: center; padding: var(--space-8) var(--space-6); border-top: 1px solid var(--border-color); background: var(--surface-subtle);">
+          <p
+            style="font-family: var(--font-script); font-size: var(--text-3xl); color: var(--accent-gold); margin-bottom: var(--space-4);">
+            Terima Kasih</p>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.7;">
+            Merupakan suatu kehormatan dan kebahagiaan bagi kami<br>
+            apabila Bapak/Ibu/Saudara/i berkenan hadir<br>
+            untuk memberikan doa dan restu.
+          </p>
+          <div class="bali-divider bali-divider--sm" style="margin: var(--space-6) 0;"><img
+              src="images/ornaments/divider.png" alt=""></div>
+          <p style="font-family: var(--font-heading); color: var(--text-primary); font-size: var(--text-lg);">
+            Atas kehadiran dan doa restunya,<br>kami mengucapkan terima kasih.
+          </p>
+          <p
+            style="font-family: var(--font-script); font-size: var(--text-2xl); color: var(--accent-gold); margin-top: var(--space-4);">
+            Om Shanti, Shanti, Shanti Om
+          </p>
+        </div>
+
+        <!-- Bottom corner ornaments for bali-frame -->
+        <img src="images/ornaments/corner.png" alt=""
+          style="position: absolute; bottom: -4px; left: -4px; width: 100px; height: 100px; opacity: 0.5; pointer-events: none; transform: scaleY(-1);">
+        <img src="images/ornaments/corner.png" alt=""
+          style="position: absolute; bottom: -4px; right: -4px; width: 100px; height: 100px; opacity: 0.5; pointer-events: none; transform: scale(-1, -1);">
+      </div>
+
+      <!-- ===== SHARE PANEL ===== -->
+      <div class="share-panel glass-card bali-corners"
+        style="margin-top: var(--space-8); animation: slideInFromBottom 0.6s ease 0.3s forwards; opacity: 0; transform: translateY(30px);"
+        id="sharePanel">
+        <h3 class="share-panel__title" style="font-family: var(--font-heading);">
+          📤 Bagikan Undangan
+        </h3>
+        <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6);">
+          Sebarkan kebahagiaan Anda kepada keluarga dan teman-teman.
+        </p>
+
+        <div class="share-panel__buttons">
+          <button class="share-btn share-btn--whatsapp" id="shareWhatsapp">
+            💬 WhatsApp
+          </button>
+          <button class="share-btn share-btn--instagram" id="shareInstagram">
+            📷 Instagram
+          </button>
+          <button class="share-btn share-btn--copy" id="shareCopyLink">
+            🔗 Salin Link
+          </button>
+        </div>
+
+        <!-- QR Code -->
+        <div class="share-panel__qr" style="margin-top: var(--space-8);">
+          <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4);">
+            Atau scan QR Code di bawah ini:
+          </p>
+          <div
+            style="width: 160px; height: 160px; margin: 0 auto; background: white; border-radius: var(--radius-lg); padding: var(--space-3); display: flex; align-items: center; justify-content: center;">
+            <canvas id="qrCanvas" width="140" height="140"></canvas>
+          </div>
+          <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-3);">
+            undanganbali.com/putu-kadek
+          </p>
+        </div>
+
+        <!-- Download -->
+        <div
+          style="margin-top: var(--space-8); display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn--secondary" id="downloadBtn">
+            ⬇️ Download Gambar
+          </button>
+          <a href="/editor/editor.html" class="btn btn--secondary">
+            ✏️ Edit Lagi
+          </a>
+        </div>
+      </div>
+
+      <!-- Credits -->
+      <div style="text-align: center; padding: var(--space-10) 0 var(--space-6);">
+        <p style="font-size: var(--text-xs); color: var(--text-muted);">
+          Dibuat dengan ❤️ menggunakan
+          <a href="index.html" style="color: var(--accent-gold);">Undangan Bali</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastMessage"></span>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/preview.js"></script>
+</body>
+
+</html>

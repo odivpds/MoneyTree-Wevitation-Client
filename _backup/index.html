@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Undangan Bali — Buat undangan pernikahan digital eksklusif bertemakan kebudayaan Bali. Pilih template, upload foto, dan bagikan undangan Anda.">
+  <meta name="keywords"
+    content="undangan pernikahan, wedding invitation, Bali, Balinese, digital invitation, undangan digital">
+  <title>Undangan Bali — Undangan Pernikahan Digital Bertemakan Bali</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+</head>
+
+<body>
+
+  <!-- Floating Petals -->
+  <div class="petal-container" id="petalContainer">
+    <span class="petal">🌸</span>
+    <span class="petal">🌺</span>
+    <span class="petal">🌸</span>
+    <span class="petal">✿</span>
+    <span class="petal">🌸</span>
+    <span class="petal">🌺</span>
+    <span class="petal">✿</span>
+    <span class="petal">🌸</span>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="navbar__logo">Undangan Bali</a>
+
+      <ul class="navbar__menu" id="navMenu">
+        <li><a href="#beranda" class="navbar__link navbar__link--active">Beranda</a></li>
+        <li><a href="#fitur" class="navbar__link">Fitur</a></li>
+        <li><a href="#desain" class="navbar__link">Desain</a></li>
+        <li><a href="#cara-kerja" class="navbar__link">Cara Kerja</a></li>
+        <li><a href="#harga" class="navbar__link">Harga</a></li>
+        <li><a href="#testimoni" class="navbar__link">Testimoni</a></li>
+        <div class="navbar__actions">
+          <a href="#" class="btn btn--secondary btn--sm">Masuk</a>
+          <a href="#" class="btn btn--primary btn--sm">Daftar</a>
+        </div>
+      </ul>
+
+      <div class="navbar__toggle" id="navToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero bali-hero" id="beranda">
+    <div class="hero__bg">
+      <img src="images/hero-bg.png" alt="Candi Bentar Bali">
+    </div>
+    <div class="hero__overlay"></div>
+
+    <!-- Balinese Ornaments -->
+    <div class="bali-hero__ornament-top"></div>
+    <div class="bali-hero__ornament-bottom"></div>
+    <img src="images/ornaments/corner.png" class="bali-hero__corner-tl" alt="">
+    <img src="images/ornaments/corner.png" class="bali-hero__corner-tr" alt="">
+    <img src="images/ornaments/corner.png" class="bali-hero__corner-bl" alt="">
+    <img src="images/ornaments/corner.png" class="bali-hero__corner-br" alt="">
+
+    <div class="hero__content">
+      <p class="hero__label">Undangan Bali</p>
+      <h1 class="hero__title">
+        Rayakan Cinta Dalam
+        <span>Keanggunan Bali</span>
+      </h1>
+      <p class="hero__subtitle">
+        Buat undangan pernikahan digital eksklusif dengan nuansa tradisi Bali yang memukau.
+        Pilih template, upload foto, kustomisasi, dan bagikan kebahagiaan Anda.
+      </p>
+      <div class="hero__actions">
+        <a href="templates.html" class="btn btn--primary btn--lg">
+          ✨ Mulai Buat Undangan
+        </a>
+        <a href="#desain" class="btn btn--secondary btn--lg">
+          🎨 Lihat Template
+        </a>
+      </div>
+    </div>
+
+    <div class="hero__scroll-indicator">
+      <div class="mouse"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="section bali-pattern-bg bali-corners" id="fitur">
+    <div class="container text-center">
+      <span class="section-label reveal">Fitur Unggulan</span>
+      <h2 class="section-title reveal">Semua yang Anda Butuhkan</h2>
+      <p class="section-subtitle reveal">
+        Platform lengkap untuk membuat undangan pernikahan digital yang elegan dan mudah disebarkan.
+      </p>
+
+      <div class="bali-divider bali-divider--sm reveal">
+        <img src="images/ornaments/divider.png" alt="Balinese Ornament">
+      </div>
+
+      <div
+        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); margin-top: var(--space-12);"
+        class="reveal-stagger">
+        <div class="glass-card feature-card reveal">
+          <div class="feature-card__icon">🎨</div>
+          <h3 class="feature-card__title">Pilih Template</h3>
+          <p class="feature-card__desc">Koleksi template eksklusif bertemakan Bali — dari tradisional hingga modern
+            minimalis.</p>
+        </div>
+
+        <div class="glass-card feature-card reveal">
+          <div class="feature-card__icon">📸</div>
+          <h3 class="feature-card__title">Upload Foto</h3>
+          <p class="feature-card__desc">Tambahkan foto pasangan Anda langsung ke template undangan dengan mudah.</p>
+        </div>
+
+        <div class="glass-card feature-card reveal">
+          <div class="feature-card__icon">✏️</div>
+          <h3 class="feature-card__title">Kustomisasi</h3>
+          <p class="feature-card__desc">Edit nama, tanggal, lokasi, dan detail acara sesuai kebutuhan pernikahan Anda.
+          </p>
+        </div>
+
+        <div class="glass-card feature-card reveal">
+          <div class="feature-card__icon">🔗</div>
+          <h3 class="feature-card__title">Bagikan</h3>
+          <p class="feature-card__desc">Sebarkan undangan via WhatsApp, Instagram, atau link langsung ke tamu undangan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEMPLATE SHOWCASE ===== -->
+  <section class="section bali-border-top bali-border-bottom" id="desain" style="background: var(--bg-secondary);">
+    <div class="container text-center">
+      <span class="section-label reveal">Koleksi Template</span>
+      <h2 class="section-title reveal">Template Pilihan</h2>
+      <p class="section-subtitle reveal">
+        Desain eksklusif yang terinspirasi dari keindahan dan kekayaan budaya Bali.
+      </p>
+
+      <div class="bali-divider bali-divider--sm reveal">
+        <img src="images/ornaments/divider.png" alt="Balinese Ornament">
+      </div>
+
+      <div class="template-grid reveal-stagger" style="margin-top: var(--space-12);">
+        <!-- Template 1: Agung -->
+        <div class="template-card reveal shimmer-border">
+          <div class="template-card__image">
+            <img src="images/templates/agung.png" alt="Template Agung - Traditional Balinese">
+            <span class="template-card__badge">Populer</span>
+            <div class="template-card__overlay">
+              <a href="/editor/editor.html?template=agung" class="btn btn--primary">Pilih Template</a>
+            </div>
+          </div>
+          <div class="template-card__body">
+            <h3 class="template-card__name">Agung</h3>
+            <p class="template-card__desc">Candi Bentar emas dengan ornamen ukiran Bali tradisional.</p>
+            <div class="template-card__footer">
+              <span class="template-card__price">Rp 350.000</span>
+              <a href="/editor/editor.html?template=agung" class="btn btn--secondary btn--sm">Pilih</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template 2: Dewi -->
+        <div class="template-card reveal shimmer-border">
+          <div class="template-card__image">
+            <img src="images/templates/dewi.png" alt="Template Dewi - Modern Minimalist">
+            <div class="template-card__overlay">
+              <a href="/editor/editor.html?template=dewi" class="btn btn--primary">Pilih Template</a>
+            </div>
+          </div>
+          <div class="template-card__body">
+            <h3 class="template-card__name">Dewi</h3>
+            <p class="template-card__desc">Desain modern minimalis dengan sentuhan botanical emas.</p>
+            <div class="template-card__footer">
+              <span class="template-card__price">Rp 250.000</span>
+              <a href="/editor/editor.html?template=dewi" class="btn btn--secondary btn--sm">Pilih</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template 3: Surya -->
+        <div class="template-card reveal shimmer-border">
+          <div class="template-card__image">
+            <img src="images/templates/surya.png" alt="Template Surya - Royal Burgundy">
+            <span class="template-card__badge">Premium</span>
+            <div class="template-card__overlay">
+              <a href="/editor/editor.html?template=surya" class="btn btn--primary">Pilih Template</a>
+            </div>
+          </div>
+          <div class="template-card__body">
+            <h3 class="template-card__name">Surya</h3>
+            <p class="template-card__desc">Kemewahan burgundy & emas dengan ornamen Barong.</p>
+            <div class="template-card__footer">
+              <span class="template-card__price">Rp 450.000</span>
+              <a href="/editor/editor.html?template=surya" class="btn btn--secondary btn--sm">Pilih</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: var(--space-12);" class="reveal">
+        <a href="templates.html" class="btn btn--primary btn--lg">
+          Lihat Semua Template →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="section bali-corners" id="cara-kerja" style="position: relative; overflow: hidden;">
+    <!-- Bottom corner ornaments (added as img to avoid pseudo-element clash) -->
+    <img src="images/ornaments/corner.png" alt=""
+      style="position: absolute; bottom: 0; left: 0; width: 200px; height: 200px; opacity: 0.18; pointer-events: none; z-index: 0; transform: scaleY(-1);">
+    <img src="images/ornaments/corner.png" alt=""
+      style="position: absolute; bottom: 0; right: 0; width: 200px; height: 200px; opacity: 0.18; pointer-events: none; z-index: 0; transform: scale(-1, -1);">
+    <div class="container text-center">
+      <span class="section-label reveal">Langkah Mudah</span>
+      <h2 class="section-title reveal">Cara Kerja</h2>
+      <p class="section-subtitle reveal">
+        Buat undangan pernikahan digital dalam hitungan menit dengan 4 langkah sederhana.
+      </p>
+
+      <div class="bali-divider bali-divider--sm reveal">
+        <img src="images/ornaments/divider.png" alt="Balinese Ornament">
+      </div>
+
+      <div class="steps reveal" style="margin-top: var(--space-12);">
+        <div class="step">
+          <div class="step__number">1</div>
+          <h3 class="step__title">Pilih Template</h3>
+          <p class="step__desc">Jelajahi koleksi template bertemakan Bali dan pilih favorit Anda.</p>
+        </div>
+        <div class="step">
+          <div class="step__number">2</div>
+          <h3 class="step__title">Upload Foto</h3>
+          <p class="step__desc">Tambahkan foto pasangan Anda ke dalam template yang dipilih.</p>
+        </div>
+        <div class="step">
+          <div class="step__number">3</div>
+          <h3 class="step__title">Kustomisasi</h3>
+          <p class="step__desc">Isi nama, tanggal, lokasi, dan detail acara pernikahan.</p>
+        </div>
+        <div class="step">
+          <div class="step__number">4</div>
+          <h3 class="step__title">Bagikan</h3>
+          <p class="step__desc">Sebarkan undangan via WhatsApp, media sosial, atau QR code.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRICING ===== -->
+  <section class="section bali-pattern-bg" id="harga" style="background: var(--bg-secondary);">
+    <div class="container text-center">
+      <span class="section-label reveal">Paket Harga</span>
+      <h2 class="section-title reveal">Pilih Paket Anda</h2>
+      <p class="section-subtitle reveal">
+        Tersedia berbagai pilihan paket sesuai kebutuhan dan budget Anda.
+      </p>
+
+      <div class="bali-divider bali-divider--sm reveal">
+        <img src="images/ornaments/divider.png" alt="Balinese Ornament">
+      </div>
+
+      <div class="pricing-grid reveal" style="margin-top: var(--space-12);">
+        <!-- Free Tier -->
+        <div class="glass-card pricing-card">
+          <h3 class="pricing-card__name">Gratis</h3>
+          <p class="pricing-card__price"><span class="free" style="color: var(--success);">Rp 0</span></p>
+          <p class="pricing-card__desc">Coba buat undangan pertama Anda</p>
+          <ul class="pricing-card__features">
+            <li>1 Template dasar</li>
+            <li>Upload 1 foto</li>
+            <li>Kustomisasi teks</li>
+            <li>Bagikan via link</li>
+            <li class="disabled">Hapus watermark</li>
+            <li class="disabled">Template premium</li>
+            <li class="disabled">QR Code</li>
+            <li class="disabled">Custom domain</li>
+          </ul>
+          <a href="templates.html" class="btn btn--secondary" style="width: 100%;">Mulai Gratis</a>
+        </div>
+
+        <!-- Premium Tier -->
+        <div class="glass-card pricing-card pricing-card--featured gold-pulse">
+          <h3 class="pricing-card__name">Premium</h3>
+          <p class="pricing-card__price">Rp 299K</p>
+          <p class="pricing-card__desc">Paket terlengkap dan paling populer</p>
+          <ul class="pricing-card__features">
+            <li>Semua template premium</li>
+            <li>Upload foto unlimited</li>
+            <li>Kustomisasi penuh</li>
+            <li>Bagikan semua platform</li>
+            <li>Tanpa watermark</li>
+            <li>RSVP tracking</li>
+            <li>QR Code</li>
+            <li class="disabled">Custom domain</li>
+          </ul>
+          <a href="templates.html" class="btn btn--primary" style="width: 100%;">Pilih Premium</a>
+        </div>
+
+        <!-- Exclusive Tier -->
+        <div class="glass-card pricing-card">
+          <h3 class="pricing-card__name">Eksklusif</h3>
+          <p class="pricing-card__price">Rp 599K</p>
+          <p class="pricing-card__desc">Untuk pernikahan yang sempurna</p>
+          <ul class="pricing-card__features">
+            <li>Semua fitur Premium</li>
+            <li>Custom template design</li>
+            <li>Background music</li>
+            <li>Video undangan</li>
+            <li>Custom domain</li>
+            <li>Countdown timer</li>
+            <li>Gallery foto</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="templates.html" class="btn btn--burgundy" style="width: 100%;">Pilih Eksklusif</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="section bali-border-top bali-border-bottom" id="testimoni">
+    <div class="container text-center">
+      <span class="section-label reveal">Testimoni</span>
+      <h2 class="section-title reveal">Apa Kata Mereka</h2>
+      <p class="section-subtitle reveal">
+        Ribuan pasangan telah mempercayakan undangan pernikahan mereka kepada kami.
+      </p>
+
+      <div class="bali-divider bali-divider--sm reveal">
+        <img src="images/ornaments/divider.png" alt="Balinese Ornament">
+      </div>
+
+      <div class="testimonial-slider reveal" style="margin-top: var(--space-12);">
+        <div class="testimonial-track" id="testimonialTrack">
+          <!-- Testimonial 1 -->
+          <div class="testimonial-card glass-card">
+            <p class="testimonial-card__quote">
+              Undangan digitalnya sangat cantik dan elegan! Tamu-tamu kami terkagum dengan desain bernuansa Bali. Proses
+              pembuatannya juga sangat mudah.
+            </p>
+            <div class="testimonial-card__author">
+              <div class="testimonial-card__avatar">👫</div>
+              <div>
+                <p class="testimonial-card__name">Made & Komang</p>
+                <p class="testimonial-card__location">Denpasar, Bali</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="testimonial-card glass-card">
+            <p class="testimonial-card__quote">
+              Fitur upload foto langsung ke template sangat memudahkan. Hasil undangannya profesional dan mewah. Sangat
+              recommended!
+            </p>
+            <div class="testimonial-card__author">
+              <div class="testimonial-card__avatar">💑</div>
+              <div>
+                <p class="testimonial-card__name">Putu & Kadek</p>
+                <p class="testimonial-card__location">Ubud, Bali</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="testimonial-card glass-card">
+            <p class="testimonial-card__quote">
+              Kami memilih template Surya dan hasilnya luar biasa! Share via WhatsApp sangat praktis dan semua tamu
+              langsung bisa RSVP.
+            </p>
+            <div class="testimonial-card__author">
+              <div class="testimonial-card__avatar">👩‍❤️‍👨</div>
+              <div>
+                <p class="testimonial-card__name">Wayan & Luh</p>
+                <p class="testimonial-card__location">Gianyar, Bali</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-dots" id="testimonialDots">
+          <button class="active" data-slide="0"></button>
+          <button data-slide="1"></button>
+          <button data-slide="2"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA SECTION ===== -->
+  <section class="section text-center bali-corners"
+    style="background: linear-gradient(135deg, var(--surface-subtle), var(--bg-tertiary)); position: relative; overflow: hidden;">
+    <!-- Top border ornament (added as div to avoid pseudo-element clash with corners) -->
+    <div
+      style="position: absolute; top: 0; left: 0; right: 0; height: 120px; background-image: url('images/ornaments/border-top.png'); background-repeat: repeat-x; background-position: top center; background-size: auto 120px; opacity: 0.15; pointer-events: none; z-index: 0;">
+    </div>
+    <div class="container">
+      <h2 class="section-title reveal" style="font-size: var(--text-5xl);">
+        Siap Membuat Undangan Impian?
+      </h2>
+      <p class="section-subtitle reveal" style="margin-bottom: var(--space-10);">
+        Mulai buat undangan pernikahan digital bertemakan Bali sekarang juga. Gratis untuk dicoba!
+      </p>
+      <div class="reveal">
+        <a href="templates.html" class="btn btn--primary btn--lg">
+          ✨ Mulai Sekarang — Gratis
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer bali-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="navbar__logo" style="font-size: var(--text-4xl);">Undangan Bali</a>
+          <p class="footer__brand-desc">
+            Platform undangan pernikahan digital premium bertemakan kebudayaan Bali.
+            Wujudkan undangan impian Anda dengan sentuhan tradisi yang elegan.
+          </p>
+          <div class="footer__socials">
+            <a href="#" aria-label="Instagram">📷</a>
+            <a href="#" aria-label="WhatsApp">💬</a>
+            <a href="#" aria-label="Facebook">📘</a>
+            <a href="#" aria-label="YouTube">🎬</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Menu</h4>
+          <ul class="footer__links">
+            <li><a href="index.html">Beranda</a></li>
+            <li><a href="templates.html">Template</a></li>
+            <li><a href="#harga">Harga</a></li>
+            <li><a href="#cara-kerja">Cara Kerja</a></li>
+            <li><a href="#testimoni">Testimoni</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Layanan</h4>
+          <ul class="footer__links">
+            <li><a href="#">Undangan Digital</a></li>
+            <li><a href="#">Custom Design</a></li>
+            <li><a href="#">Video Undangan</a></li>
+            <li><a href="#">RSVP Online</a></li>
+            <li><a href="#">QR Code</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Kontak</h4>
+          <ul class="footer__links">
+            <li><a href="#">📍 Denpasar, Bali</a></li>
+            <li><a href="#">📞 +62 812-3456-7890</a></li>
+            <li><a href="#">✉️ hello@undanganbali.com</a></li>
+            <li><a href="#">🕐 09:00 - 21:00 WITA</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 Undangan Bali. All rights reserved.</p>
+        <p>
+          <a href="#" style="color: var(--accent-gold);">Privacy Policy</a> ·
+          <a href="#" style="color: var(--accent-gold);">Terms of Service</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+  <script src="js/main.js"></script>
+</body>
+
+</html>
