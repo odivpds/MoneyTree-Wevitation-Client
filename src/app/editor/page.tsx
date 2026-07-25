@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Suspense } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import AgungTemplate from "@/components/templates/AgungTemplate";
@@ -26,8 +25,7 @@ function EditorContent() {
   const [templatesData, setTemplatesData] = useState(TEMPLATES);
 
   useEffect(() => {
-    // Fetch from CMS
-    fetch('http://localhost:3001/api/templates')
+    fetch('/api/templates')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
@@ -227,6 +225,7 @@ function EditorContent() {
     try {
       localStorage.setItem('undanganBali_data', JSON.stringify(formData));
       localStorage.setItem('undanganBali_overrides', JSON.stringify(domOverrides));
+      localStorage.setItem('undanganBali_template', template);
       if (photo) {
         localStorage.setItem('undanganBali_photo', photo);
       } else {
@@ -494,8 +493,20 @@ function EditorContent() {
             )}
 
             <div className="editor__actions" style={{ marginTop: 'var(--space-8)' }}>
-              <Link href="/preview" className="btn btn--secondary btn--lg">👁️ Preview</Link>
-              <button className="btn btn--primary btn--lg" onClick={handleSave}>💾 Simpan & Bagikan</button>
+              <button className="btn btn--secondary btn--lg" onClick={() => {
+                try {
+                  localStorage.setItem('undanganBali_data', JSON.stringify(formData));
+                  localStorage.setItem('undanganBali_overrides', JSON.stringify(domOverrides));
+                  if (photo) {
+                    localStorage.setItem('undanganBali_photo', photo);
+                  } else {
+                    localStorage.removeItem('undanganBali_photo');
+                  }
+                  localStorage.setItem('undanganBali_template', template);
+                } catch (e) {}
+                router.push(`/preview?template=${template}`);
+              }}>👁️ PREVIEW</button>
+              <button className="btn btn--primary btn--lg" onClick={handleSave}>💾 SIMPAN & BAGIKAN</button>
             </div>
           </div>
         </div>

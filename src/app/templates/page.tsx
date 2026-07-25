@@ -43,8 +43,7 @@ export default function TemplatesPage() {
   }, []);
 
   useEffect(() => {
-    // Fetch from CMS
-    fetch('http://localhost:3001/api/templates')
+    fetch('/api/templates')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
