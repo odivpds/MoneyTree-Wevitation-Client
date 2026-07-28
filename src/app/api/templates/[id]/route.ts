@@ -5,6 +5,22 @@ import path from 'path';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: templateId } = await params;
+
+  try {
+    // Mencoba mengambil data detail template dari CMS
+    const res = await fetch(`http://localhost:3001/api/templates/${templateId}`, {
+      cache: 'no-store'
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data);
+    }
+  } catch (error) {
+    console.warn(`Gagal mengambil template ${templateId} dari CMS, menggunakan fallback lokal`, error);
+  }
+
+  // FALLBACK LOKAL: Jika CMS mati atau template tidak ditemukan di CMS
   const config = TEMPLATES.find(t => t.id === templateId);
 
   if (!config) {
