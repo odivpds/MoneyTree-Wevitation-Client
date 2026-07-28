@@ -18,8 +18,7 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
   const [debouncedData, setDebouncedData] = useState(data);
 
   useEffect(() => {
-    // Memuat dari CMS API
-    fetch(`http://localhost:3001/api/templates/${templateId}`)
+    fetch(`/api/templates/${templateId}`)
       .then((res) => {
         if (!res.ok) throw new Error('API Error');
         return res.json();
