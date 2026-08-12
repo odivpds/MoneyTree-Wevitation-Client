@@ -12,16 +12,38 @@ export default function RegisterPage() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !name) return;
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    // Simulate API call for Registration
-    // In this mock, we just immediately log them in
-    login(email);
-    
-    // Redirect to templates page after successful mock registration
-    router.push("/templates");
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !name || !password) return;
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal mendaftar");
+      }
+
+      // Success, automatically login
+      login(data.user);
+      
+      router.push("/templates");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

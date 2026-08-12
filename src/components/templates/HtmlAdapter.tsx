@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, forwardRef } from 'react';
 import { TemplateProps } from '@/types/template';
 
 interface HtmlAdapterProps extends TemplateProps {
@@ -6,7 +6,7 @@ interface HtmlAdapterProps extends TemplateProps {
   domOverrides?: Record<string, string>;
 }
 
-export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOverrides = {} }: HtmlAdapterProps) {
+const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function HtmlAdapter({ templateId, data, photo, timeLeft, domOverrides = {} }, ref) {
   const initialOverrides = useRef(domOverrides);
   const [htmlContent, setHtmlContent] = useState<string>('<div style="padding: 2rem; text-align: center;">Memuat template HTML...</div>');
   const [cssContent, setCssContent] = useState<string>('');
@@ -74,6 +74,8 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
     // Data Pengantin
     replaceTag('groomName', targetData.groomName);
     replaceTag('brideName', targetData.brideName);
+    replaceTag('groomParents', targetData.groomParents);
+    replaceTag('brideParents', targetData.brideParents);
     replaceTag('weddingDate', targetData.weddingDate);
     replaceTag('mainVenue', targetData.mainVenue);
     replaceTag('dressCode', targetData.dressCode);
@@ -89,7 +91,8 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
     replaceTag('minutes', targetTimeLeft.minutes);
     replaceTag('seconds', targetTimeLeft.seconds);
 
-    const photoUrl = photo || '/images/templates/agung.png'; 
+    // Jika tidak ada foto, gunakan pixel transparan agar background-color template (var(--c-brown)) bisa terlihat
+    const photoUrl = photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; 
     replaceTag('photoUrl', photoUrl);
 
     return injected;
@@ -257,6 +260,9 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
             const el = document.getElementById(msg.id);
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }
+          if (msg.type === 'UPDATE_ACCENT_COLOR' && msg.color) {
+            document.documentElement.style.setProperty('--accent-gold', msg.color);
+          }
         });
       })();
     `;
@@ -291,6 +297,7 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
     return (
       <div className="html-template-wrapper" style={{ width: '100%', height: '100%' }}>
         <iframe 
+          ref={ref}
           srcDoc={iframeSrcDoc} 
           style={{ width: '100%', height: '100%', border: 'none' }}
           sandbox="allow-scripts allow-same-origin"
@@ -313,4 +320,6 @@ export default function HtmlAdapter({ templateId, data, photo, timeLeft, domOver
       <div dangerouslySetInnerHTML={{ __html: injectedHtml }} />
     </div>
   );
-}
+});
+
+export default HtmlAdapter;

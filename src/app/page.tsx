@@ -5,9 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { TemplateConfig } from "@/config/templates";
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [templatesData, setTemplatesData] = useState<TemplateConfig[]>([]);
   const totalSlides = 3;
   const router = useRouter();
   const { isLoggedIn } = useAuth();
@@ -38,8 +40,19 @@ export default function Home() {
     }, observerOptions);
 
     revealElements.forEach(el => observer.observe(el));
-    
+
     return () => observer.disconnect();
+  }, [templatesData]);
+
+  useEffect(() => {
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setTemplatesData(data);
+        }
+      })
+      .catch(err => console.error('Gagal mengambil template', err));
   }, []);
 
   useEffect(() => {
@@ -113,10 +126,6 @@ export default function Home() {
             Platform lengkap untuk membuat undangan pernikahan digital yang elegan dan mudah disebarkan.
           </p>
 
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-6)', marginTop: 'var(--space-12)' }} className="reveal-stagger">
             <div className="glass-card feature-card reveal">
               <div className="feature-card__icon">🎨</div>
@@ -151,63 +160,32 @@ export default function Home() {
             Desain eksklusif yang terinspirasi dari keindahan dan kekayaan budaya Bali.
           </p>
 
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
-
           <div className="template-grid reveal-stagger" style={{ marginTop: 'var(--space-12)' }}>
-            <div className="template-card reveal shimmer-border">
-              <div className="template-card__image">
-                <img src="/images/templates/agung.png" alt="Template Agung" />
-                <span className="template-card__badge">Populer</span>
-                <div className="template-card__overlay">
-                  <Link href="/editor?template=agung" className="btn btn--primary">Pilih Template</Link>
+            {templatesData.slice(0, 3).map((tpl) => (
+              <div key={tpl.id} className="template-card reveal shimmer-border">
+                <div className="template-card__image">
+                  <img src={tpl.image} alt={`Template ${tpl.name}`} loading="lazy" />
+                  {tpl.badge && <span className="template-card__badge" style={tpl.badge === 'Gratis' ? { background: 'linear-gradient(135deg, #2ecc71, #27ae60)' } : {}}>{tpl.badge}</span>}
+                  <div className="template-card__overlay">
+                    <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--primary">Pilih Template</button>
+                  </div>
+                </div>
+                <div className="template-card__body">
+                  <h3 className="template-card__name">{tpl.name}</h3>
+                  <p className="template-card__desc">{tpl.desc}</p>
+                  <div className="template-card__footer">
+                    <span className="template-card__price">
+                      {tpl.price === 'Gratis' ? <span className="free" style={{ color: 'var(--success)' }}>Gratis</span> : tpl.price}
+                    </span>
+                    <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--secondary btn--sm">Pilih</button>
+                  </div>
                 </div>
               </div>
-              <div className="template-card__body">
-                <h3 className="template-card__name">Agung</h3>
-                <p className="template-card__desc">Candi Bentar emas dengan ornamen ukiran Bali tradisional.</p>
-                <div className="template-card__footer">
-                  <span className="template-card__price">Rp 350.000</span>
-                  <Link href="/editor?template=agung" className="btn btn--secondary btn--sm">Pilih</Link>
-                </div>
-              </div>
-            </div>
+            ))}
 
-            <div className="template-card reveal shimmer-border">
-              <div className="template-card__image">
-                <img src="/images/templates/dewi.png" alt="Template Dewi" />
-                <div className="template-card__overlay">
-                  <Link href="/editor?template=dewi" className="btn btn--primary">Pilih Template</Link>
-                </div>
-              </div>
-              <div className="template-card__body">
-                <h3 className="template-card__name">Dewi</h3>
-                <p className="template-card__desc">Desain modern minimalis dengan sentuhan botanical emas.</p>
-                <div className="template-card__footer">
-                  <span className="template-card__price">Rp 250.000</span>
-                  <Link href="/editor?template=dewi" className="btn btn--secondary btn--sm">Pilih</Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="template-card reveal shimmer-border">
-              <div className="template-card__image">
-                <img src="/images/templates/surya.png" alt="Template Surya" />
-                <span className="template-card__badge">Premium</span>
-                <div className="template-card__overlay">
-                  <Link href="/editor?template=surya" className="btn btn--primary">Pilih Template</Link>
-                </div>
-              </div>
-              <div className="template-card__body">
-                <h3 className="template-card__name">Surya</h3>
-                <p className="template-card__desc">Kemewahan burgundy & emas dengan ornamen Barong.</p>
-                <div className="template-card__footer">
-                  <span className="template-card__price">Rp 450.000</span>
-                  <Link href="/editor?template=surya" className="btn btn--secondary btn--sm">Pilih</Link>
-                </div>
-              </div>
-            </div>
+            {templatesData.length === 0 && (
+              <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem' }}>Memuat template desain eksklusif...</p>
+            )}
           </div>
 
           <div style={{ marginTop: 'var(--space-12)' }} className="reveal">
@@ -222,17 +200,13 @@ export default function Home() {
       <section className="section bali-corners" id="cara-kerja" style={{ position: 'relative', overflow: 'hidden' }}>
         <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: 0, left: 0, width: '200px', height: '200px', opacity: 0.18, pointerEvents: 'none', zIndex: 0, transform: 'scaleY(-1)' }} />
         <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: 0, right: 0, width: '200px', height: '200px', opacity: 0.18, pointerEvents: 'none', zIndex: 0, transform: 'scale(-1, -1)' }} />
-        
+
         <div className="container text-center">
           <span className="section-label reveal">Langkah Mudah</span>
           <h2 className="section-title reveal">Cara Kerja</h2>
           <p className="section-subtitle reveal">
             Buat undangan pernikahan digital dalam hitungan menit dengan 4 langkah sederhana.
           </p>
-
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
 
           <div className="steps reveal" style={{ marginTop: 'var(--space-12)' }}>
             <div className="step">
@@ -267,10 +241,6 @@ export default function Home() {
           <p className="section-subtitle reveal">
             Tersedia berbagai pilihan paket sesuai kebutuhan dan budget Anda.
           </p>
-
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
 
           <div className="pricing-grid reveal" style={{ marginTop: 'var(--space-12)' }}>
             <div className="glass-card pricing-card">
@@ -336,10 +306,6 @@ export default function Home() {
             Ribuan pasangan telah mempercayakan undangan pernikahan mereka kepada kami.
           </p>
 
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
-
           <div className="testimonial-slider reveal" style={{ marginTop: 'var(--space-12)' }}>
             <div className="testimonial-track" style={{ transform: `translateX(-${currentSlide * 100}%)`, transition: 'transform 0.5s ease-in-out' }}>
               <div className="testimonial-card glass-card">
@@ -382,9 +348,9 @@ export default function Home() {
 
             <div className="testimonial-dots">
               {[0, 1, 2].map((i) => (
-                <button 
-                  key={i} 
-                  className={currentSlide === i ? 'active' : ''} 
+                <button
+                  key={i}
+                  className={currentSlide === i ? 'active' : ''}
                   onClick={() => setCurrentSlide(i)}
                   aria-label={`Go to slide ${i + 1}`}
                 />

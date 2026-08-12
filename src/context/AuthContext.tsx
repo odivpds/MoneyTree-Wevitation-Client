@@ -5,13 +5,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 type User = {
   name: string;
   email: string;
+  sessionToken?: string;
 };
 
 type AuthContextType = {
   isLoggedIn: boolean;
   user: User | null;
-  login: (email: string) => void;
+  login: (userData: User) => void;
   logout: () => void;
+  isInitialized: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,23 +33,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsInitialized(true);
   }, []);
 
-  const login = (email: string) => {
-    const newUser = { name: email.split("@")[0], email };
+  const login = (userData: User) => {
     setIsLoggedIn(true);
-    setUser(newUser);
-    localStorage.setItem("undanganBali_auth", JSON.stringify(newUser));
+    setUser(userData);
+    localStorage.setItem("undanganBali_auth", JSON.stringify(userData));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (user?.sessionToken) {
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionToken: user.sessionToken }),
+        });
+      } catch (err) {
+        console.error("Failed to delete session", err);
+      }
+    }
+    
     setIsLoggedIn(false);
     setUser(null);
     localStorage.removeItem("undanganBali_auth");
   };
 
-  if (!isInitialized) return null; // Wait for localStorage check
+  // Removed if (!isInitialized) return null; to fix hydration mismatch
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, isInitialized }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,11 +14,13 @@ export default function TemplatesPage() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  const handleProtectedNavigation = (url: string) => {
+  const handleSelectTemplate = (templateId: string) => {
+    const targetUrl = `/setup?template=${templateId}`;
+
     if (!isLoggedIn) {
-      router.push(`/login?next=${encodeURIComponent(url)}`);
+      router.push(`/login?next=${encodeURIComponent(targetUrl)}`);
     } else {
-      router.push(url);
+      router.push(targetUrl);
     }
   };
 
@@ -40,7 +42,7 @@ export default function TemplatesPage() {
 
     revealElements.forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, []);
+  }, [templatesData]);
 
   useEffect(() => {
     fetch('/api/templates')
@@ -50,7 +52,10 @@ export default function TemplatesPage() {
           setTemplatesData(data);
         }
       })
-      .catch(err => console.error('Failed to load templates from CMS, using local config:', err));
+      .catch(err => {
+        // Log as warning and stringify to prevent Next.js Error Overlay
+        console.warn('Gagal memuat template dari CMS, menggunakan config lokal:', err.message || err);
+      });
   }, []);
 
   const filteredTemplates = useMemo(() => {
@@ -59,7 +64,7 @@ export default function TemplatesPage() {
       const matchSearch = !searchQuery || tpl.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCategory && matchSearch;
     });
-  }, [activeFilter, searchQuery]);
+  }, [activeFilter, searchQuery, templatesData]);
 
   return (
     <>
@@ -73,17 +78,13 @@ export default function TemplatesPage() {
             Setiap desain terinspirasi dari keindahan dan kekayaan budaya Pulau Dewata.
           </p>
 
-          <div className="bali-divider bali-divider--sm reveal">
-            <img src="/images/ornaments/divider.png" alt="Balinese Ornament" />
-          </div>
-
           {/* Search Bar */}
           <div className="search-bar reveal" style={{ marginTop: 'var(--space-8)' }}>
             <span className="search-bar__icon">🔍</span>
-            <input 
-              type="text" 
-              className="search-bar__input" 
-              placeholder="Cari template... (contoh: tradisional, modern, minimalis)" 
+            <input
+              type="text"
+              className="search-bar__input"
+              placeholder="Cari template... (contoh: tradisional, modern, minimalis)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -114,7 +115,7 @@ export default function TemplatesPage() {
                     </span>
                   )}
                   <div className="template-card__overlay">
-                    <button onClick={() => handleProtectedNavigation(`/editor?template=${tpl.id}`)} className="btn btn--primary">Pilih Template Ini</button>
+                    <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--primary">Pilih Template Ini</button>
                   </div>
                 </div>
                 <div className="template-card__body">
@@ -124,7 +125,7 @@ export default function TemplatesPage() {
                     <span className="template-card__price">
                       {tpl.price === 'Gratis' ? <span className="free" style={{ color: 'var(--success)' }}>Gratis</span> : tpl.price}
                     </span>
-                    <button onClick={() => handleProtectedNavigation(`/editor?template=${tpl.id}`)} className="btn btn--secondary btn--sm">Pilih →</button>
+                    <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--secondary btn--sm">Pilih →</button>
                   </div>
                 </div>
               </div>
@@ -137,9 +138,9 @@ export default function TemplatesPage() {
               <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</p>
               <h3 style={{ marginBottom: 'var(--space-2)' }}>Template Tidak Ditemukan</h3>
               <p className="text-muted">Coba kata kunci lain atau reset filter Anda.</p>
-              <button 
-                className="btn btn--secondary" 
-                style={{ marginTop: 'var(--space-6)' }} 
+              <button
+                className="btn btn--secondary"
+                style={{ marginTop: 'var(--space-6)' }}
                 onClick={() => { setActiveFilter('semua'); setSearchQuery(''); }}
               >
                 Reset Filter

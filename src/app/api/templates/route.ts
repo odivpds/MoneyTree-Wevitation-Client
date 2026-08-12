@@ -4,7 +4,7 @@ import { TEMPLATES } from '@/config/templates';
 export async function GET() {
   try {
     // Mencoba mengambil data dari CMS
-    const res = await fetch('http://localhost:3001/api/templates', {
+    const res = await fetch('http://127.0.0.1:3001/api/templates', {
       cache: 'no-store' // Agar selalu mendapat data terbaru
     });
 

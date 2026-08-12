@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Mencoba mengambil data detail template dari CMS
-    const res = await fetch(`http://localhost:3001/api/templates/${templateId}`, {
+    const res = await fetch(`http://127.0.0.1:3001/api/templates/${templateId}`, {
       cache: 'no-store'
     });
 
