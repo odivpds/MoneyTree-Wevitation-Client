@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AgungTemplate from "@/components/templates/AgungTemplate";
 import HtmlAdapter from "@/components/templates/HtmlAdapter";
 import { TEMPLATES } from "@/config/templates";
 
@@ -16,6 +15,8 @@ function PreviewContent() {
   const [formData, setFormData] = useState({
     groomName: "Nama Pria",
     brideName: "Nama Wanita",
+    groomParents: "",
+    brideParents: "",
     weddingDate: "",
     mainVenue: "Lokasi Acara",
     dressCode: "",
@@ -29,7 +30,7 @@ function PreviewContent() {
     greeting: "Om Swastyastu"
   });
   const [photo, setPhoto] = useState<string | null>(null);
-  const [domOverrides, setDomOverrides] = useState<Record<string, string>>({});
+  const [domOverrides, setDomOverrides] = useState<Record<string, any>>({});
   const [timeLeft, setTimeLeft] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--' });
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const [rsvpData, setRsvpData] = useState({ name: '', count: '1', status: 'hadir', message: '' });
@@ -48,7 +49,7 @@ function PreviewContent() {
 
       const savedOverrides = localStorage.getItem('undanganBali_overrides');
       if (savedOverrides) setDomOverrides(JSON.parse(savedOverrides));
-    } catch (e) {}
+    } catch (e) { }
   }, [templateFromUrl]);
 
   // Load templates from API
@@ -60,7 +61,7 @@ function PreviewContent() {
           setTemplatesData(data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Apply accent color
@@ -132,13 +133,47 @@ function PreviewContent() {
           </button>
         </div>
 
-        {/* INVITATION CONTENT */}
-        <div style={{ maxWidth: '600px', margin: '100px auto 40px auto', background: 'var(--bg-primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-2)', boxShadow: 'var(--shadow-xl)' }}>
-          <div className="invitation-preview" style={{ transform: 'none', position: 'relative' }}>
+        {/* INVITATION CONTENT - Mobile Phone Mockup Style */}
+        <div style={{
+          width: '390px', // Exact width for internal canvas
+          height: '844px', // Exact height for internal canvas
+          margin: '80px auto -80px auto', // Negative bottom margin to compensate for scaling
+          transform: 'scale(0.85)', // Scale down visually without affecting internal resolution
+          transformOrigin: 'top center',
+          background: '#000000',
+          borderRadius: '44px',
+          padding: '0',
+          boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.5)',
+          overflow: 'hidden',
+          border: '14px solid #1a1a1a', // Phone bezel
+          position: 'relative'
+        }}>
+          {/* iPhone Dynamic Island */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '120px',
+            height: '35px',
+            background: '#000000',
+            borderRadius: '20px',
+            zIndex: 999,
+            pointerEvents: 'none'
+          }} />
+
+          {/* iPhone Side Buttons (Power & Volume) */}
+          <div style={{ position: 'absolute', top: '120px', right: '-14px', width: '3px', height: '60px', background: '#1a1a1a', borderTopRightRadius: '3px', borderBottomRightRadius: '3px' }} />
+          <div style={{ position: 'absolute', top: '100px', left: '-14px', width: '3px', height: '30px', background: '#1a1a1a', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
+          <div style={{ position: 'absolute', top: '150px', left: '-14px', width: '3px', height: '60px', background: '#1a1a1a', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
+
+          <div className="invitation-preview" style={{ transform: 'none', position: 'relative', height: '100%' }}>
 
             {/* Render using the correct template system */}
             {isHtmlTemplate ? (
-              <HtmlAdapter templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} />
+              <div style={{ width: '100%', height: '100%' }}>
+                <HtmlAdapter templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} />
+              </div>
             ) : (
               <>
                 <div className="invitation-preview__header">
@@ -212,6 +247,21 @@ function PreviewContent() {
               </>
             )}
           </div>
+
+          {/* iPhone Home Indicator */}
+          <div style={{
+            position: 'absolute',
+            bottom: '8px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '135px',
+            height: '5px',
+            background: 'rgba(255, 255, 255, 0.7)',
+            mixBlendMode: 'difference',
+            borderRadius: '100px',
+            zIndex: 999,
+            pointerEvents: 'none'
+          }} />
         </div>
 
         {/* RSVP MODAL */}

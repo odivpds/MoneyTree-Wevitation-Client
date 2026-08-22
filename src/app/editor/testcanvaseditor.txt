@@ -1,0 +1,640 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from 'react';
+import { useAuth } from "@/context/AuthContext";
+import AgungTemplate from "@/components/templates/AgungTemplate";
+import HtmlAdapter from "@/components/templates/HtmlAdapter";
+import { TEMPLATES } from "@/config/templates";
+
+const SIDEBAR_SECTIONS = [
+  { id: 'cover', name: 'Cover', icon: '🏠' },
+  { id: 'info', name: 'Info Mempelai', icon: '👤' },
+  { id: 'photo', name: 'Foto', icon: '📸' },
+  { id: 'event', name: 'Acara', icon: '📍' },
+  { id: 'countdown', name: 'Countdown', icon: '⏰' },
+  { id: 'rsvp', name: 'RSVP', icon: '💌' },
+  { id: 'wishes', name: 'Ucapan', icon: '💬' },
+  { id: 'footer', name: 'Footer', icon: '🔻' },
+];
+
+function EditorContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const template = searchParams.get('template') || 'agung';
+  const { isLoggedIn } = useAuth();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push(`/login?next=${encodeURIComponent('/editor?template=' + template)}`);
+    }
+  }, [isLoggedIn, router, template]);
+
+  const [activeTab, setActiveTab] = useState("info");
+  const [sidebarMode, setSidebarMode] = useState<'sections' | 'layers'>('sections');
+  const [activeSidebarItem, setActiveSidebarItem] = useState('cover');
+  const [showToast, setShowToast] = useState({ show: false, message: "", type: "success" });
+  const [templatesData, setTemplatesData] = useState(TEMPLATES);
+
+  useEffect(() => {
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTemplatesData(data);
+        }
+      })
+      .catch(err => {
+        console.warn('Gagal memuat template dari CMS, menggunakan config lokal:', err.message || err);
+      });
+  }, []);
+
+  const [formData, setFormData] = useState({
+    groomName: "",
+    brideName: "",
+    weddingDate: "",
+    mainVenue: "",
+    dressCode: "",
+    akadTime: "",
+    akadVenue: "",
+    resepsiTime: "",
+    resepsiVenue: "",
+    mapLink: "",
+    accentColor: "#d4a574",
+    fontFamily: "'Great Vibes', cursive",
+    greeting: "Om Swastyastu"
+  });
+
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--' });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // States for WYSIWYG Editor
+  const [domOverrides, setDomOverrides] = useState<Record<string, string>>({});
+  const [selectedElement, setSelectedElement] = useState<{ selector: string; content: string; tagName: string } | null>(null);
+  const [detectedSections, setDetectedSections] = useState<{ id: string; name: string }[]>([]);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('undanganBali_data');
+      if (savedData) {
+        setFormData(prev => ({ ...prev, ...JSON.parse(savedData) }));
+      }
+      const savedPhoto = localStorage.getItem('undanganBali_photo');
+      if (savedPhoto) {
+        setPhoto(savedPhoto);
+      }
+      const savedOverrides = localStorage.getItem('undanganBali_overrides');
+      if (savedOverrides) {
+        setDomOverrides(JSON.parse(savedOverrides));
+      }
+    } catch (e) { }
+  }, []);
+
+  // Timer logic
+  useEffect(() => {
+    if (!formData.weddingDate) return;
+
+    const targetDate = new Date(formData.weddingDate).getTime();
+
+    const tick = () => {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
+
+      if (diff <= 0 || isNaN(diff)) {
+        setTimeLeft({ days: '0', hours: '0', minutes: '0', seconds: '0' });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({
+        days: days.toString(),
+        hours: hours.toString(),
+        minutes: minutes.toString(),
+        seconds: seconds.toString()
+      });
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [formData.weddingDate]);
+
+  // Apply accent color to root
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent-gold', formData.accentColor);
+  }, [formData.accentColor]);
+
+  // Visual Builder Message Listener
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg.type === 'ELEMENT_CLICKED') {
+        setSelectedElement({ selector: msg.selector, content: msg.content, tagName: msg.tagName });
+        setActiveTab('visual');
+      }
+      if (msg.type === 'SECTIONS_DETECTED') {
+        setDetectedSections(msg.sections);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleVisualEdit = (content: string) => {
+    if (!selectedElement) return;
+
+    setDomOverrides(prev => ({
+      ...prev,
+      [selectedElement.selector]: content
+    }));
+
+    setSelectedElement(prev => prev ? { ...prev, content } : null);
+
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'UPDATE_ELEMENT',
+        selector: selectedElement.selector,
+        content: content
+      }, '*');
+    }
+  };
+
+  const scrollToSection = (id: string) => {
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'SCROLL_TO_SECTION',
+        id: id
+      }, '*');
+    }
+  };
+
+  const handleVisualImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleVisualEdit(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const displayToast = (message: string, type = "success") => {
+    setShowToast({ show: true, message, type });
+    setTimeout(() => setShowToast({ show: false, message: "", type: "success" }), 3000);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      displayToast('Ukuran file terlalu besar! Maksimal 5MB.', 'error');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      displayToast('Format file tidak didukung! Gunakan JPG, PNG, atau WebP.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setPhoto(e.target.result as string);
+        displayToast('Foto berhasil diupload! 📸', 'success');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhoto(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    displayToast('Foto berhasil dihapus', 'success');
+  };
+
+  const handleSave = () => {
+    if (!formData.groomName || !formData.brideName) {
+      displayToast('Harap isi nama mempelai pria dan wanita! ⚠️', 'error');
+      return;
+    }
+
+    try {
+      localStorage.setItem('undanganBali_data', JSON.stringify(formData));
+      localStorage.setItem('undanganBali_overrides', JSON.stringify(domOverrides));
+      localStorage.setItem('undanganBali_template', template);
+      if (photo) {
+        localStorage.setItem('undanganBali_photo', photo);
+      } else {
+        localStorage.removeItem('undanganBali_photo');
+      }
+
+      displayToast('Undangan berhasil disimpan! 🎉', 'success');
+
+      setTimeout(() => {
+        router.push('/preview');
+      }, 1500);
+    } catch (e) {
+      displayToast('Gagal menyimpan. Coba lagi.', 'error');
+    }
+  };
+
+  const handlePreview = () => {
+    try {
+      localStorage.setItem('undanganBali_data', JSON.stringify(formData));
+      localStorage.setItem('undanganBali_overrides', JSON.stringify(domOverrides));
+      if (photo) {
+        localStorage.setItem('undanganBali_photo', photo);
+      } else {
+        localStorage.removeItem('undanganBali_photo');
+      }
+      localStorage.setItem('undanganBali_template', template);
+    } catch (e) { }
+    router.push(`/preview?template=${template}`);
+  };
+
+  const handleSidebarClick = (sectionId: string) => {
+    setActiveSidebarItem(sectionId);
+    scrollToSection(sectionId);
+  };
+
+  const tabs = [
+    { id: 'info', label: 'Info' },
+    { id: 'foto', label: 'Foto' },
+    { id: 'acara', label: 'Acara' },
+    { id: 'desain', label: 'Desain' },
+    { id: 'visual', label: 'Visual' },
+  ];
+
+  return (
+    <div className="studio">
+      {/* ===== TOP TOOLBAR ===== */}
+      <div className="studio__toolbar">
+        <div className="studio__toolbar-left">
+          <div className="studio__toolbar-logo">W</div>
+          <div>
+            <div className="studio__toolbar-title" style={{ textTransform: 'capitalize' }}>{template}</div>
+            <div className="studio__toolbar-subtitle">Wedding Invitation</div>
+          </div>
+        </div>
+
+        <div className="studio__toolbar-center">
+          <button className="studio__toolbar-btn" title="Undo">↩</button>
+          <button className="studio__toolbar-btn" title="Redo">↪</button>
+          <div className="studio__toolbar-divider" />
+          <button className="studio__toolbar-zoom">100%</button>
+          <div className="studio__toolbar-divider" />
+          <button className="studio__toolbar-btn" title="Back">←</button>
+          <button className="studio__toolbar-btn" title="Forward">→</button>
+        </div>
+
+        <div className="studio__toolbar-right">
+          <button className="studio__toolbar-action" onClick={handlePreview}>
+            👁️ Preview
+          </button>
+          <button className="studio__toolbar-action studio__toolbar-action--primary" onClick={handleSave}>
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* ===== LEFT SIDEBAR ===== */}
+      <div className="studio__sidebar">
+        <div className="studio__sidebar-header">
+          <div className="studio__sidebar-toggle">
+            <button
+              className={`studio__sidebar-toggle-btn ${sidebarMode === 'sections' ? 'active' : ''}`}
+              onClick={() => setSidebarMode('sections')}
+            >
+              Sections
+            </button>
+            <button
+              className={`studio__sidebar-toggle-btn ${sidebarMode === 'layers' ? 'active' : ''}`}
+              onClick={() => setSidebarMode('layers')}
+            >
+              Layers
+            </button>
+          </div>
+        </div>
+
+        <div className="studio__sidebar-list">
+          {sidebarMode === 'sections' ? (
+            SIDEBAR_SECTIONS.map(section => (
+              <button
+                key={section.id}
+                className={`studio__sidebar-item ${activeSidebarItem === section.id ? 'active' : ''}`}
+                onClick={() => handleSidebarClick(section.id)}
+              >
+                <span className="studio__sidebar-item-icon">{section.icon}</span>
+                {section.name}
+              </button>
+            ))
+          ) : (
+            detectedSections.length > 0 ? (
+              detectedSections.map(sec => (
+                <button
+                  key={sec.id}
+                  className={`studio__sidebar-item ${activeSidebarItem === sec.id ? 'active' : ''}`}
+                  onClick={() => { setActiveSidebarItem(sec.id); scrollToSection(sec.id); }}
+                >
+                  <span className="studio__sidebar-item-icon">◇</span>
+                  {sec.name}
+                </button>
+              ))
+            ) : (
+              <div style={{ padding: '20px 10px', textAlign: 'center', color: '#bbb', fontSize: '12px' }}>
+                <p>Gunakan template HTML untuk mendeteksi layer secara otomatis.</p>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* ===== CENTER CANVAS ===== */}
+      <div className="studio__canvas">
+        <div className="studio__canvas-inner">
+          {(() => {
+            const config = templatesData.find(t => t.id === template || (t as any).slug === template);
+
+            if (config?.type === 'html' || config?.type === 'html-js') {
+              return <HtmlAdapter templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} />;
+            }
+
+            if (template === 'agung' || !template) {
+              return <AgungTemplate data={formData} photo={photo} timeLeft={timeLeft} />;
+            }
+
+            return (
+              <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <p>Template <strong>{template}</strong> belum tersedia.</p>
+                <p style={{ fontSize: '0.8rem', color: 'gray' }}>Silakan buat komponennya di `src/components/templates/`</p>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
+      {/* ===== RIGHT PANEL ===== */}
+      <div className="studio__panel">
+        <div className="studio__panel-tabs">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              className={`studio__panel-tab ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="studio__panel-body">
+          {/* TAB: INFO */}
+          {activeTab === 'info' && (
+            <>
+              <div className="studio__section">
+                <div className="studio__section-title">Mempelai</div>
+                <div className="form-group">
+                  <label className="form-group__label">Nama Mempelai Pria</label>
+                  <input type="text" name="groomName" className="form-group__input" placeholder="Contoh: I Putu Agus Rama" value={formData.groomName} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-group__label">Nama Mempelai Wanita</label>
+                  <input type="text" name="brideName" className="form-group__input" placeholder="Contoh: Ni Kadek Dewi Sari" value={formData.brideName} onChange={handleInputChange} />
+                </div>
+              </div>
+              <div className="studio__section">
+                <div className="studio__section-title">Detail</div>
+                <div className="form-group">
+                  <label className="form-group__label">Tanggal Pernikahan</label>
+                  <input type="date" name="weddingDate" className="form-group__input" value={formData.weddingDate} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-group__label">Lokasi Utama</label>
+                  <input type="text" name="mainVenue" className="form-group__input" placeholder="Contoh: Puri Saren, Ubud, Bali" value={formData.mainVenue} onChange={handleInputChange} />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* TAB: FOTO */}
+          {activeTab === 'foto' && (
+            <div className="studio__section">
+              <div className="studio__section-title">Foto Pasangan</div>
+              <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
+                <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
+                {!photo ? (
+                  <div>
+                    <p className="upload-area__icon">📸</p>
+                    <p className="upload-area__text"><span>Klik untuk upload</span></p>
+                    <p style={{ fontSize: '11px', color: '#bbb', marginTop: '8px' }}>JPG, PNG, WebP · Maks. 5MB</p>
+                  </div>
+                ) : (
+                  <div className="upload-area__preview active">
+                    <img src={photo} alt="Preview" />
+                    <button className="remove-btn" onClick={removePhoto}>✕</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: ACARA */}
+          {activeTab === 'acara' && (
+            <>
+              <div className="studio__section">
+                <div className="studio__section-title">Akad / Pawiwahan</div>
+                <div className="form-group">
+                  <label className="form-group__label">Waktu Akad</label>
+                  <input type="text" name="akadTime" className="form-group__input" placeholder="09:00 WITA - Selesai" value={formData.akadTime} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-group__label">Tempat Akad</label>
+                  <input type="text" name="akadVenue" className="form-group__input" placeholder="Pura Keluarga, Br. Taman" value={formData.akadVenue} onChange={handleInputChange} />
+                </div>
+              </div>
+              <div className="studio__section">
+                <div className="studio__section-title">Resepsi</div>
+                <div className="form-group">
+                  <label className="form-group__label">Waktu Resepsi</label>
+                  <input type="text" name="resepsiTime" className="form-group__input" placeholder="18:00 WITA - Selesai" value={formData.resepsiTime} onChange={handleInputChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-group__label">Tempat Resepsi</label>
+                  <input type="text" name="resepsiVenue" className="form-group__input" placeholder="The Royal Pita Maha, Ubud" value={formData.resepsiVenue} onChange={handleInputChange} />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* TAB: DESAIN */}
+          {activeTab === 'desain' && (
+            <>
+              <div className="studio__section">
+                <div className="studio__section-title">Warna Aksen</div>
+                <div className="studio__color-grid">
+                  {['#d4a574', '#e8c87a', '#8b1a2b', '#2ecc71', '#c0a0e0'].map(color => (
+                    <button
+                      key={color}
+                      className={`studio__color-swatch ${formData.accentColor === color ? 'active' : ''}`}
+                      onClick={() => setFormData(prev => ({ ...prev, accentColor: color }))}
+                      style={{ background: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="studio__section">
+                <div className="studio__section-title">Font Nama</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[
+                    { label: "Great Vibes", value: "'Great Vibes', cursive", size: "18px" },
+                    { label: "Playfair Display", value: "'Playfair Display', serif", size: "16px" },
+                    { label: "Inter Light", value: "'Inter', sans-serif", size: "15px" }
+                  ].map(font => (
+                    <button
+                      key={font.value}
+                      className={`studio__font-btn ${formData.fontFamily === font.value ? 'active' : ''}`}
+                      onClick={() => setFormData(prev => ({ ...prev, fontFamily: font.value }))}
+                      style={{ fontFamily: font.value, fontSize: font.size }}
+                    >
+                      {font.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="studio__section">
+                <div className="studio__section-title">Salam Pembuka</div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <select className="form-group__input" name="greeting" value={formData.greeting} onChange={handleInputChange} style={{ cursor: 'pointer' }}>
+                    <option value="Om Swastyastu">Om Swastyastu (Hindu Bali)</option>
+                    <option value="Bismillahirrahmanirrahim">Bismillahirrahmanirrahim</option>
+                    <option value="Assalamualaikum">Assalamualaikum Wr. Wb.</option>
+                    <option value="Dengan Hormat">Dengan Hormat</option>
+                    <option value="Our Journey Begins">Our Journey Begins</option>
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* TAB: VISUAL EDIT */}
+          {activeTab === 'visual' && (
+            <>
+              <div className="studio__visual-info">
+                <h4>Mode Visual Builder</h4>
+                <p>Klik elemen apa saja di preview untuk mengedit langsung.</p>
+              </div>
+
+              {selectedElement ? (
+                <div className="studio__section">
+                  <div className="studio__section-title" style={{}}>
+                    Edit Elemen
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '8px', marginTop: '-8px' }}>
+                    <code style={{ fontSize: '10px', background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>{selectedElement.tagName}</code>
+                  </p>
+
+                  {selectedElement.tagName === 'IMG' ? (
+                    <div className="upload-area" style={{ position: 'relative' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleVisualImageUpload}
+                        style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', left: 0, top: 0 }}
+                      />
+                      <div style={{ padding: '12px', textAlign: 'center' }}>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '12px' }}>📸 Ganti Gambar</p>
+                        <img src={selectedElement.content} alt="Selected" style={{ maxWidth: '100%', maxHeight: '100px', borderRadius: '8px' }} />
+                      </div>
+                    </div>
+                  ) : (
+                    <textarea
+                      className="form-group__input"
+                      style={{ minHeight: '80px', resize: 'vertical', fontSize: '13px' }}
+                      value={selectedElement.content}
+                      onChange={(e) => handleVisualEdit(e.target.value)}
+                      placeholder="Ketik teks di sini..."
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="studio__visual-empty">
+                  <span>🖱️</span>
+                  <p>Belum ada elemen yang dipilih</p>
+                </div>
+              )}
+
+              {detectedSections.length > 0 && (
+                <div className="studio__section" style={{ marginTop: '16px' }}>
+                  <div className="studio__section-title">Struktur Halaman</div>
+                  <div className="studio__section-jump">
+                    {detectedSections.map(sec => (
+                      <button
+                        key={sec.id}
+                        className="studio__section-jump-btn"
+                        onClick={() => scrollToSection(sec.id)}
+                      >
+                        📍 {sec.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Panel Bottom Actions */}
+        <div className="studio__panel-actions">
+          <button className="btn btn--secondary" onClick={handlePreview}>👁️ Preview</button>
+          <button className="btn btn--primary" onClick={handleSave}>💾 Simpan</button>
+        </div>
+      </div>
+
+      {/* ===== BOTTOM BAR ===== */}
+      <div className="studio__bottombar">
+        <div className="studio__bottombar-left">
+          <span>⌨️ Ctrl+S untuk simpan</span>
+          <span>|</span>
+          <span>Template: <strong style={{ color: '#555', textTransform: 'capitalize' }}>{template}</strong></span>
+        </div>
+        <div className="studio__bottombar-right">
+          <button className="studio__bottombar-action" onClick={handlePreview}>Preview</button>
+          <button className="studio__bottombar-action studio__bottombar-action--save" onClick={handleSave}>💾 Simpan & Bagikan</button>
+        </div>
+      </div>
+
+      {/* Toast */}
+      {showToast.show && (
+        <div className={`toast toast--${showToast.type} show`} style={{ position: 'fixed', bottom: '60px', left: '50%', transform: 'translateX(-50%)', zIndex: 200 }}>
+          <span>{showToast.message}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function EditorPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#999' }}>Loading editor...</div>}>
+      <EditorContent />
+    </Suspense>
+  );
+}

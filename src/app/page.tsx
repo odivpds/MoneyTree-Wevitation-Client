@@ -6,6 +6,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { TemplateConfig } from "@/config/templates";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import { faPalette } from "@fortawesome/free-solid-svg-icons";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faShare } from "@fortawesome/free-solid-svg-icons";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -103,10 +110,10 @@ export default function Home() {
           </p>
           <div className="hero__actions">
             <button onClick={() => handleProtectedNavigation('/templates')} className="btn btn--primary btn--lg">
-              ✨ Mulai Buat Undangan
+              <FontAwesomeIcon icon={faStar} /> Mulai Buat Undangan
             </button>
             <Link href="#desain" className="btn btn--secondary btn--lg">
-              🎨 Lihat Template
+              <FontAwesomeIcon icon={faPalette} /> Lihat Template
             </Link>
           </div>
         </div>
@@ -128,22 +135,24 @@ export default function Home() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-6)', marginTop: 'var(--space-12)' }} className="reveal-stagger">
             <div className="glass-card feature-card reveal">
-              <div className="feature-card__icon">🎨</div>
+              <div className="feature-card__icon"><FontAwesomeIcon icon={faPalette} /></div>
               <h3 className="feature-card__title">Pilih Template</h3>
               <p className="feature-card__desc">Koleksi template eksklusif bertemakan Bali — dari tradisional hingga modern minimalis.</p>
             </div>
             <div className="glass-card feature-card reveal">
-              <div className="feature-card__icon">📸</div>
+              <div className="feature-card__icon">
+                <FontAwesomeIcon icon={faCamera} />
+              </div>
               <h3 className="feature-card__title">Upload Foto</h3>
               <p className="feature-card__desc">Tambahkan foto pasangan Anda langsung ke template undangan dengan mudah.</p>
             </div>
             <div className="glass-card feature-card reveal">
-              <div className="feature-card__icon">✏️</div>
+              <div className="feature-card__icon"><FontAwesomeIcon icon={faPencil} /></div>
               <h3 className="feature-card__title">Kustomisasi</h3>
               <p className="feature-card__desc">Edit nama, tanggal, lokasi, dan detail acara sesuai kebutuhan pernikahan Anda.</p>
             </div>
             <div className="glass-card feature-card reveal">
-              <div className="feature-card__icon">🔗</div>
+              <div className="feature-card__icon"><FontAwesomeIcon icon={faShare} /></div>
               <h3 className="feature-card__title">Bagikan</h3>
               <p className="feature-card__desc">Sebarkan undangan via WhatsApp, Instagram, atau link langsung ke tamu undangan.</p>
             </div>
@@ -167,7 +176,7 @@ export default function Home() {
                   <img src={tpl.image} alt={`Template ${tpl.name}`} loading="lazy" />
                   {tpl.badge && <span className="template-card__badge" style={tpl.badge === 'Gratis' ? { background: 'linear-gradient(135deg, #2ecc71, #27ae60)' } : {}}>{tpl.badge}</span>}
                   <div className="template-card__overlay">
-                    <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--primary">Pilih Template</button>
+                    {/* <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--primary">Pilih Template</button> */}
                   </div>
                 </div>
                 <div className="template-card__body">
@@ -188,11 +197,19 @@ export default function Home() {
             )}
           </div>
 
-          <div style={{ marginTop: 'var(--space-12)' }} className="reveal">
+          <div
+            style={{
+              marginTop: 'var(--space-12)',
+              position: 'relative',
+              zIndex: 20
+            }}
+            className="reveal"
+          >
             <Link href="/templates" className="btn btn--primary btn--lg">
               Lihat Semua Template →
             </Link>
           </div>
+
         </div>
       </section>
 
@@ -372,7 +389,7 @@ export default function Home() {
           </p>
           <div className="reveal">
             <Link href="/templates" className="btn btn--primary btn--lg">
-              ✨ Mulai Sekarang — Gratis
+              <FontAwesomeIcon icon={faStar} /> Mulai Sekarang Gratis
             </Link>
           </div>
         </div>

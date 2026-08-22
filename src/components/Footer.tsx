@@ -11,12 +11,12 @@ export default function Footer() {
               Platform undangan pernikahan digital premium bertemakan kebudayaan Bali.
               Wujudkan undangan impian Anda dengan sentuhan tradisi yang elegan.
             </p>
-            <div className="footer__socials">
+            {/* <div className="footer__socials">
               <Link href="#" aria-label="Instagram">📷</Link>
               <Link href="#" aria-label="WhatsApp">💬</Link>
               <Link href="#" aria-label="Facebook">📘</Link>
               <Link href="#" aria-label="YouTube">🎬</Link>
-            </div>
+            </div> */}
           </div>
 
           <div>

@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
-// import AgungTemplate from "@/components/templates/AgungTemplate";
 import HtmlAdapter from "@/components/templates/HtmlAdapter";
 import { TEMPLATES, TemplateConfig } from "@/config/templates";
-import { uploadToR2 } from "@/utils/r2Upload";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
 
 // UX-H — Color palette with descriptive visible labels
 const ACCENT_COLORS = [
@@ -48,6 +48,7 @@ function EditorContent() {
 
   const [activeTab, setActiveTab] = useState("info");
   const [showToast, setShowToast] = useState({ show: false, message: "", type: "success" });
+  const [showSavedMsg, setShowSavedMsg] = useState(false);
   const [templatesData, setTemplatesData] = useState<TemplateConfig[]>(TEMPLATES);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -94,9 +95,10 @@ function EditorContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // States for WYSIWYG Editor
-  const [domOverrides, setDomOverrides] = useState<Record<string, string>>({});
-  const [selectedElement, setSelectedElement] = useState<{ selector: string; content: string; tagName: string } | null>(null);
+  const [domOverrides, setDomOverrides] = useState<Record<string, any>>({});
+  const [selectedElement, setSelectedElement] = useState<{ selector: string; content: string; tagName: string; fontFamily?: string; fontSize?: string; linkHref?: string } | null>(null);
   const [detectedSections, setDetectedSections] = useState<{ id: string; name: string }[]>([]);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
   // Separate try/catch for each localStorage read
   useEffect(() => {
@@ -198,7 +200,7 @@ function EditorContent() {
 
       const msg = event.data;
       if (msg.type === 'ELEMENT_CLICKED') {
-        setSelectedElement({ selector: msg.selector, content: msg.content, tagName: msg.tagName });
+        setSelectedElement({ selector: msg.selector, content: msg.content, tagName: msg.tagName, fontFamily: msg.fontFamily || '', fontSize: msg.fontSize || '', linkHref: msg.linkHref || '' });
         setActiveTab('visual');
       }
       if (msg.type === 'SECTIONS_DETECTED') {
@@ -209,32 +211,74 @@ function EditorContent() {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  const handleVisualEdit = (content: string) => {
+  const handleVisualElementChange = (updates: { content?: string; fontFamily?: string; fontSize?: string; linkHref?: string }) => {
     if (!selectedElement) return;
 
-    setDomOverrides(prev => ({
-      ...prev,
-      [selectedElement.selector]: content
-    }));
+    setDomOverrides(prev => {
+      const existing = prev[selectedElement.selector];
+      let newOverride = typeof existing === 'string' ? { content: existing } : { ...existing };
 
-    setSelectedElement(prev => prev ? { ...prev, content } : null);
+      if (updates.content !== undefined) newOverride.content = updates.content;
+      if (updates.fontFamily !== undefined) newOverride.fontFamily = updates.fontFamily;
+      if (updates.fontSize !== undefined) newOverride.fontSize = updates.fontSize;
+      if (updates.linkHref !== undefined) newOverride.linkHref = updates.linkHref;
+
+      return {
+        ...prev,
+        [selectedElement.selector]: newOverride
+      };
+    });
+
+    setSelectedElement(prev => prev ? {
+      ...prev,
+      content: updates.content !== undefined ? updates.content : prev.content,
+      fontFamily: updates.fontFamily !== undefined ? updates.fontFamily : prev.fontFamily,
+      fontSize: updates.fontSize !== undefined ? updates.fontSize : prev.fontSize,
+      linkHref: updates.linkHref !== undefined ? updates.linkHref : prev.linkHref
+    } : null);
     setIsDirty(true);
 
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
         type: 'UPDATE_ELEMENT',
         selector: selectedElement.selector,
-        content: content
+        ...updates
       }, window.location.origin);
     }
   };
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, index?: number) => {
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
         type: 'SCROLL_TO_SECTION',
         id: id
       }, window.location.origin);
+    }
+    if (typeof index === 'number') {
+      setCurrentSectionIndex(index);
+    } else {
+      const idx = detectedSections.findIndex(s => s.id === id);
+      if (idx !== -1) setCurrentSectionIndex(idx);
+    }
+  };
+
+  const handlePrevSection = () => {
+    if (currentSectionIndex > 0) {
+      const newIndex = currentSectionIndex - 1;
+      scrollToSection(detectedSections[newIndex].id, newIndex);
+    }
+  };
+
+  const handleNextSection = () => {
+    if (currentSectionIndex < detectedSections.length - 1) {
+      const newIndex = currentSectionIndex + 1;
+      scrollToSection(detectedSections[newIndex].id, newIndex);
+    }
+  };
+  
+  const forceOpenInvitation = () => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'FORCE_OPEN' }, window.location.origin);
     }
   };
 
@@ -249,17 +293,10 @@ function EditorContent() {
         setIsUploading(true);
         displayToast('Sedang memproses & mengunggah gambar...', 'success');
 
-        const compressedBase64 = await compressImage(file);
+        const base64Data = await fileToBase64(file);
 
-        // Upload to R2
-        const publicUrl = await uploadToR2(compressedBase64, file.name.replace(/\.[^/.]+$/, "") + ".webp");
-
-        if (!publicUrl) {
-          throw new Error('Upload to R2 failed');
-        }
-
-        handleVisualEdit(publicUrl);
-        displayToast('Foto berhasil diunggah! ✨', 'success');
+        handleVisualElementChange({ content: base64Data });
+        displayToast('Foto berhasil ditambahkan! ✨', 'success');
       } catch (err) {
         console.error('Error uploading visual edit image:', err);
         displayToast('Gagal memproses & mengunggah foto.', 'error');
@@ -284,43 +321,13 @@ function EditorContent() {
     }
   };
 
-  // Utility for client-side image compression to prevent LocalStorage QuotaExceededError
-  const compressImage = (file: File): Promise<string> => {
+  // Convert file to Base64 without compression
+  const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; // Max width to ensure small base64 size
-          const MAX_HEIGHT = 800;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          // Compress to webp (or jpeg fallback on older browsers), 70% quality
-          const dataUrl = canvas.toDataURL('image/webp', 0.7);
-          resolve(dataUrl);
-        };
-        img.onerror = (error) => reject(error);
+        resolve(event.target?.result as string);
       };
       reader.onerror = (error) => reject(error);
     });
@@ -353,18 +360,11 @@ function EditorContent() {
       setIsUploading(true);
       displayToast('Sedang memproses & mengunggah gambar...', 'success');
 
-      const compressedBase64 = await compressImage(file);
+      const base64Data = await fileToBase64(file);
 
-      // Upload to R2 directly via Presigned URL
-      const publicUrl = await uploadToR2(compressedBase64, file.name.replace(/\.[^/.]+$/, "") + ".webp");
-
-      if (!publicUrl) {
-        throw new Error('Upload to R2 failed');
-      }
-
-      setPhoto(publicUrl);
+      setPhoto(base64Data);
       setIsDirty(true);
-      displayToast('Foto berhasil diunggah! ✨', 'success');
+      displayToast('Foto berhasil ditambahkan! ✨', 'success');
     } catch (err) {
       console.error('Error uploading image:', err);
       displayToast('Gagal memproses & mengunggah foto.', 'error');
@@ -403,13 +403,17 @@ function EditorContent() {
     }
 
     try {
-      const compressedBase64 = await compressImage(file);
-      setPhoto(compressedBase64);
+      setIsUploading(true);
+      displayToast('Sedang memproses & mengunggah gambar...', 'success');
+      const base64Data = await fileToBase64(file);
+      setPhoto(base64Data);
       setIsDirty(true);
-      displayToast('Foto berhasil diupload & dikompresi! 📸', 'success');
+      displayToast('Foto berhasil ditambahkan! 📸', 'success');
     } catch (err) {
-      console.error('Error compressing image on drop:', err);
+      console.error('Error uploading image on drop:', err);
       displayToast('Gagal memproses foto.', 'error');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -439,6 +443,21 @@ function EditorContent() {
       return false;
     }
   }, [formData, domOverrides, template, photo, displayToast]);
+
+  // Fitur Auto-Save (Debounce 1.5 detik)
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const timer = setTimeout(() => {
+      const success = saveToLocalStorage();
+      if (success) {
+        setShowSavedMsg(true);
+        setTimeout(() => setShowSavedMsg(false), 3000); // Hilang otomatis setelah 3 detik
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [isDirty, saveToLocalStorage]);
 
   // UX-F — Validate with per-field errors
   const validateForm = useCallback((): boolean => {
@@ -524,8 +543,8 @@ function EditorContent() {
   }
 
   return (
-    <>
-      <div className="editor container bali-pattern-bg" id="editorLayout" style={{ paddingTop: '30px', paddingBottom: '150px' }}>
+    <div className="bali-pattern-bg" style={{ minHeight: "100vh", width: "100%", paddingTop: "100px" }}>
+      <div className="editor container" id="editorLayout" style={{ paddingTop: "20px", paddingBottom: "140px" }}>
 
         <button
           className="editor__preview-toggle"
@@ -557,7 +576,89 @@ function EditorContent() {
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Template ini sedang dalam pengembangan. Silakan pilih template lain.</p>
                 </div>
               );
-            })()}
+            })()}\n
+            {activeTab === 'visual' && detectedSections.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                zIndex: 1000,
+                background: 'rgba(255, 255, 255, 0.95)',
+                padding: '10px 20px',
+                borderRadius: '30px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(200,200,200,0.5)'
+              }}>
+                <button 
+                  onClick={handlePrevSection} 
+                  disabled={currentSectionIndex === 0} 
+                  style={{ 
+                    border: 'none', 
+                    background: 'transparent', 
+                    cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer', 
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: currentSectionIndex === 0 ? 'transparent' : 'rgba(0,0,0,0.05)'
+                  }} 
+                  title="Previous Section"
+                >
+                  <i className="fa-solid fa-chevron-left" style={{ color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)' }}></i>
+                </button>
+                
+                <button 
+                  onClick={forceOpenInvitation} 
+                  style={{ 
+                    border: 'none', 
+                    background: 'var(--accent-gold, #cda75f)', 
+                    color: 'white',
+                    cursor: 'pointer', 
+                    fontSize: '14px', 
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 10px rgba(205, 167, 95, 0.4)'
+                  }} 
+                  title="Buka Undangan"
+                >
+                  <i className="fa-solid fa-envelope-open-text"></i>
+                  Buka
+                </button>
+
+                <button 
+                  onClick={handleNextSection} 
+                  disabled={currentSectionIndex === detectedSections.length - 1} 
+                  style={{ 
+                    border: 'none', 
+                    background: 'transparent', 
+                    cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer', 
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: currentSectionIndex === detectedSections.length - 1 ? 'transparent' : 'rgba(0,0,0,0.05)'
+                  }} 
+                  title="Next Section"
+                >
+                  <i className="fa-solid fa-chevron-right" style={{ color: currentSectionIndex === detectedSections.length - 1 ? '#ccc' : 'var(--accent-gold, #cda75f)' }}></i>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -569,19 +670,21 @@ function EditorContent() {
               ← Pilih Template Lain
             </Link>
 
-            <h2 className="editor__panel-title">✏️ Edit Undangan</h2>
+            <h2 className="editor__panel-title"><FontAwesomeIcon icon={faPencil} /> Edit Undangan</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: '-20px', marginBottom: 'var(--space-6)' }}>
               Template: <strong style={{ color: 'var(--accent-gold)', textTransform: 'capitalize' }}>{template}</strong>
-              {isDirty && <span style={{ marginLeft: '8px', color: 'var(--error)', fontSize: 'var(--text-xs)' }}>● belum disimpan</span>}
+              {isDirty ? (
+                <span style={{ marginLeft: '8px', color: 'var(--error)', fontSize: 'var(--text-xs)' }}>● belum disimpan</span>
+              ) : showSavedMsg ? (
+                <span style={{ marginLeft: '8px', color: '#10b981', fontSize: 'var(--text-xs)' }}>✓ tersimpan otomatis</span>
+              ) : null}
             </p>
 
             {/* Tab navigation */}
             <div className="editor__tabs" role="tablist" aria-label="Panel editor" style={{ flexWrap: 'wrap', gap: '8px' }}>
               {[
-                { id: 'info', label: '👤 Info' },
-                { id: 'foto', label: '📸 Foto' },
-                { id: 'acara', label: '📍 Acara' },
-                { id: 'desain', label: '🎨 Desain' },
+                { id: 'info', label: 'Info' },
+                { id: 'acara', label: 'Acara' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -607,7 +710,7 @@ function EditorContent() {
                 }}
                 onClick={() => setActiveTab('visual')}
               >
-                ✨ Visual Edit
+                Visual Edit
               </button>
             </div>
 
@@ -643,40 +746,6 @@ function EditorContent() {
               </div>
             )}
 
-            {/* TAB: FOTO */}
-            {activeTab === 'foto' && (
-              <div className="editor__tab-content" role="tabpanel" id="tabpanel-foto" aria-labelledby="tab-foto">
-                <div className="form-group">
-                  <label className="form-group__label">Foto Pasangan</label>
-                  <div
-                    className={`upload-area${isDragOver ? ' dragover' : ''}`}
-                    onClick={() => fileInputRef.current?.click()}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    tabIndex={0}
-                    role="button"
-                    aria-label="Upload foto pasangan"
-                  >
-                    <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
-                    {!photo ? (
-                      <div>
-                        <p className="upload-area__icon">📸</p>
-                        <p className="upload-area__text"><span>Klik atau seret foto ke sini</span></p>
-                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>Format: JPG, PNG, WebP · Maks. 5MB (Otomatis dikompres)</p>
-                      </div>
-                    ) : (
-                      <div className="upload-area__preview active">
-                        <img src={photo} alt="Preview" />
-                        <button className="remove-btn" onClick={removePhoto}>✕</button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* TAB: ACARA */}
             {activeTab === 'acara' && (
               <div className="editor__tab-content" role="tabpanel" id="tabpanel-acara" aria-labelledby="tab-acara">
@@ -693,8 +762,7 @@ function EditorContent() {
                   <label className="form-group__label">Tempat Akad</label>
                   <input type="text" name="akadVenue" className="form-group__input" placeholder="Contoh: Pura Keluarga, Br. Taman" value={formData.akadVenue} onChange={handleInputChange} />
                 </div>
-                <div className="bali-divider bali-divider--sm" style={{ margin: 'var(--space-4) 0' }}><img src="/images/ornaments/divider.png" alt="" /></div>
-
+                {/* <div className="bali-divider bali-divider--sm" style={{ margin: 'var(--space-4) 0' }}><img src="/images/ornaments/divider.png" alt="" /></div> */}
                 <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Resepsi</p>
                 <div className="form-group">
                   <label className="form-group__label">Tanggal Resepsi</label>
@@ -711,62 +779,7 @@ function EditorContent() {
               </div>
             )}
 
-            {/* TAB: DESAIN — UX-H swatch labels, UX-B toast on change */}
-            {activeTab === 'desain' && (
-              <div className="editor__tab-content" role="tabpanel" id="tabpanel-desain" aria-labelledby="tab-desain">
-                <div className="form-group">
-                  <label className="form-group__label">Warna Aksen</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
-                    {ACCENT_COLORS.map(color => (
-                      <button
-                        key={color.value}
-                        className={`color-swatch${formData.accentColor === color.value ? ' color-swatch--selected' : ''}`}
-                        aria-label={`Warna aksen: ${color.label}`}
-                        onClick={() => handleAccentColorChange(color)}
-                      >
-                        <div className="color-swatch__circle" style={{ background: color.value }} />
-                        <span className="color-swatch__label">{color.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group" style={{ marginTop: 'var(--space-6)' }}>
-                  <label className="form-group__label">Gaya Font Nama</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    {[
-                      { label: "Great Vibes — Contoh Nama", value: "'Great Vibes', cursive", size: "var(--text-xl)" },
-                      { label: "Playfair Display — Contoh Nama", value: "'Playfair Display', serif", size: "var(--text-lg)" },
-                      { label: "Inter Light — Contoh Nama", value: "'Inter', sans-serif", size: "var(--text-lg)" }
-                    ].map(font => (
-                      <button
-                        key={font.value}
-                        onClick={() => handleFontChange(font.value, font.label)}
-                        style={{
-                          padding: 'var(--space-3) var(--space-4)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                          fontFamily: font.value, fontSize: font.size,
-                          border: formData.fontFamily === font.value ? '1px solid var(--accent-gold)' : '1px solid var(--border-color)',
-                          color: formData.fontFamily === font.value ? 'var(--accent-gold)' : 'var(--text-primary)'
-                        }}
-                      >
-                        {font.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group" style={{ marginTop: 'var(--space-6)' }}>
-                  <label className="form-group__label">Greeting / Salam Pembuka</label>
-                  <select className="form-group__input" name="greeting" value={formData.greeting} onChange={handleInputChange} style={{ cursor: 'pointer' }}>
-                    <option value="Om Swastyastu">Om Swastyastu (Hindu Bali)</option>
-                    <option value="Bismillahirrahmanirrahim">Bismillahirrahmanirrahim</option>
-                    <option value="Assalamualaikum">Assalamualaikum Wr. Wb.</option>
-                    <option value="Dengan Hormat">Dengan Hormat</option>
-                    <option value="Our Journey Begins">Our Journey Begins</option>
-                  </select>
-                </div>
-              </div>
-            )}
+            {/* TAB: DESAIN DIHAPUS (Font dipindah ke Visual Edit) */}
 
             {/* TAB: VISUAL EDIT */}
             {activeTab === 'visual' && (
@@ -777,7 +790,7 @@ function EditorContent() {
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>Visual Edit Belum Tersedia</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
                       Fitur Visual Edit saat ini hanya tersedia untuk template bertipe HTML-JS.
-                      Gunakan tab <strong>Info</strong>, <strong>Foto</strong>, <strong>Acara</strong>, dan <strong>Desain</strong> untuk mengedit undangan Anda.
+                      Gunakan tab <strong>Info</strong>, <strong>Acara</strong>, dan <strong>Font</strong> untuk mengedit undangan Anda.
                     </p>
                   </div>
                 ) : (
@@ -797,27 +810,107 @@ function EditorContent() {
                         </label>
 
                         {selectedElement.tagName === 'IMG' ? (
-                          <div className="upload-area">
+                          <div className="visual-upload-area">
                             <input
                               type="file"
                               accept="image/*"
                               onChange={handleVisualImageUpload}
                               disabled={isUploading}
-                              style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', left: 0, top: 0 }}
                             />
-                            <div style={{ padding: '1rem', textAlign: 'center' }}>
-                              <p style={{ margin: '0 0 10px 0' }}>📸 Ganti Gambar</p>
-                              <img src={selectedElement.content} alt="Selected" style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '8px' }} />
-                            </div>
+
+                            {selectedElement.content ? (
+                              <div className="visual-upload-image-preview">
+                                <img 
+                                  src={selectedElement.content.startsWith('url') 
+                                    ? selectedElement.content.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '') 
+                                    : selectedElement.content} 
+                                  alt="Selected" 
+                                />
+                                <div className="visual-upload-overlay">
+                                  <span className="visual-upload-badge">Ganti Foto</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ padding: '1.5rem', background: 'var(--bg-elevated)', borderRadius: '50%', width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', boxShadow: 'var(--shadow-sm)' }}>
+                                <span style={{ fontSize: '1.5rem' }}>📸</span>
+                              </div>
+                            )}
+
+                            <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>Upload Gambar Baru</h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Klik atau seret gambar ke area ini.</p>
                           </div>
                         ) : (
-                          <textarea
-                            className="form-group__input"
-                            style={{ minHeight: '100px', resize: 'vertical' }}
-                            value={selectedElement.content}
-                            onChange={(e) => handleVisualEdit(e.target.value)}
-                            placeholder="Ketik teks di sini..."
-                          />
+                          <>
+                            <textarea
+                              className="form-group__input"
+                              style={{ minHeight: '100px', resize: 'vertical' }}
+                              value={selectedElement.content}
+                              onChange={(e) => handleVisualElementChange({ content: e.target.value })}
+                              placeholder="Ketik teks di sini..."
+                            />
+                            {selectedElement.tagName === 'A' && (
+                              <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
+                                <label className="form-group__label">Link URL (Tujuan)</label>
+                                <input
+                                  type="text"
+                                  className="form-group__input"
+                                  value={selectedElement.linkHref || ''}
+                                  onChange={(e) => handleVisualElementChange({ linkHref: e.target.value })}
+                                  placeholder="Contoh: https://wa.me/6281234..."
+                                />
+                              </div>
+                            )}
+
+                            <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
+                              <label className="form-group__label">Ganti Font</label>
+                              <select
+                                className="form-group__input"
+                                value={selectedElement.fontFamily || ''}
+                                onChange={(e) => handleVisualElementChange({ fontFamily: e.target.value })}
+                                style={{ cursor: 'pointer', fontFamily: selectedElement.fontFamily }}
+                              >
+                                <option value="">Gaya Font Default</option>
+                                <option value="'Great Vibes', cursive" style={{ fontFamily: "'Great Vibes', cursive" }}>Great Vibes</option>
+                                <option value="'Playfair Display', serif" style={{ fontFamily: "'Playfair Display', serif" }}>Playfair Display</option>
+                                <option value="'Inter', sans-serif" style={{ fontFamily: "'Inter', sans-serif" }}>Inter</option>
+                                <option value="'Montserrat', sans-serif" style={{ fontFamily: "'Montserrat', sans-serif" }}>Montserrat</option>
+                                <option value="'Cinzel', serif">Cinzel (Elegan)</option>
+                                <option value="'Outfit', sans-serif">Outfit (Modern)</option>
+                              </select>
+                            </div>
+
+                            <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
+                              <label className="form-group__label">Ukuran Font</label>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)', width: 'fit-content' }}>
+                                <button
+                                  className="btn"
+                                  style={{ padding: '4px 12px', minWidth: '36px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: 'none', borderRadius: '4px' }}
+                                  onClick={() => {
+                                    const currentSize = parseFloat(selectedElement.fontSize || '16');
+                                    handleVisualElementChange({ fontSize: `${Math.max(8, currentSize - 1)}px` });
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  value={parseFloat(selectedElement.fontSize || '16')}
+                                  onChange={(e) => handleVisualElementChange({ fontSize: `${e.target.value}px` })}
+                                  style={{ width: '50px', textAlign: 'center', border: 'none', background: 'transparent', fontWeight: 600, outline: 'none' }}
+                                />
+                                <button
+                                  className="btn"
+                                  style={{ padding: '4px 12px', minWidth: '36px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: 'none', borderRadius: '4px' }}
+                                  onClick={() => {
+                                    const currentSize = parseFloat(selectedElement.fontSize || '16');
+                                    handleVisualElementChange({ fontSize: `${currentSize + 1}px` });
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
                     ) : (
@@ -833,21 +926,23 @@ function EditorContent() {
                         <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem' }}>Struktur Halaman</h4>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Klik untuk melompat ke bagian:</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                          {detectedSections.map(sec => (
+                          {detectedSections.map((sec, idx) => (
                             <button
                               key={sec.id}
-                              onClick={() => scrollToSection(sec.id)}
+                              onClick={() => scrollToSection(sec.id, idx)}
                               style={{
                                 padding: '8px 12px',
                                 textAlign: 'left',
-                                background: 'var(--bg-elevated)',
+                                background: currentSectionIndex === idx ? 'var(--accent-gold, #cda75f)' : 'var(--bg-elevated)',
+                                color: currentSectionIndex === idx ? 'white' : 'var(--text-primary)',
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '6px',
                                 cursor: 'pointer',
-                                fontSize: '0.85rem'
+                                fontSize: '0.85rem',
+                                transition: 'all 0.2s'
                               }}
                             >
-                              📍 {sec.name}
+                              {sec.name}
                             </button>
                           ))}
                         </div>
@@ -858,23 +953,39 @@ function EditorContent() {
               </div>
             )}
 
-            {/* UX-D — Disable buttons during save; UX-K+L — Consistent labels */}
-            <div className="editor__actions" style={{ marginTop: 'var(--space-8)' }}>
+            {/* Premium Sticky Action Footer */}
+            <div className="editor__actions">
               <button
-                className={`btn btn--secondary btn--lg${isSaving || isUploading ? ' btn--saving' : ''}`}
+                className={`btn btn--secondary btn--lg ${isSaving || isUploading ? 'disabled' : ''}`}
                 onClick={handlePreview}
                 disabled={isSaving || isUploading}
-                title="Simpan data sementara dan lihat tampilan undangan sebelum membagikan"
+                title="Lihat Tampilan Penuh"
+                style={{
+                  borderRadius: '12px',
+                  borderWidth: '2px',
+                  fontWeight: 600,
+                  fontSize: '0.9rem'
+                }}
               >
-                {isSaving ? 'Menyimpan...' : '👁️ LIHAT PREVIEW'}
+                Preview
               </button>
+
               <button
-                className={`btn btn-primary ${isSaving || isUploading ? 'loading' : ''}`}
+                className={`btn btn--primary btn--lg ${isSaving || isUploading ? 'loading' : ''}`}
                 onClick={handleSave}
                 disabled={isSaving || isUploading}
-                title="Simpan data dan lanjutkan ke halaman preview untuk membagikan"
+                title="Simpan & Bagikan Undangan"
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent-gold-light) 0%, var(--accent-gold-dark) 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  boxShadow: '0 8px 20px rgba(182, 157, 116, 0.4)'
+                }}
               >
-                {isSaving ? 'Menyimpan...' : (isUploading ? 'Mengunggah Foto...' : '💾 SIMPAN & LANJUTKAN')}
+                {isSaving ? 'Menyimpan...' : (isUploading ? 'Upload Foto...' : ' SIMPAN & BAGIKAN')}
               </button>
             </div>
           </div>
@@ -886,7 +997,7 @@ function EditorContent() {
           <span>{showToast.message}</span>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -897,3 +1008,6 @@ export default function EditorPage() {
     </Suspense>
   );
 }
+
+
+

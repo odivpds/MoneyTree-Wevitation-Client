@@ -1,6 +1,8 @@
 export interface InvitationData {
   groomName: string;
   brideName: string;
+  groomParents: string;
+  brideParents: string;
   weddingDate: string; // ISO String or YYYY-MM-DD
   mainVenue: string;
   dressCode: string;

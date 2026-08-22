@@ -3,7 +3,7 @@ import { TemplateProps } from '@/types/template';
 
 interface HtmlAdapterProps extends TemplateProps {
   templateId: string;
-  domOverrides?: Record<string, string>;
+  domOverrides?: Record<string, any>;
 }
 
 const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function HtmlAdapter({ templateId, data, photo, timeLeft, domOverrides = {} }, ref) {
@@ -80,7 +80,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     replaceTag('mainVenue', targetData.mainVenue);
     replaceTag('dressCode', targetData.dressCode);
     replaceTag('greeting', targetData.greeting);
-    
+
     // Waktu
     replaceTag('akadTime', targetData.akadTime);
     replaceTag('akadVenue', targetData.akadVenue);
@@ -92,7 +92,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     replaceTag('seconds', targetTimeLeft.seconds);
 
     // Jika tidak ada foto, gunakan pixel transparan agar background-color template (var(--c-brown)) bisa terlihat
-    const photoUrl = photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; 
+    const photoUrl = photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     replaceTag('photoUrl', photoUrl);
 
     return injected;
@@ -108,7 +108,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
 
     const injectedHtml = getInjectedContent(debouncedData, timeLeft, htmlContent);
     const injectedJs = getInjectedContent(debouncedData, timeLeft, jsContent);
-    
+
     const builderScript = `
       (function() {
         const style = document.createElement('style');
@@ -124,16 +124,33 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
           try {
             const el = document.querySelector(selector);
             if (el) {
-              if (el.tagName === 'IMG') { el.src = overrides[selector]; }
-              else if (overrides[selector].startsWith('url(') || overrides[selector].startsWith('data:image')) {
-                el.style.backgroundImage = overrides[selector].startsWith('url(') ? overrides[selector] : \`url('\${overrides[selector]}')\`;
+              const val = overrides[selector];
+              if (typeof val === 'string') {
+                if (el.tagName === 'IMG') { el.src = val; }
+                else if (val.startsWith('url(') || val.startsWith('data:image')) {
+                  el.style.backgroundImage = val.startsWith('url(') ? val : \`url('\${val}')\`;
+                }
+                else { el.innerHTML = val; }
+              } else if (typeof val === 'object' && val !== null) {
+                if (val.content !== undefined) {
+                  if (el.tagName === 'IMG') { el.src = val.content; }
+                  else if (val.content.startsWith('url(') || val.content.startsWith('data:image')) {
+                    el.style.backgroundImage = val.content.startsWith('url(') ? val.content : \`url('\${val.content}')\`;
+                  }
+                  else { el.innerHTML = val.content; }
+                }
+                if (val.fontFamily) {
+                  el.style.fontFamily = val.fontFamily;
+                }
+                if (val.fontSize) {
+                  el.style.fontSize = val.fontSize;
+                }
               }
-              else { el.innerHTML = overrides[selector]; }
             }
           } catch(e) {}
         });
 
-        const editableTags = 'h1, h2, h3, h4, h5, h6, p, span, li, img, [style*="background-image"]'.split(', ');
+        const editableTags = 'h1, h2, h3, h4, h5, h6, p, span, li, img, a, button, .btn, [style*="background-image"]'.split(', ');
         
         function getUniqueSelector(el) {
           if (el.id) return '#' + el.id;
@@ -155,6 +172,53 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
           return path.join(' > ');
         }
 
+                // Bind global capturing click listener only once
+        if (!window.__wevClickBound) {
+          window.__wevClickBound = true;
+          document.addEventListener("click", (e) => {
+            const el = e.target.closest('.wev-editable');
+            if (!el) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            document.querySelectorAll('.wev-selected').forEach(s => s.classList.remove('wev-selected'));
+            el.classList.add('wev-selected');
+            
+            let content = el.innerHTML;
+            let reportedTagName = el.tagName;
+            
+            let isImage = el.tagName === 'IMG';
+            let isBgImage = el.style && el.style.backgroundImage && el.style.backgroundImage !== '';
+            
+            if (isImage) {
+              content = el.src;
+            } else if (isBgImage) {
+              content = el.style.backgroundImage;
+              reportedTagName = 'IMG'; 
+            }
+            
+            let computedFont = window.getComputedStyle(el).fontFamily;
+            let computedFontSize = window.getComputedStyle(el).fontSize;
+            
+            let linkHref = '';
+            if (el.tagName === 'A') {
+              linkHref = el.getAttribute('href') || '';
+            }
+
+            window.parent.postMessage({
+              type: 'ELEMENT_CLICKED',
+              selector: el.dataset.wevSelector,
+              content: content,
+              tagName: reportedTagName,
+              isBgImage: isBgImage,
+              fontFamily: computedFont,
+              fontSize: computedFontSize,
+              linkHref: linkHref
+            }, '*');
+          }, true); // CAPTURING PHASE
+        }
         function initEditableElements() {
           // Floating Button untuk Image
           if (!document.getElementById('wev-img-btn')) {
@@ -199,31 +263,9 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
               });
             }
 
-            el.onclick = (e) => {
-              e.preventDefault(); e.stopPropagation();
-              document.querySelectorAll('.wev-selected').forEach(s => s.classList.remove('wev-selected'));
-              el.classList.add('wev-selected');
-              
-              let content = el.innerText;
-              let reportedTagName = el.tagName;
-              
-              if (isImage) {
-                content = el.src;
-              } else if (isBgImage) {
-                content = el.style.backgroundImage;
-                reportedTagName = 'IMG'; 
-              }
-
-              window.parent.postMessage({
-                type: 'ELEMENT_CLICKED',
-                selector: el.dataset.wevSelector,
-                content: content,
-                tagName: reportedTagName,
-                isBgImage: isBgImage
-              }, '*');
-            };
+            
           });
-        }
+        } 
         
         setTimeout(initEditableElements, 500);
 
@@ -246,17 +288,47 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
             try {
               const el = document.querySelector(msg.selector);
               if (el) {
-                if (el.tagName === 'IMG') {
-                  el.src = msg.content;
-                } else if (el.style && el.style.backgroundImage && el.style.backgroundImage !== '') {
-                  el.style.backgroundImage = msg.content.startsWith('url(') ? msg.content : \`url('\${msg.content}')\`;
-                } else {
-                  el.innerHTML = msg.content.replace(/\\n/g, '<br>');
+                if (msg.content !== undefined) {
+                  if (el.tagName === 'IMG') {
+                    el.src = msg.content;
+                  } else if (el.style && el.style.backgroundImage && el.style.backgroundImage !== '') {
+                    el.style.backgroundImage = msg.content.startsWith('url(') ? msg.content : \`url('\${msg.content}')\`;
+                  } else {
+                    el.innerHTML = msg.content.replace(/\\n/g, '<br>');
+                  }
+                }
+                if (msg.fontFamily !== undefined) {
+                  el.style.fontFamily = msg.fontFamily;
+                }
+                if (msg.fontSize !== undefined) {
+                  el.style.fontSize = msg.fontSize;
                 }
               }
             } catch(e) {}
           }
+          if (msg.type === 'FORCE_OPEN') {
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            if(splash) {
+              splash.classList.add('open');
+              setTimeout(() => { splash.classList.add('fade-out'); document.body.style.overflow = 'auto'; }, 1500);
+            }
+            if(main) {
+              main.classList.remove('hidden');
+              if (typeof WOW !== 'undefined') { new WOW().init(); } else if (typeof window.WOW !== 'undefined') { new window.WOW().init(); }
+            }
+
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            if(splash) splash.classList.add('open');
+            if(main) main.classList.remove('hidden');
+          }
           if (msg.type === 'SCROLL_TO_SECTION' && msg.id) {
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            if(splash && !splash.classList.contains('open')) { splash.classList.add('open'); setTimeout(() => { splash.classList.add('fade-out'); document.body.style.overflow = 'auto'; }, 1500); }
+            if(main && main.classList.contains('hidden')) { main.classList.remove('hidden'); if (typeof WOW !== 'undefined') { new WOW().init(); } else if (typeof window.WOW !== 'undefined') { new window.WOW().init(); } }
+
             const el = document.getElementById(msg.id);
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }
@@ -275,7 +347,10 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
           body { margin: 0; padding: 0; font-family: ${debouncedData.fontFamily}; }
+          
           ${cssContent}
+          ::-webkit-scrollbar { display: none !important; width: 0 !important; }
+          * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
         </style>
       </head>
       <body>
@@ -296,9 +371,9 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
   if (templateType === 'html-js') {
     return (
       <div className="html-template-wrapper" style={{ width: '100%', height: '100%' }}>
-        <iframe 
+        <iframe
           ref={ref}
-          srcDoc={iframeSrcDoc} 
+          srcDoc={iframeSrcDoc}
           style={{ width: '100%', height: '100%', border: 'none' }}
           sandbox="allow-scripts allow-same-origin"
           title="Template Preview Sandbox"
@@ -323,3 +398,14 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
 });
 
 export default HtmlAdapter;
+
+
+
+
+
+
+
+
+
+
+
