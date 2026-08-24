@@ -254,11 +254,11 @@ HTML
                     <div class="wishes-board">
                         <div class="wish-card glass-card">
                             <h4 class="font-cormorant text-gold">Bapak Agus</h4>
-                            <p class="font-lato text-sm mt-1">Selamat ya... Semoga langgeng dan bahagia selalu. ❤️</p>
+                            <p class="font-lato text-sm mt-1">Selamat ya... Semoga langgeng dan bahagia selalu. â¤ï¸</p>
                         </div>
                         <div class="wish-card glass-card">
                             <h4 class="font-cormorant text-gold">Budi & Keluarga</h4>
-                            <p class="font-lato text-sm mt-1">Happy wedding Made & Ayu! Rahayu 🙏</p>
+                            <p class="font-lato text-sm mt-1">Happy wedding Made & Ayu! Rahayu ðŸ™</p>
                         </div>
                         <div class="wish-card glass-card">
                             <h4 class="font-cormorant text-gold">Siska</h4>
@@ -277,28 +277,28 @@ HTML
                     kami. Namun, jika Anda hendak memberikan tanda kasih, dapat disalurkan melalui fitur di bawah ini:
                 </p>
                 <div class="gift-cards animate-fade-up">
-                    <div class="card glass-card">
+                    <div class="card glass-card" id="qris-card" style="display: {{qrisDisplay}};">
                         <i class="fa-solid fa-qrcode gift-icon text-gold"></i>
                         <h3 class="font-cormorant mt-2">QRIS</h3>
                         <p class="font-lato text-sm mt-1">Scan barcode untuk memberikan hadiah.</p>
-                        <img src="https://via.placeholder.com/150" alt="QRIS Placeholder" class="qris-img mt-3 mb-3"
+                        <img src="{{qrisImage}}" alt="QRIS Placeholder" class="qris-img mt-3 mb-3"
                             style="border-radius: 8px;">
                     </div>
-                    <div class="card glass-card">
+                    <div class="card glass-card" id="bank1-card" style="display: {{bank1Display}};">
                         <i class="fa-solid fa-building-columns gift-icon text-gold"></i>
-                        <h3 class="font-cormorant mt-2">BCA</h3>
+                        <h3 class="font-cormorant mt-2" data-edit="bank1Name">{{bank1Name}}</h3>
                         <p class="font-lato text-sm mt-1">No. Rekening:</p>
-                        <h4 class="font-lato bank-acc mt-1 mb-1" id="bca-acc">1234567890</h4>
-                        <p class="font-lato text-sm">a.n I Made Arya</p>
-                        <button class="btn-secondary copy-btn mt-3" data-target="bca-acc">Copy Rekening</button>
+                        <h4 class="font-lato bank-acc mt-1 mb-1" id="bank1-acc" data-edit="bank1No">{{bank1No}}</h4>
+                        <p class="font-lato text-sm" data-edit="bank1Holder">a.n {{bank1Holder}}</p>
+                        <button class="btn-secondary copy-btn mt-3" data-target="bank1-acc">Copy Rekening</button>
                     </div>
-                    <div class="card glass-card">
+                    <div class="card glass-card" id="bank2-card" style="display: {{bank2Display}};">
                         <i class="fa-solid fa-building-columns gift-icon text-gold"></i>
-                        <h3 class="font-cormorant mt-2">Mandiri</h3>
+                        <h3 class="font-cormorant mt-2" data-edit="bank2Name">{{bank2Name}}</h3>
                         <p class="font-lato text-sm mt-1">No. Rekening:</p>
-                        <h4 class="font-lato bank-acc mt-1 mb-1" id="mandiri-acc">0987654321</h4>
-                        <p class="font-lato text-sm">a.n Ni Luh Ayu</p>
-                        <button class="btn-secondary copy-btn mt-3" data-target="mandiri-acc">Copy Rekening</button>
+                        <h4 class="font-lato bank-acc mt-1 mb-1" id="bank2-acc" data-edit="bank2No">{{bank2No}}</h4>
+                        <p class="font-lato text-sm" data-edit="bank2Holder">a.n {{bank2Holder}}</p>
+                        <button class="btn-secondary copy-btn mt-3" data-target="bank2-acc">Copy Rekening</button>
                     </div>
                 </div>
             </div>
@@ -1140,16 +1140,24 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    align-items: center;
+}
+
+.gift-cards .card {
+    width: 100%;
+    max-width: 450px;
 }
 
 @media (min-width: 768px) {
     .gift-cards {
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
+        align-items: center;
     }
 
     .gift-cards .card {
-        flex: 1;
+        width: 100%;
+        max-width: 450px;
     }
 }
 
@@ -1160,6 +1168,15 @@ body {
 .bank-acc {
     font-size: 1.2rem;
     letter-spacing: 2px;
+    word-break: break-all;
+}
+
+.qris-img {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
 }
 
 /* Footer */

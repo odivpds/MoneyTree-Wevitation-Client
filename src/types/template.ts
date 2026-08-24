@@ -14,6 +14,15 @@ export interface InvitationData {
   accentColor: string;
   fontFamily: string;
   greeting: string;
+  akadDate?: string;
+  resepsiDate?: string;
+  bank1Name?: string;
+  bank1No?: string;
+  bank1Holder?: string;
+  bank2Name?: string;
+  bank2No?: string;
+  bank2Holder?: string;
+  qrisImage?: string;
 }
 
 export interface TemplateProps {

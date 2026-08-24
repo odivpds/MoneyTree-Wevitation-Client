@@ -84,8 +84,22 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     // Waktu
     replaceTag('akadTime', targetData.akadTime);
     replaceTag('akadVenue', targetData.akadVenue);
-    replaceTag('resepsiTime', targetData.resepsiTime);
+        replaceTag('resepsiTime', targetData.resepsiTime);
     replaceTag('resepsiVenue', targetData.resepsiVenue);
+
+    // Bank & QRIS
+    replaceTag('qrisImage', targetData.qrisImage || 'https://via.placeholder.com/150');
+    replaceTag('qrisDisplay', targetData.qrisImage ? 'block' : 'none');
+    
+    replaceTag('bank1Name', targetData.bank1Name || '');
+    replaceTag('bank1No', targetData.bank1No || '');
+    replaceTag('bank1Holder', targetData.bank1Holder || '');
+    replaceTag('bank1Display', targetData.bank1Name ? 'block' : 'none');
+    
+    replaceTag('bank2Name', targetData.bank2Name || '');
+    replaceTag('bank2No', targetData.bank2No || '');
+    replaceTag('bank2Holder', targetData.bank2Holder || '');
+    replaceTag('bank2Display', targetData.bank2Name ? 'block' : 'none');
     replaceTag('days', targetTimeLeft.days);
     replaceTag('hours', targetTimeLeft.hours);
     replaceTag('minutes', targetTimeLeft.minutes);
