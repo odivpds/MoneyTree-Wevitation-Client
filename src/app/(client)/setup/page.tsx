@@ -26,8 +26,10 @@ function SetupContent() {
 
   // Load existing data on mount
   useEffect(() => {
+    if (!templateId) return;
     try {
-      const existingData = localStorage.getItem('undanganBali_data');
+      const storageKey = `undanganBali_data_${templateId}`;
+      const existingData = localStorage.getItem(storageKey);
       if (existingData) {
         const parsed = JSON.parse(existingData);
         setFormData(prev => ({
@@ -38,7 +40,7 @@ function SetupContent() {
     } catch (e) {
       console.warn("Gagal membaca localStorage", e);
     }
-  }, []);
+  }, [templateId]);
 
   // Auth guard redirect
   useEffect(() => {
@@ -59,10 +61,11 @@ function SetupContent() {
 
     // Save to localStorage
     try {
-      const existingData = localStorage.getItem('undanganBali_data');
+      const storageKey = templateId ? `undanganBali_data_${templateId}` : 'undanganBali_data';
+      const existingData = localStorage.getItem(storageKey);
       const parsedExisting = existingData ? JSON.parse(existingData) : {};
       const mergedData = { ...parsedExisting, ...formData };
-      localStorage.setItem('undanganBali_data', JSON.stringify(mergedData));
+      localStorage.setItem(storageKey, JSON.stringify(mergedData));
     } catch (err) {
       console.warn("Gagal menyimpan data setup ke localStorage:", err);
     }

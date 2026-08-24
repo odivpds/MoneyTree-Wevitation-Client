@@ -113,7 +113,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
       (function() {
         const style = document.createElement('style');
         style.innerHTML = \`
-          .wev-editable { outline: 2px dashed rgba(200, 200, 200, 0); cursor: pointer; transition: outline 0.2s; position: relative; }
+          .wev-editable { outline: 2px dashed rgba(200, 200, 200, 0); cursor: pointer; transition: outline 0.2s; }
           .wev-editable:hover { outline: 2px dashed #0070f3; }
           .wev-selected { outline: 2px solid #0070f3 !important; }
         \`;
@@ -176,8 +176,13 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
         if (!window.__wevClickBound) {
           window.__wevClickBound = true;
           document.addEventListener("click", (e) => {
+            console.log("IFRAME CLICKED", e.target);
             const el = e.target.closest('.wev-editable');
-            if (!el) return;
+            if (!el) {
+              console.log("NOT WEV-EDITABLE");
+              return;
+            }
+            console.log("WEV-EDITABLE CLICKED", el);
             
             e.preventDefault();
             e.stopPropagation();
@@ -207,16 +212,47 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
               linkHref = el.getAttribute('href') || '';
             }
 
-            window.parent.postMessage({
-              type: 'ELEMENT_CLICKED',
-              selector: el.dataset.wevSelector,
-              content: content,
-              tagName: reportedTagName,
-              isBgImage: isBgImage,
-              fontFamily: computedFont,
-              fontSize: computedFontSize,
-              linkHref: linkHref
-            }, '*');
+            let textToEdit = content;
+            let htmlTemplate = '{TEXT}';
+            
+            if (!isImage && !isBgImage && /<[a-z][\\s\\S]*>/i.test(content)) {
+               let temp = document.createElement('div');
+               temp.innerHTML = content;
+               let bestTextNode = null;
+               let maxLength = 0;
+               const walker = document.createTreeWalker(temp, NodeFilter.SHOW_TEXT, null, false);
+               let node;
+               while (node = walker.nextNode()) {
+                 let len = node.nodeValue.trim().length;
+                 if (len > maxLength) {
+                   maxLength = len;
+                   bestTextNode = node;
+                 }
+               }
+               if (bestTextNode && maxLength > 0) {
+                 const originalText = bestTextNode.nodeValue;
+                 textToEdit = originalText.trim();
+                 bestTextNode.nodeValue = originalText.replace(textToEdit, '{TEXT}');
+                 htmlTemplate = temp.innerHTML;
+               }
+            }
+
+            try {
+              window.parent.postMessage({
+                type: 'ELEMENT_CLICKED',
+                selector: el.dataset.wevSelector,
+                content: textToEdit,
+                htmlTemplate: htmlTemplate,
+                tagName: reportedTagName,
+                isBgImage: isBgImage,
+                fontFamily: computedFont,
+                fontSize: computedFontSize,
+                linkHref: linkHref
+              }, '*');
+              console.log("POST MESSAGE SENT TO PARENT:", el.dataset.wevSelector);
+            } catch (err) {
+              console.error("POST MESSAGE FAILED:", err);
+            }
           }, true); // CAPTURING PHASE
         }
         function initEditableElements() {
@@ -317,11 +353,19 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
               main.classList.remove('hidden');
               if (typeof WOW !== 'undefined') { new WOW().init(); } else if (typeof window.WOW !== 'undefined') { new window.WOW().init(); }
             }
-
+          }
+          if (msg.type === 'FORCE_CLOSE') {
             const splash = document.getElementById('splash-screen');
             const main = document.getElementById('main-content');
-            if(splash) splash.classList.add('open');
-            if(main) main.classList.remove('hidden');
+            if(splash) {
+              splash.classList.remove('fade-out');
+              splash.classList.remove('open');
+              document.body.style.overflow = 'hidden';
+            }
+            if(main) {
+              main.classList.add('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
           if (msg.type === 'SCROLL_TO_SECTION' && msg.id) {
             const splash = document.getElementById('splash-screen');
@@ -339,31 +383,41 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
       })();
     `;
 
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-          body { margin: 0; padding: 0; font-family: ${debouncedData.fontFamily}; }
-          
-          ${cssContent}
-          ::-webkit-scrollbar { display: none !important; width: 0 !important; }
-          * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-        </style>
-      </head>
-      <body>
-        ${injectedHtml}
-        <script>
-          ${injectedJs}
-        </script>
-        <script>
-          ${builderScript}
-        </script>
-      </body>
-      </html>
+    let finalSrcDoc = injectedHtml;
+    
+    // Ensure we don't have undefined/null values
+    const safeCssContent = cssContent || '';
+    const safeJsContent = injectedJs || '';
+    
+    const styleTag = `
+      <style>
+        body { margin: 0; padding: 0; font-family: ${debouncedData.fontFamily}; }
+        ${safeCssContent}
+        ::-webkit-scrollbar { display: none !important; width: 0 !important; }
+        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        .wev-editable:hover { outline: 2px solid #0070f3; cursor: pointer; }
+        .wev-selected { outline: 2px solid #0070f3 !important; }
+      </style>
     `;
+    
+    if (finalSrcDoc.includes('</head>')) {
+      finalSrcDoc = finalSrcDoc.replace('</head>', `${styleTag}</head>`);
+    } else {
+      finalSrcDoc = `${styleTag}${finalSrcDoc}`;
+    }
+    
+    const scriptTags = `
+      <script>${safeJsContent}</script>
+      <script>${builderScript}</script>
+    `;
+    
+    if (finalSrcDoc.includes('</body>')) {
+      finalSrcDoc = finalSrcDoc.replace('</body>', `${scriptTags}</body>`);
+    } else {
+      finalSrcDoc = `${finalSrcDoc}${scriptTags}`;
+    }
+
+    return finalSrcDoc;
   }, [debouncedData, htmlContent, cssContent, jsContent, templateType]); // Hapus timeLeft dari dependency jika tidak ingin timer mereload iframe tiap detik! (Tetapi jika timeLeft tidak diubah di iframe, timer preview akan stuck. Untuk saat ini kita abaikan reload tiap detik demi stabilitas visual editor, atau timeLeft bisa tetap disertakan jika user belum komplain)
 
   if (error) return <div style={{ color: 'red', padding: '1rem' }}>{error}</div>;

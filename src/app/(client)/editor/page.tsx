@@ -96,23 +96,37 @@ function EditorContent() {
 
   // States for WYSIWYG Editor
   const [domOverrides, setDomOverrides] = useState<Record<string, any>>({});
-  const [selectedElement, setSelectedElement] = useState<{ selector: string; content: string; tagName: string; fontFamily?: string; fontSize?: string; linkHref?: string } | null>(null);
+  const [selectedElement, setSelectedElement] = useState<{ selector: string; content: string; htmlTemplate?: string; tagName: string; fontFamily?: string; fontSize?: string; linkHref?: string } | null>(null);
   const [detectedSections, setDetectedSections] = useState<{ id: string; name: string }[]>([]);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
   // Separate try/catch for each localStorage read
   useEffect(() => {
+    const dataKey = template ? `undanganBali_data_${template}` : 'undanganBali_data';
+    const photoKey = template ? `undanganBali_photo_${template}` : 'undanganBali_photo';
+    const overrideKey = template ? `undanganBali_overrides_${template}` : 'undanganBali_overrides';
+
     try {
-      const savedData = localStorage.getItem('undanganBali_data');
+      const savedData = localStorage.getItem(dataKey);
       if (savedData) {
-        setFormData(prev => ({ ...prev, ...JSON.parse(savedData) }));
+        const parsed = JSON.parse(savedData);
+        if (parsed) {
+          for (const key in parsed) {
+            if (typeof parsed[key] === 'string' && (parsed[key].includes('<img') || parsed[key].includes('c.tagName'))) {
+              if (key === 'groomName') parsed[key] = 'Gus Arya';
+              else if (key === 'brideName') parsed[key] = 'Gus Yura';
+              else parsed[key] = '';
+            }
+          }
+        }
+        setFormData(prev => ({ ...prev, ...parsed }));
       }
     } catch (e) {
       console.warn('Gagal memuat data form tersimpan:', e);
     }
 
     try {
-      const savedPhoto = localStorage.getItem('undanganBali_photo');
+      const savedPhoto = localStorage.getItem(photoKey);
       if (savedPhoto) {
         setPhoto(savedPhoto);
       }
@@ -121,14 +135,14 @@ function EditorContent() {
     }
 
     try {
-      const savedOverrides = localStorage.getItem('undanganBali_overrides');
+      const savedOverrides = localStorage.getItem(overrideKey);
       if (savedOverrides) {
         setDomOverrides(JSON.parse(savedOverrides));
       }
     } catch (e) {
       console.warn('Gagal memuat visual overrides tersimpan:', e);
     }
-  }, []);
+  }, [template]);
 
   // Countdown timer
   useEffect(() => {
@@ -196,11 +210,10 @@ function EditorContent() {
   // Visual Builder Message Listener
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-
+      // Allow any origin since srcDoc iframes can have varying origin implementations (null, empty, or parent origin)
       const msg = event.data;
       if (msg.type === 'ELEMENT_CLICKED') {
-        setSelectedElement({ selector: msg.selector, content: msg.content, tagName: msg.tagName, fontFamily: msg.fontFamily || '', fontSize: msg.fontSize || '', linkHref: msg.linkHref || '' });
+        setSelectedElement({ selector: msg.selector, content: msg.content, htmlTemplate: msg.htmlTemplate, tagName: msg.tagName, fontFamily: msg.fontFamily || '', fontSize: msg.fontSize || '', linkHref: msg.linkHref || '' });
         setActiveTab('visual');
       }
       if (msg.type === 'SECTIONS_DETECTED') {
@@ -214,11 +227,17 @@ function EditorContent() {
   const handleVisualElementChange = (updates: { content?: string; fontFamily?: string; fontSize?: string; linkHref?: string }) => {
     if (!selectedElement) return;
 
+    // Apply HTML template if present
+    let finalContent = updates.content !== undefined ? updates.content : selectedElement.content;
+    if (updates.content !== undefined && selectedElement.htmlTemplate && selectedElement.htmlTemplate !== '{TEXT}') {
+      finalContent = selectedElement.htmlTemplate.replace('{TEXT}', updates.content);
+    }
+
     setDomOverrides(prev => {
       const existing = prev[selectedElement.selector];
       let newOverride = typeof existing === 'string' ? { content: existing } : { ...existing };
 
-      if (updates.content !== undefined) newOverride.content = updates.content;
+      if (updates.content !== undefined) newOverride.content = finalContent;
       if (updates.fontFamily !== undefined) newOverride.fontFamily = updates.fontFamily;
       if (updates.fontSize !== undefined) newOverride.fontSize = updates.fontSize;
       if (updates.linkHref !== undefined) newOverride.linkHref = updates.linkHref;
@@ -242,8 +261,9 @@ function EditorContent() {
       iframeRef.current.contentWindow.postMessage({
         type: 'UPDATE_ELEMENT',
         selector: selectedElement.selector,
-        ...updates
-      }, window.location.origin);
+        ...updates,
+        content: finalContent
+      }, '*');
     }
   };
 
@@ -252,7 +272,7 @@ function EditorContent() {
       iframeRef.current.contentWindow.postMessage({
         type: 'SCROLL_TO_SECTION',
         id: id
-      }, window.location.origin);
+      }, '*');
     }
     if (typeof index === 'number') {
       setCurrentSectionIndex(index);
@@ -278,7 +298,15 @@ function EditorContent() {
   
   const forceOpenInvitation = () => {
     if (iframeRef.current?.contentWindow) {
-      iframeRef.current.contentWindow.postMessage({ type: 'FORCE_OPEN' }, window.location.origin);
+      iframeRef.current.contentWindow.postMessage({ type: 'FORCE_OPEN' }, '*');
+      if (detectedSections.length > 1) setCurrentSectionIndex(1);
+    }
+  };
+
+  const forceCloseInvitation = () => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'FORCE_CLOSE' }, '*');
+      if (detectedSections.length > 0) setCurrentSectionIndex(0);
     }
   };
 
@@ -321,13 +349,35 @@ function EditorContent() {
     }
   };
 
-  // Convert file to Base64 without compression
-  const fileToBase64 = (file: File): Promise<string> => {
+  // Convert file to Base64 with compression to prevent QuotaExceededError
+  const fileToBase64 = (file: File, maxWidth = 1024): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
-        resolve(event.target?.result as string);
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/webp', 0.75));
+          } else {
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = (error) => reject(error);
       };
       reader.onerror = (error) => reject(error);
     });
@@ -427,13 +477,17 @@ function EditorContent() {
 
   const saveToLocalStorage = useCallback((): boolean => {
     try {
-      localStorage.setItem('undanganBali_data', JSON.stringify(formData));
-      localStorage.setItem('undanganBali_overrides', JSON.stringify(domOverrides));
+      const dataKey = template ? `undanganBali_data_${template}` : 'undanganBali_data';
+      const photoKey = template ? `undanganBali_photo_${template}` : 'undanganBali_photo';
+      const overrideKey = template ? `undanganBali_overrides_${template}` : 'undanganBali_overrides';
+
+      localStorage.setItem(dataKey, JSON.stringify(formData));
+      localStorage.setItem(overrideKey, JSON.stringify(domOverrides));
       localStorage.setItem('undanganBali_template', template);
       if (photo) {
-        localStorage.setItem('undanganBali_photo', photo);
+        localStorage.setItem(photoKey, photo);
       } else {
-        localStorage.removeItem('undanganBali_photo');
+        localStorage.removeItem(photoKey);
       }
       setIsDirty(false); // UX-G — Reset dirty state after save
       return true;
@@ -576,82 +630,100 @@ function EditorContent() {
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Template ini sedang dalam pengembangan. Silakan pilih template lain.</p>
                 </div>
               );
-            })()}\n
+            })()}
             {activeTab === 'visual' && detectedSections.length > 0 && (
               <div style={{
                 position: 'absolute',
-                bottom: '20px',
+                bottom: '100px', // Moved up to avoid overlapping with template bottom nav
                 left: '50%',
                 transform: 'translateX(-50%)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '15px',
-                zIndex: 1000,
-                background: 'rgba(255, 255, 255, 0.95)',
-                padding: '10px 20px',
-                borderRadius: '30px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(200,200,200,0.5)'
+                zIndex: 1000
               }}>
                 <button 
                   onClick={handlePrevSection} 
                   disabled={currentSectionIndex === 0} 
                   style={{ 
                     border: 'none', 
-                    background: 'transparent', 
+                    background: 'rgba(255, 255, 255, 0.9)', 
                     cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer', 
                     fontSize: '18px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '32px',
-                    height: '32px',
+                    width: '40px',
+                    height: '40px',
                     borderRadius: '50%',
-                    backgroundColor: currentSectionIndex === 0 ? 'transparent' : 'rgba(0,0,0,0.05)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }} 
                   title="Previous Section"
                 >
                   <i className="fa-solid fa-chevron-left" style={{ color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)' }}></i>
                 </button>
                 
-                <button 
-                  onClick={forceOpenInvitation} 
-                  style={{ 
-                    border: 'none', 
-                    background: 'var(--accent-gold, #cda75f)', 
-                    color: 'white',
-                    cursor: 'pointer', 
-                    fontSize: '14px', 
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 10px rgba(205, 167, 95, 0.4)'
-                  }} 
-                  title="Buka Undangan"
-                >
-                  <i className="fa-solid fa-envelope-open-text"></i>
-                  Buka
-                </button>
+                {currentSectionIndex === 0 ? (
+                  <button 
+                    onClick={forceOpenInvitation} 
+                    style={{ 
+                      border: 'none', 
+                      background: 'var(--accent-gold, #cda75f)', 
+                      color: 'white',
+                      cursor: 'pointer', 
+                      fontSize: '14px', 
+                      padding: '10px 20px',
+                      borderRadius: '24px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(205, 167, 95, 0.4)'
+                    }} 
+                    title="Buka Undangan"
+                  >
+                    <i className="fa-solid fa-envelope-open-text"></i>
+                    Buka
+                  </button>
+                ) : (
+                  <button 
+                    onClick={forceCloseInvitation} 
+                    style={{ 
+                      border: 'none', 
+                      background: 'white', 
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer', 
+                      fontSize: '14px', 
+                      padding: '10px 20px',
+                      borderRadius: '24px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    }} 
+                    title="Kembali ke Halaman Depan"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    Kembali
+                  </button>
+                )}
 
                 <button 
                   onClick={handleNextSection} 
                   disabled={currentSectionIndex === detectedSections.length - 1} 
                   style={{ 
                     border: 'none', 
-                    background: 'transparent', 
+                    background: 'rgba(255, 255, 255, 0.9)', 
                     cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer', 
                     fontSize: '18px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '32px',
-                    height: '32px',
+                    width: '40px',
+                    height: '40px',
                     borderRadius: '50%',
-                    backgroundColor: currentSectionIndex === detectedSections.length - 1 ? 'transparent' : 'rgba(0,0,0,0.05)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }} 
                   title="Next Section"
                 >

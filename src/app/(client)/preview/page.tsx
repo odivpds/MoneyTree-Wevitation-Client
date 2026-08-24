@@ -41,13 +41,17 @@ function PreviewContent() {
       const savedTemplate = templateFromUrl || localStorage.getItem('undanganBali_template') || 'agung';
       setTemplate(savedTemplate);
 
-      const savedData = localStorage.getItem('undanganBali_data');
+      const dataKey = savedTemplate ? `undanganBali_data_${savedTemplate}` : 'undanganBali_data';
+      const photoKey = savedTemplate ? `undanganBali_photo_${savedTemplate}` : 'undanganBali_photo';
+      const overrideKey = savedTemplate ? `undanganBali_overrides_${savedTemplate}` : 'undanganBali_overrides';
+
+      const savedData = localStorage.getItem(dataKey);
       if (savedData) setFormData(prev => ({ ...prev, ...JSON.parse(savedData) }));
 
-      const savedPhoto = localStorage.getItem('undanganBali_photo');
+      const savedPhoto = localStorage.getItem(photoKey);
       if (savedPhoto) setPhoto(savedPhoto);
 
-      const savedOverrides = localStorage.getItem('undanganBali_overrides');
+      const savedOverrides = localStorage.getItem(overrideKey);
       if (savedOverrides) setDomOverrides(JSON.parse(savedOverrides));
     } catch (e) { }
   }, [templateFromUrl]);
@@ -112,9 +116,21 @@ function PreviewContent() {
     ? new Date(formData.weddingDate).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : 'Tanggal Pernikahan';
 
-  // Determine template type
   const config = templatesData.find(t => t.id === template || (t as any).slug === template);
   const isHtmlTemplate = config?.type === 'html' || config?.type === 'html-js';
+  const isPure = searchParams.get('pure') === 'true';
+
+  if (isPure) {
+    return (
+      <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+        {isHtmlTemplate ? (
+          <HtmlAdapter templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>Fallback React Template not supported in pure mode yet.</div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>

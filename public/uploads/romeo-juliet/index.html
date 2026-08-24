@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undangan Pernikahan</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 90%;
+    }
+    h1 {
+      color: #10b981;
+      margin-bottom: 0.5rem;
+    }
+    .kepada {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #059669;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border-top: 2px dashed #eee;
+      border-bottom: 2px dashed #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Romeo & Juliet</h1>
+    <p>Kami mengundang Anda untuk hadir di hari bahagia kami.</p>
+    
+    <p>Khusus kepada Yth:</p>
+    <div class="kepada" id="nama-tamu">Tamu Spesial</div>
+    
+    <p><small>Terima kasih atas doa & restunya.</small></p>
+  </div>
+
+  <script>
+    // Ambil parameter dari URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const namaTamu = urlParams.get('kepada');
+
+    // Ubah teks jika ada nama tamu di URL
+    if (namaTamu) {
+      document.getElementById('nama-tamu').innerText = namaTamu;
+    }
+  </script>
+</body>
+</html>
