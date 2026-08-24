@@ -4,9 +4,10 @@ import { TemplateProps } from '@/types/template';
 interface HtmlAdapterProps extends TemplateProps {
   templateId: string;
   domOverrides?: Record<string, any>;
+  isEditable?: boolean;
 }
 
-const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function HtmlAdapter({ templateId, data, photo, timeLeft, domOverrides = {} }, ref) {
+const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function HtmlAdapter({ templateId, data, photo, timeLeft, domOverrides = {}, isEditable = false }, ref) {
   const initialOverrides = useRef(domOverrides);
   const [htmlContent, setHtmlContent] = useState<string>('<div style="padding: 2rem; text-align: center;">Memuat template HTML...</div>');
   const [cssContent, setCssContent] = useState<string>('');
@@ -409,8 +410,10 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
         ${safeCssContent}
         ::-webkit-scrollbar { display: none !important; width: 0 !important; }
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        ${isEditable ? `
         .wev-editable:hover { outline: 2px solid #0070f3; cursor: pointer; }
         .wev-selected { outline: 2px solid #0070f3 !important; }
+        ` : ''}
       </style>
     `;
     
@@ -422,7 +425,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     
     const scriptTags = `
       <script>${safeJsContent}</script>
-      <script>${builderScript}</script>
+      ${isEditable ? `<script>${builderScript}</script>` : ''}
     `;
     
     if (finalSrcDoc.includes('</body>')) {

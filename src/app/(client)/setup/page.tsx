@@ -91,8 +91,8 @@ function SetupContent() {
       console.warn("Gagal menyimpan data setup ke localStorage:", err);
     }
 
-    // Redirect to editor
-    router.push(`/editor?template=${templateId || 'agung'}`);
+    // Redirect to result page instead of editor
+    router.push(`/result?template=${templateId || 'agung'}`);
   };
 
   return (
@@ -252,7 +252,7 @@ function SetupContent() {
 
             <div style={{ marginTop: 'var(--space-10)', textAlign: 'center' }}>
               <button type="submit" className="btn btn--primary" style={{ padding: 'var(--space-4) var(--space-8)', fontSize: '1.1rem' }}>
-                Simpan & Lanjut ke Editor
+                Simpan & Lihat Hasil
               </button>
             </div>
           </form>

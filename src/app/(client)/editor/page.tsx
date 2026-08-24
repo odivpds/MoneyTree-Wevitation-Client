@@ -617,7 +617,7 @@ function EditorContent() {
               </div>
             ) : (() => {
               if (currentTemplateConfig?.type === 'html' || currentTemplateConfig?.type === 'html-js') {
-                return <HtmlAdapter ref={iframeRef} templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} />;
+                return <HtmlAdapter ref={iframeRef} templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} isEditable={true} />;
               }
 
               // if (template === 'agung' || !template) {
