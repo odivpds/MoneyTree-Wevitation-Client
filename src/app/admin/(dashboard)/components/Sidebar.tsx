@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, LogOut, Menu, X, LayoutTemplate } from "lucide-react";
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, LayoutTemplate, Tags } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -13,6 +13,7 @@ export default function Sidebar() {
     { name: "Invitations", href: "/admin", icon: LayoutDashboard },
     { name: "Users", href: "/admin/users", icon: Users },
     { name: "Templates", href: "/admin/templates", icon: LayoutTemplate },
+    { name: "Kategori", href: "/admin/categories", icon: Tags },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

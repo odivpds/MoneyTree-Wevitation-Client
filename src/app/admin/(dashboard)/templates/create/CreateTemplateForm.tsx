@@ -2,41 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { updateTemplate } from "../../actions";
-import { Template, Category } from "@prisma/client";
-import ThumbnailUpload from "../../components/ThumbnailUpload";
+import { createTemplate } from "../actions";
+import { Category } from "@prisma/client";
+import ThumbnailUpload from "../components/ThumbnailUpload";
 
-export default function EditTemplateForm({ template, categories }: { template: Template, categories: Category[] }) {
-  const [type, setType] = useState(template.type);
-
-  // We bind the original slug to the server action
-  const updateTemplateWithSlug = updateTemplate.bind(null, template.slug);
+export default function CreateTemplateForm({ categories }: { categories: Category[] }) {
+  const [type, setType] = useState('html');
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-4xl font-serif tracking-tight text-[#222] mb-2">Edit Template: {template.name}</h2>
-          <p className="text-gray-500 text-sm">Perbarui data atau kode template ini.</p>
+          <h2 className="text-4xl font-serif tracking-tight text-[#222] mb-2">Tambah Template Baru</h2>
+          <p className="text-gray-500 text-sm">Tambahkan desain undangan baru ke dalam sistem.</p>
         </div>
         <Link href="/admin/templates" className="text-gray-500 hover:text-[#222] transition-colors font-medium text-sm underline underline-offset-4">
           Batal & Kembali
         </Link>
       </div>
 
-      <form action={updateTemplateWithSlug} className="bg-white rounded-3xl border border-[#E6DFD1] shadow-sm p-8 space-y-8">
+      <form action={createTemplate} className="bg-white rounded-3xl border border-[#E6DFD1] shadow-sm p-8 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Nama Template</label>
-            <input type="text" name="name" defaultValue={template.name} required className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="Contoh: Agung" />
+            <input type="text" name="name" required className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="Contoh: Agung" />
           </div>
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Slug (ID Unik)</label>
-            <input type="text" name="slug" defaultValue={template.slug} required className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="contoh: agung-v2" />
+            <input type="text" name="slug" required className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="contoh: agung-v2" />
           </div>
         </div>
 
-        <ThumbnailUpload defaultValue={template.image?.replace("http://localhost:3001", "") || ""} />
+        <ThumbnailUpload />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -49,7 +46,7 @@ export default function EditTemplateForm({ template, categories }: { template: T
           </div>
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Kategori</label>
-            <select name="categoryId" defaultValue={template.categoryId || ""} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all">
+            <select name="categoryId" className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all">
               <option value="">Pilih Kategori</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -58,7 +55,7 @@ export default function EditTemplateForm({ template, categories }: { template: T
           </div>
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Harga / Paket</label>
-            <input type="text" name="price" defaultValue={template.price || ""} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="Rp 350.000 atau Gratis" />
+            <input type="text" name="price" className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="Rp 350.000 atau Gratis" />
           </div>
         </div>
 
@@ -67,11 +64,11 @@ export default function EditTemplateForm({ template, categories }: { template: T
             <div>
               <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-1">HTML Content</label>
               <p className="text-xs text-gray-500 mb-3">Gunakan tag kurung kurawal ganda, cth: {'{{groomName}}'}</p>
-              <textarea name="htmlContent" defaultValue={template.htmlContent || ""} rows={8} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="<div class='undangan'>...</div>"></textarea>
+              <textarea name="htmlContent" rows={8} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="<div class='undangan'>...</div>"></textarea>
             </div>
             <div>
               <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">CSS Content</label>
-              <textarea name="cssContent" defaultValue={template.cssContent || ""} rows={6} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder=".undangan { color: red; }"></textarea>
+              <textarea name="cssContent" rows={6} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder=".undangan { color: red; }"></textarea>
             </div>
           </div>
         )}
@@ -80,13 +77,13 @@ export default function EditTemplateForm({ template, categories }: { template: T
           <div className="pt-4 border-t border-[#E6DFD1]">
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-1">JavaScript Content (Opsional)</label>
             <p className="text-xs text-gray-500 mb-3">Skrip ini akan berjalan di dalam Sandbox Iframe terpisah.</p>
-            <textarea name="jsContent" defaultValue={template.jsContent || ""} rows={6} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="console.log('Template loaded');"></textarea>
+            <textarea name="jsContent" rows={6} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="console.log('Template loaded');"></textarea>
           </div>
         )}
 
         <div className="pt-8 border-t border-[#E6DFD1] flex justify-end">
           <button type="submit" className="bg-[#677359] hover:bg-[#58634c] text-white px-8 py-3 rounded-full text-sm font-medium transition-all shadow-sm w-full sm:w-auto">
-            Update Template
+            Simpan Template
           </button>
         </div>
       </form>

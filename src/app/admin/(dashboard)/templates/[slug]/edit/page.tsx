@@ -13,5 +13,9 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ s
     notFound();
   }
 
-  return <EditTemplateForm template={template} />;
+  const categories = await prisma.category.findMany({
+    orderBy: { createdAt: "asc" }
+  });
+
+  return <EditTemplateForm template={template} categories={categories} />;
 }

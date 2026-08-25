@@ -17,6 +17,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [templatesData, setTemplatesData] = useState<TemplateConfig[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const totalSlides = 3;
   const router = useRouter();
   const { isLoggedIn } = useAuth();
@@ -59,7 +60,16 @@ export default function Home() {
           setTemplatesData(data);
         }
       })
-      .catch(err => console.error('Gagal mengambil template', err));
+      .catch(err => {
+        console.warn('Gagal memuat template dari CMS:', err);
+      });
+
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch(err => console.error('Failed to load categories', err));
   }, []);
 
   useEffect(() => {
@@ -170,30 +180,28 @@ export default function Home() {
           </p>
 
           <div className="template-grid reveal-stagger" style={{ marginTop: 'var(--space-12)' }}>
-            {templatesData.slice(0, 3).map((tpl) => (
-              <div key={tpl.id} className="template-card reveal shimmer-border">
-                <div className="template-card__image">
-                  <img src={tpl.image} alt={`Template ${tpl.name}`} loading="lazy" />
-                  {tpl.badge && <span className="template-card__badge" style={tpl.badge === 'Gratis' ? { background: 'linear-gradient(135deg, #2ecc71, #27ae60)' } : {}}>{tpl.badge}</span>}
-                  <div className="template-card__overlay">
-                    {/* <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--primary">Pilih Template</button> */}
-                  </div>
+            {categories.map((cat: any) => (
+              <div key={cat.id} className="template-card reveal shimmer-border" style={{ cursor: 'pointer' }} onClick={() => window.location.href = `/templates/${cat.slug}`}>
+                <div className="template-card__image" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f5f3ec, #e6dfd1)' }}>
+                  <span style={{ fontSize: '3rem', color: '#b8a687', fontFamily: 'var(--font-serif)' }}>{cat.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div className="template-card__body">
-                  <h3 className="template-card__name">{tpl.name}</h3>
-                  <p className="template-card__desc">{tpl.desc}</p>
+                  <h3 className="template-card__name">{cat.name}</h3>
+                  <p className="template-card__desc">{cat.description || `Koleksi desain undangan eksklusif kategori ${cat.name}.`}</p>
                   <div className="template-card__footer">
                     <span className="template-card__price">
-                      {tpl.price === 'Gratis' ? <span className="free" style={{ color: 'var(--success)' }}>Gratis</span> : tpl.price}
+                      {cat.priceText === 'Gratis' || cat.priceText === 'Mulai Gratis' 
+                        ? <span className="free" style={{ color: 'var(--success)' }}>{cat.priceText}</span> 
+                        : cat.priceText}
                     </span>
-                    <button onClick={() => handleProtectedNavigation(`/setup?template=${tpl.id}`)} className="btn btn--secondary btn--sm">Pilih</button>
+                    <Link href={`/templates/${cat.slug}`} className="btn btn--secondary btn--sm">Lihat Desain</Link>
                   </div>
                 </div>
               </div>
             ))}
-
-            {templatesData.length === 0 && (
-              <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem' }}>Memuat template desain eksklusif...</p>
+            
+            {categories.length === 0 && (
+              <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem' }}>Memuat kategori...</p>
             )}
           </div>
 

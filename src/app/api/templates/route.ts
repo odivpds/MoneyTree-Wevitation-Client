@@ -5,7 +5,8 @@ import { TEMPLATES } from '@/config/templates';
 export async function GET() {
   try {
     const templates = await prisma.template.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      include: { category: true }
     });
     
     if (templates.length > 0) {
@@ -14,7 +15,7 @@ export async function GET() {
         id: t.slug,
         name: t.name,
         type: t.type === 'html' ? 'html-js' : t.type,
-        category: t.category,
+        category: t.category?.name || 'Basic',
         desc: t.desc || '',
         price: t.price || 'Rp 0',
         image: (t.image || '/images/templates/agung.png').replace("http://localhost:3001", ""),

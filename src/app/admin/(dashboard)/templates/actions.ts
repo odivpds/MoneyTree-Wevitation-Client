@@ -8,7 +8,7 @@ export async function createTemplate(formData: FormData) {
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;
   const type = formData.get("type") as string;
-  const category = formData.get("category") as string;
+  const categoryId = formData.get("categoryId") as string;
   const price = formData.get("price") as string;
   const htmlContent = formData.get("htmlContent") as string;
   const cssContent = formData.get("cssContent") as string;
@@ -33,7 +33,7 @@ export async function createTemplate(formData: FormData) {
       name,
       slug,
       type,
-      category: category || "tradisional",
+      categoryId: categoryId || null,
       price: price || "Gratis",
       image: image || null,
       htmlContent: (type === 'html' || type === 'html-js') ? htmlContent : null,
@@ -50,7 +50,7 @@ export async function updateTemplate(originalSlug: string, formData: FormData) {
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;
   const type = formData.get("type") as string;
-  const category = formData.get("category") as string;
+  const categoryId = formData.get("categoryId") as string;
   const price = formData.get("price") as string;
   const htmlContent = formData.get("htmlContent") as string;
   const cssContent = formData.get("cssContent") as string;
@@ -77,7 +77,7 @@ export async function updateTemplate(originalSlug: string, formData: FormData) {
       name,
       slug,
       type,
-      category: category || "tradisional",
+      categoryId: categoryId || null,
       price: price || "Gratis",
       image: image || null,
       htmlContent: (type === 'html' || type === 'html-js') ? htmlContent : null,

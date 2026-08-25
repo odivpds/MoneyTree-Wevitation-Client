@@ -26,7 +26,7 @@ export default function Navbar() {
         <ul className={`navbar__menu ${isMenuOpen ? 'open' : ''}`} id="navMenu">
           <li><Link href="/#beranda" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Beranda</Link></li>
           <li><Link href="/#fitur" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Fitur</Link></li>
-          <li><Link href="/templates" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Desain</Link></li>
+          <li><Link href="/#desain" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Desain</Link></li>
           <li><Link href="/#cara-kerja" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Cara Kerja</Link></li>
           <li><Link href="/#harga" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Harga</Link></li>
           <li><Link href="/#testimoni" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Testimoni</Link></li>
