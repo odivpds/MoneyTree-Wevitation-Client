@@ -87,7 +87,7 @@ model Template {
   slug        String   @unique
   name        String
   type        String   @default("html") // html, react
-  category    String
+  category    String   @default("tradisional")
   desc        String?
   price       String?
   image       String?

@@ -389,7 +389,11 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
             if(main && main.classList.contains('hidden')) { main.classList.remove('hidden'); if (typeof WOW !== 'undefined') { new WOW().init(); } else if (typeof window.WOW !== 'undefined') { new window.WOW().init(); } }
 
             const el = document.getElementById(msg.id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (el) {
+              const yOffset = -50; // little padding
+              const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+              window.scrollTo({ top: y, behavior: 'smooth' });
+            }
           }
           if (msg.type === 'UPDATE_ACCENT_COLOR' && msg.color) {
             document.documentElement.style.setProperty('--accent-gold', msg.color);
@@ -457,13 +461,13 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
   const injectedHtml = getInjectedContent(data, timeLeft, htmlContent); // No debounce needed
 
   return (
-    <div className="html-template-wrapper" style={{ fontFamily: data.fontFamily, width: '100%', height: '100%', overflowX: 'hidden' }}>
+    <div className="html-template-wrapper" style={{ fontFamily: data.fontFamily, width: '100%', height: '100%', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {cssContent ? (
         <style dangerouslySetInnerHTML={{ __html: cssContent }} />
       ) : (
         <link rel="stylesheet" href={`/templates/${templateId}/style.css`} />
       )}
-      <div dangerouslySetInnerHTML={{ __html: injectedHtml }} />
+      <div style={{ width: '100%', height: '100%', flex: 1 }} dangerouslySetInnerHTML={{ __html: injectedHtml }} />
     </div>
   );
 });

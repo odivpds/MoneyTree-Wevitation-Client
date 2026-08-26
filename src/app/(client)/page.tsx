@@ -59,7 +59,7 @@ export default function Home() {
           setTemplatesData(data);
         }
       })
-      .catch(err => console.error('Gagal mengambil template', err));
+      .catch(() => console.warn('Gagal mengambil template dari API, menggunakan data lokal.'));
   }, []);
 
   useEffect(() => {

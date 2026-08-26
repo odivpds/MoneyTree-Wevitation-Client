@@ -30,7 +30,7 @@ export default function SerenityTheme() {
             Moments Are Framed with Love Grace
           </h1>
           <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+            Wujudkan pernikahan impian Anda dengan sentuhan elegan dan tradisi yang tak lekang oleh waktu.
           </p>
           <button className="bg-[#677359] text-white px-6 py-3 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-[#58634c] transition">
             Plan With Serenity <ArrowRight size={16} />
@@ -65,7 +65,7 @@ export default function SerenityTheme() {
         <div className="lg:col-span-4 space-y-8 lg:pl-8">
           <div>
             <h3 className="font-serif text-xl mb-2 text-[#222]">Short Gallery :</h3>
-            <p className="text-xs text-gray-500 mb-4">Lorem ipsum dolor sit amet, consectetur elit</p>
+            <p className="text-xs text-gray-500 mb-4">Momen indah yang diabadikan</p>
             <div className="flex gap-4">
               <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=400&auto=format&fit=crop" className="w-24 h-24 rounded-xl object-cover" alt="Gallery 1" />
               <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=400&auto=format&fit=crop" className="w-24 h-24 rounded-xl object-cover" alt="Gallery 2" />
@@ -95,7 +95,7 @@ export default function SerenityTheme() {
         <div className="bg-white rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-sm">
           <h2 className="font-serif text-3xl md:text-4xl text-[#222] max-w-xs">Because Every Moment Matters</h2>
           <p className="text-sm text-gray-500 max-w-sm mt-4 md:mt-0 text-center md:text-left">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis.
+            Rayakan hari paling bahagia dalam hidup Anda bersama orang-orang tercinta dengan kehangatan dan keanggunan.
           </p>
           <div className="mt-6 md:mt-0 text-center md:text-right">
             <h3 className="text-5xl font-serif text-[#333]">6.8<span className="text-[#D4C4B7]">+</span></h3>
@@ -127,7 +127,7 @@ export default function SerenityTheme() {
           </div>
           <h2 className="font-serif text-4xl text-[#222] mb-6">A Journey Of Love</h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-8">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+            Sebuah perjalanan cinta yang disatukan dalam ikatan suci. Kami menghadirkan sentuhan magis dalam setiap detail pernikahan Anda, dari upacara adat hingga resepsi modern yang berkesan.
           </p>
           <button className="bg-[#677359] text-white px-8 py-3 rounded-full text-sm font-medium hover:bg-[#58634c] transition flex items-center gap-2 w-fit">
             Learn More <ArrowRight size={16} />
@@ -146,7 +146,7 @@ export default function SerenityTheme() {
               <span className="text-sm text-gray-500 uppercase tracking-wider">What We Do</span>
             </div>
             <p className="text-xs text-gray-500 text-right">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper.
+              Mewujudkan harmoni sempurna antara harapan Anda dan tradisi Bali yang memesona.
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function SerenityTheme() {
               <span className="font-serif text-2xl text-[#333]">{service.num}</span>
               <div>
                 <h3 className="font-serif text-xl mb-3 text-[#222]">{service.title}</h3>
-                <p className="text-xs text-gray-500 mb-6">Lorem ipsum dolor sit amet, consectetur elit sit amet.</p>
+                <p className="text-xs text-gray-500 mb-6">Menciptakan momen indah untuk dikenang selamanya.</p>
                 <div className="w-8 h-8 rounded-full bg-[#D4C4B7] text-white flex items-center justify-center group-hover:-translate-y-1 group-hover:translate-x-1 transition transform">
                   <ArrowUpRight size={16} />
                 </div>
@@ -201,7 +201,7 @@ export default function SerenityTheme() {
             <div className="bg-[#F0EBE1] rounded-[40px] p-12 h-full flex flex-col justify-center">
               <h2 className="font-serif text-5xl text-[#222] mb-6">Essence of Serenity</h2>
               <p className="text-sm text-gray-500 mb-12 max-w-sm">
-                Lorem ipsum dolor sit amet, consectetur elit adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis.
+                Kedamaian dan kebahagiaan yang menyatu dalam janji suci pernikahan, diiringi doa restu dari semesta.
               </p>
               <div className="w-24 h-24 opacity-20">
                 {/* Decorative flower SVG placeholder */}
@@ -243,7 +243,7 @@ export default function SerenityTheme() {
               <span className="text-sm text-gray-500 uppercase tracking-wider">Portfolio</span>
             </div>
             <p className="text-xs text-gray-500 text-right">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper.
+              Lihatlah koleksi momen berharga yang telah kami abadikan dengan penuh dedikasi.
             </p>
           </div>
         </div>
@@ -306,7 +306,7 @@ export default function SerenityTheme() {
                   </div>
                   {i === 0 && (
                     <p className="text-xs text-gray-500 mt-4 leading-relaxed">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                      Langkah pertama adalah menghubungi tim kami melalui tombol "Contact Us". Kami akan mengatur jadwal diskusi awal untuk memahami visi dan kebutuhan pernikahan impian Anda, sebelum menyusun proposal yang disesuaikan.
                     </p>
                   )}
                 </div>
