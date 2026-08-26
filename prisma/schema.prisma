@@ -100,7 +100,7 @@ model Template {
   name        String
   type        String   @default("html") // html, react
   categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])   @default("tradisional")
   desc        String?
   price       String?
   image       String?

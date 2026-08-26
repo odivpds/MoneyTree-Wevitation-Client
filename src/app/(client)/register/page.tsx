@@ -55,6 +55,11 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleRegister}>
+          {error && (
+            <div style={{ padding: 'var(--space-3)', marginBottom: 'var(--space-4)', background: '#fee2e2', color: '#ef4444', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-sm)', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
           <div className="form-group">
             <label className="form-group__label">Nama Lengkap</label>
             <input 

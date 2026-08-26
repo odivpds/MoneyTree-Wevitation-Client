@@ -169,40 +169,41 @@ function ResultContent() {
 
   return (
     <>
-      <div className="preview-container bali-pattern-bg" style={{ minHeight: '100vh', display: 'flex' }}>
+      <div className="preview-container bali-pattern-bg" style={{ minHeight: '100vh', display: 'flex', paddingTop: '80px' }}>
         
         {/* Left Side: Generated Invitation Preview */}
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative', overflowY: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
           {/* INVITATION CONTENT - Mobile Phone Mockup Style */}
           <div style={{
             width: '390px',
             height: '844px',
-            margin: '80px auto',
-            transform: 'scale(0.85)',
+            margin: '40px 0',
+            transform: 'scale(0.8)',
             transformOrigin: 'top center',
             background: '#000000',
-            borderRadius: '44px',
+            borderRadius: '55px',
             padding: '0',
-            boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6)',
             overflow: 'hidden',
-            border: '14px solid #1a1a1a',
-            position: 'relative'
+            border: '14px solid #121212',
+            position: 'relative',
+            flexShrink: 0
           }}>
             {/* iPhone Dynamic Island */}
             <div style={{
               position: 'absolute', top: '12px', left: '50%', transform: 'translateX(-50%)',
-              width: '120px', height: '35px', background: '#000000', borderRadius: '20px',
+              width: '125px', height: '35px', background: '#000000', borderRadius: '20px',
               zIndex: 999, pointerEvents: 'none'
             }} />
 
             {/* iPhone Side Buttons */}
-            <div style={{ position: 'absolute', top: '120px', right: '-14px', width: '3px', height: '60px', background: '#1a1a1a', borderTopRightRadius: '3px', borderBottomRightRadius: '3px' }} />
-            <div style={{ position: 'absolute', top: '100px', left: '-14px', width: '3px', height: '30px', background: '#1a1a1a', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
-            <div style={{ position: 'absolute', top: '150px', left: '-14px', width: '3px', height: '60px', background: '#1a1a1a', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
+            <div style={{ position: 'absolute', top: '120px', right: '-16px', width: '3px', height: '60px', background: '#121212', borderTopRightRadius: '3px', borderBottomRightRadius: '3px' }} />
+            <div style={{ position: 'absolute', top: '100px', left: '-16px', width: '3px', height: '30px', background: '#121212', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
+            <div style={{ position: 'absolute', top: '160px', left: '-16px', width: '3px', height: '60px', background: '#121212', borderTopLeftRadius: '3px', borderBottomLeftRadius: '3px' }} />
 
-            <div className="invitation-preview" style={{ transform: 'none', position: 'relative', height: '100%' }}>
+            <div className="invitation-preview" style={{ transform: 'none', position: 'relative', height: '100%', width: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', border: 'none', borderRadius: 0, background: 'transparent', boxShadow: 'none' }}>
               {isHtmlTemplate ? (
-                <div style={{ width: '100%', height: '100%' }}>
+                <div style={{ width: '100%', height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <HtmlAdapter templateId={template} data={formData} photo={photo} timeLeft={timeLeft} domOverrides={domOverrides} isEditable={false} />
                 </div>
               ) : (
@@ -215,8 +216,8 @@ function ResultContent() {
             {/* iPhone Home Indicator */}
             <div style={{
               position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)',
-              width: '135px', height: '5px', background: 'rgba(255, 255, 255, 0.7)',
-              mixBlendMode: 'difference', borderRadius: '100px', zIndex: 999, pointerEvents: 'none'
+              width: '135px', height: '5px', background: 'rgba(255, 255, 255, 0.5)',
+              borderRadius: '100px', zIndex: 999, pointerEvents: 'none'
             }} />
           </div>
         </div>
@@ -230,7 +231,8 @@ function ResultContent() {
           padding: '2rem',
           display: 'flex',
           flexDirection: 'column',
-          zIndex: 10
+          zIndex: 10,
+          overflowY: 'auto'
         }}>
           <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: '0.5rem' }}>Hasil Generate</h2>
           <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Undangan Anda berhasil dibuat dengan data awal yang telah diisi.</p>
@@ -266,7 +268,7 @@ function ResultContent() {
             )}
           </div>
 
-          <div style={{ marginTop: 'auto' }}>
+          <div style={{ marginTop: '0' }}>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem', textAlign: 'center' }}>
               Ingin mengubah ukuran font, letak teks, atau mengganti warna yang lebih spesifik?
             </p>

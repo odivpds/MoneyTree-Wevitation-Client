@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import HtmlAdapter from "@/components/templates/HtmlAdapter";
 import { TEMPLATES, TemplateConfig } from "@/config/templates";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faPencil, faCalendarAlt, faClock } from "@fortawesome/free-solid-svg-icons";
 
 // UX-H — Color palette with descriptive visible labels
 const ACCENT_COLORS = [
@@ -18,6 +18,24 @@ const ACCENT_COLORS = [
   { value: '#b08d8d', label: 'Dusty Rose' },
   { value: '#5c4033', label: 'Cokelat Tua' },
 ];
+
+// UX Improvement — Map HTML tags to readable labels for non-technical users
+const getReadableTagName = (tagName: string) => {
+  const map: Record<string, string> = {
+    'P': 'Teks Paragraf',
+    'H1': 'Judul Utama',
+    'H2': 'Sub Judul',
+    'H3': 'Sub Judul Kecil',
+    'H4': 'Sub Judul Kecil',
+    'H5': 'Sub Judul Kecil',
+    'H6': 'Sub Judul Kecil',
+    'SPAN': 'Teks Pendek',
+    'DIV': 'Blok Konten',
+    'A': 'Tautan / Tombol',
+    'IMG': 'Gambar / Foto'
+  };
+  return map[tagName.toUpperCase()] || 'Teks Terpilih';
+};
 
 function EditorContent() {
   const router = useRouter();
@@ -38,6 +56,7 @@ function EditorContent() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   // UX-J — Mobile preview toggle
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
+  const [isMobileEditPanelOpen, setIsMobileEditPanelOpen] = useState(false);
 
   // Auth guard redirect
   useEffect(() => {
@@ -582,6 +601,11 @@ function EditorContent() {
   const currentTemplateConfig = templatesData.find(t => t.id === template || t.slug === template);
   const isVisualEditSupported = currentTemplateConfig?.type === 'html-js';
 
+  // UX-O — Calculate progress
+  const requiredFields = ['groomName', 'brideName', 'weddingDate', 'mainVenue', 'akadDate', 'akadTime', 'akadVenue'];
+  const filledCount = requiredFields.filter(f => formData[f as keyof typeof formData]?.trim() !== '').length;
+  const progressPercent = Math.round((filledCount / requiredFields.length) * 100);
+
   // Loading / auth guard screens
   if (!isInitialized) {
     return (
@@ -597,17 +621,51 @@ function EditorContent() {
   }
 
   return (
-    <div className="bali-pattern-bg" style={{ minHeight: "100vh", width: "100%", paddingTop: "100px" }}>
-      <div className="editor container" id="editorLayout" style={{ paddingTop: "20px", paddingBottom: "140px" }}>
+    <div className="bali-pattern-bg" style={{ minHeight: "100vh", width: "100%", paddingTop: "0" }}>
+      {/* UX-N — Minimalist Header for Editor Mode */}
+      <header className="editor__header">
+        <div className="editor__header-left">
+          <span className="editor__logo">Undangan Bali</span>
+          <span className="editor__template-name">
+            <span className="hide-text-mobile">Mengedit: </span>
+            <span className="template-label">{template}</span>
+          </span>
+        </div>
+        
+        <div className="editor__header-right">
+          <div className="editor__status-container">
+            {isDirty ? (
+              <span className="editor__status editor__status--dirty" title="Perubahan belum disimpan">
+                <span className="status-dot"></span>
+                <span className="hide-text-mobile">Belum disimpan</span>
+              </span>
+            ) : (
+              <span className="editor__status editor__status--saved" title="Tersimpan otomatis">
+                <span className="status-dot"></span>
+                <span className="hide-text-mobile">Tersimpan otomatis</span>
+              </span>
+            )}
+          </div>
+          <button 
+            className="editor__btn-keluar"
+            onClick={() => {
+              if (isDirty) {
+                if(window.confirm('Ada perubahan yang belum disimpan. Yakin ingin keluar?')) {
+                  router.push('/');
+                }
+              } else {
+                router.push('/');
+              }
+            }}
+          >
+            Keluar
+          </button>
+        </div>
+      </header>
 
-        <button
-          className="editor__preview-toggle"
-          onClick={() => setIsMobilePreviewOpen(prev => !prev)}
-          style={{ order: isMobilePreviewOpen ? 0 : 1, marginTop: isMobilePreviewOpen ? 0 : 'var(--space-4)' }}>
-          {isMobilePreviewOpen ? '✕ Tutup Preview' : '👁️ Lihat Preview Undangan'}
-        </button>
+      <div className="editor container" id="editorLayout" style={{ paddingTop: "40px", paddingBottom: "140px" }}>
 
-        <div className={`editor__preview${!isMobilePreviewOpen ? ' editor__preview--collapsed' : ''}`}>
+        <div className="editor__preview">
           <div className={`editor__preview-frame bali-frame${activeTab === 'visual' && isVisualEditSupported ? ' editor__preview-frame--visual-active' : ''}`} id="previewFrame">
             {/* UX-C — Show skeleton during CMS load */}
             {isLoadingTemplates ? (
@@ -631,36 +689,38 @@ function EditorContent() {
                 </div>
               );
             })()}
-            {activeTab === 'visual' && detectedSections.length > 0 && (
-              <div style={{
-                position: 'absolute',
-                bottom: '100px', // Moved up to avoid overlapping with template bottom nav
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '15px',
-                zIndex: 1000
-              }}>
+          </div>
+          {activeTab === 'visual' && detectedSections.length > 0 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '15px',
+              padding: '16px 0'
+            }}>
                 <button 
                   onClick={handlePrevSection} 
                   disabled={currentSectionIndex === 0} 
+                  aria-label="Elemen sebelumnya"
                   style={{ 
                     border: 'none', 
                     background: 'rgba(255, 255, 255, 0.9)', 
                     cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer', 
-                    fontSize: '18px',
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)',
+                    lineHeight: 1
                   }} 
-                  title="Previous Section"
+                  title="Elemen Sebelumnya"
                 >
-                  <i className="fa-solid fa-chevron-left" style={{ color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)' }}></i>
+                  ‹
                 </button>
                 
                 {currentSectionIndex === 0 ? (
@@ -712,37 +772,64 @@ function EditorContent() {
                 <button 
                   onClick={handleNextSection} 
                   disabled={currentSectionIndex === detectedSections.length - 1} 
+                  aria-label="Elemen berikutnya"
                   style={{ 
                     border: 'none', 
                     background: 'rgba(255, 255, 255, 0.9)', 
                     cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer', 
-                    fontSize: '18px',
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    color: currentSectionIndex === detectedSections.length - 1 ? '#ccc' : 'var(--accent-gold, #cda75f)',
+                    lineHeight: 1
                   }} 
-                  title="Next Section"
+                  title="Elemen Berikutnya"
                 >
-                  <i className="fa-solid fa-chevron-right" style={{ color: currentSectionIndex === detectedSections.length - 1 ? '#ccc' : 'var(--accent-gold, #cda75f)' }}></i>
+                  ›
                 </button>
               </div>
             )}
-          </div>
         </div>
 
-        {/* RIGHT (desktop) / TOP (mobile): Edit Panel */}
-        <div className="editor__panel">
-          <div className="editor__panel-card">
-            {/* UX-A — Back button */}
-            <Link href="/templates" className="editor__back-link">
-              ← Pilih Template Lain
-            </Link>
+        {/* Mobile Floating Edit Button */}
+        <button
+          className="mobile-edit-fab"
+          onClick={() => setIsMobileEditPanelOpen(true)}
+          title="Buka Panel Edit"
+        >
+          <i className="fa-solid fa-pencil"></i> Edit
+        </button>
 
-            <h2 className="editor__panel-title"><FontAwesomeIcon icon={faPencil} /> Edit Undangan</h2>
+        {/* RIGHT (desktop) / TOP (mobile): Edit Panel */}
+        <div className={`editor__panel ${isMobileEditPanelOpen ? 'editor__panel--mobile-open' : ''}`} id="editPanel">
+          <div className="editor__panel-card">
+            {/* UX-A — Back button and Mobile Close Button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+              <Link href="/templates" className="editor__back-link" style={{ marginBottom: 0 }}>
+                ← Pilih Template Lain
+              </Link>
+              <button 
+                className="mobile-close-panel-btn" 
+                onClick={() => setIsMobileEditPanelOpen(false)}
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  fontSize: '1.2rem', 
+                  color: 'var(--text-muted)', 
+                  cursor: 'pointer' 
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <h2 className="editor__panel-title" style={{ marginTop: 0 }}><FontAwesomeIcon icon={faPencil} /> Edit Undangan</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: '-20px', marginBottom: 'var(--space-6)' }}>
               Template: <strong style={{ color: 'var(--accent-gold)', textTransform: 'capitalize' }}>{template}</strong>
               {isDirty ? (
@@ -751,6 +838,17 @@ function EditorContent() {
                 <span style={{ marginLeft: '8px', color: '#10b981', fontSize: 'var(--text-xs)' }}>✓ tersimpan otomatis</span>
               ) : null}
             </p>
+
+            {/* UX-O — Progress Indicator */}
+            <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Kelengkapan Data</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{filledCount} dari {requiredFields.length} selesai ({progressPercent}%)</span>
+              </div>
+              <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ width: `${progressPercent}%`, height: '100%', background: progressPercent === 100 ? '#10b981' : 'var(--accent-gold)', transition: 'width 0.5s ease' }}></div>
+              </div>
+            </div>
 
             {/* Tab navigation */}
             <div className="editor__tabs" role="tablist" aria-label="Panel editor" style={{ flexWrap: 'wrap', gap: '8px' }}>
@@ -788,7 +886,8 @@ function EditorContent() {
 
             {/* TAB: INFO — UX-F per-field validation */}
             {activeTab === 'info' && (
-              <div className="editor__tab-content" role="tabpanel" id="tabpanel-info" aria-labelledby="tab-info">
+              <div className="editor__tab-content scroll-fade-container" role="tabpanel" id="tabpanel-info" aria-labelledby="tab-info" style={{ position: 'relative', overflowY: 'auto', paddingBottom: '2rem' }}>
+                <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Data Mempelai Pria</p>
                 <div className={`form-group${fieldErrors.groomName ? ' form-group--error' : ''}`}>
                   <label className="form-group__label">Nama Mempelai Pria *</label>
                   <input type="text" name="groomName" className="form-group__input" placeholder="Contoh: I Putu Agus Rama" value={formData.groomName} onChange={handleInputChange} />
@@ -798,6 +897,8 @@ function EditorContent() {
                   <label className="form-group__label">Nama Orangtua Pria</label>
                   <input type="text" name="groomParents" className="form-group__input" placeholder="Putra dari Bpk... & Ibu..." value={formData.groomParents} onChange={handleInputChange} />
                 </div>
+                
+                <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', margin: 'var(--space-6) 0 var(--space-4)' }}>Data Mempelai Wanita</p>
                 <div className={`form-group${fieldErrors.brideName ? ' form-group--error' : ''}`}>
                   <label className="form-group__label">Nama Mempelai Wanita *</label>
                   <input type="text" name="brideName" className="form-group__input" placeholder="Contoh: Ni Kadek Dewi Sari" value={formData.brideName} onChange={handleInputChange} />
@@ -807,9 +908,14 @@ function EditorContent() {
                   <label className="form-group__label">Nama Orangtua Wanita</label>
                   <input type="text" name="brideParents" className="form-group__input" placeholder="Putri dari Bpk... & Ibu..." value={formData.brideParents} onChange={handleInputChange} />
                 </div>
+
+                <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', margin: 'var(--space-6) 0 var(--space-4)' }}>Waktu & Lokasi Utama</p>
                 <div className="form-group">
                   <label className="form-group__label">Tanggal Pernikahan (Umum)</label>
-                  <input type="date" name="weddingDate" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.weddingDate} onChange={handleInputChange} />
+                  <div style={{ position: 'relative' }}>
+                    <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                    <input type="date" name="weddingDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.weddingDate} onChange={handleInputChange} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-group__label">Lokasi Utama</label>
@@ -824,11 +930,17 @@ function EditorContent() {
                 <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Akad / Pawiwahan</p>
                 <div className="form-group">
                   <label className="form-group__label">Tanggal Akad</label>
-                  <input type="date" name="akadDate" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadDate} onChange={handleInputChange} />
+                  <div style={{ position: 'relative' }}>
+                    <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                    <input type="date" name="akadDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadDate} onChange={handleInputChange} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-group__label">Waktu Akad</label>
-                  <input type="time" name="akadTime" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadTime} onChange={handleInputChange} />
+                  <div style={{ position: 'relative' }}>
+                    <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                    <input type="time" name="akadTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadTime} onChange={handleInputChange} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-group__label">Tempat Akad</label>
@@ -838,11 +950,17 @@ function EditorContent() {
                 <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Resepsi</p>
                 <div className="form-group">
                   <label className="form-group__label">Tanggal Resepsi</label>
-                  <input type="date" name="resepsiDate" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiDate} onChange={handleInputChange} />
+                  <div style={{ position: 'relative' }}>
+                    <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                    <input type="date" name="resepsiDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiDate} onChange={handleInputChange} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-group__label">Waktu Resepsi</label>
-                  <input type="time" name="resepsiTime" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiTime} onChange={handleInputChange} />
+                  <div style={{ position: 'relative' }}>
+                    <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                    <input type="time" name="resepsiTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiTime} onChange={handleInputChange} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-group__label">Tempat Resepsi</label>
@@ -878,7 +996,7 @@ function EditorContent() {
                     {selectedElement ? (
                       <div className="form-group" style={{ animation: 'fadeIn 0.3s ease forwards' }}>
                         <label className="form-group__label">
-                          Edit Elemen: <code style={{ fontSize: '0.75rem', background: 'var(--bg-tertiary)', padding: '2px 4px', borderRadius: '4px' }}>{selectedElement.tagName}</code>
+                          Edit Elemen: <code style={{ fontSize: '0.75rem', background: 'var(--bg-tertiary)', padding: '2px 4px', borderRadius: '4px' }}>{getReadableTagName(selectedElement.tagName)}</code>
                         </label>
 
                         {selectedElement.tagName === 'IMG' ? (
@@ -918,7 +1036,7 @@ function EditorContent() {
                               style={{ minHeight: '100px', resize: 'vertical' }}
                               value={selectedElement.content}
                               onChange={(e) => handleVisualElementChange({ content: e.target.value })}
-                              placeholder="Ketik teks di sini..."
+                              placeholder="Contoh: Atas asung kertha wara nugraha Ida Sang Hyang Widhi Wasa..."
                             />
                             {selectedElement.tagName === 'A' && (
                               <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>

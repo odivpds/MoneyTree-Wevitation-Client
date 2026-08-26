@@ -83,7 +83,7 @@ export default function Home() {
       .then(data => {
         if (Array.isArray(data)) setCategories(data);
       })
-      .catch(err => console.error('Failed to load categories', err));
+      .catch(() => console.warn('Failed to load categories dari API, menggunakan data lokal.'));
   }, []);
 
   useEffect(() => {

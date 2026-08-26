@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isLoggedIn, user, logout } = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +19,8 @@ export default function Navbar() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (pathname === '/editor') return null;
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`} id="navbar">
