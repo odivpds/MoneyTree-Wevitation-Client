@@ -10,7 +10,11 @@ export async function createCategory(formData: FormData) {
   const description = formData.get("description") as string;
   const minPrice = formData.get("minPrice") as string;
   const maxPrice = formData.get("maxPrice") as string;
-  const priceText = `${minPrice} - ${maxPrice} RB`;
+  
+  const formatRupiah = (angka: string) => {
+    return "Rp." + Number(angka).toLocaleString("id-ID");
+  };
+  const priceText = `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}`;
 
   if (!name || !slug) {
     throw new Error("Name and slug are required");
@@ -35,7 +39,11 @@ export async function updateCategory(originalSlug: string, formData: FormData) {
   const description = formData.get("description") as string;
   const minPrice = formData.get("minPrice") as string;
   const maxPrice = formData.get("maxPrice") as string;
-  const priceText = `${minPrice} - ${maxPrice} RB`;
+  
+  const formatRupiah = (angka: string) => {
+    return "Rp." + Number(angka).toLocaleString("id-ID");
+  };
+  const priceText = `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}`;
 
   if (!name || !slug) {
     throw new Error("Name and slug are required");

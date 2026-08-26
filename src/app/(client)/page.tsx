@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,8 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { faShare } from "@fortawesome/free-solid-svg-icons";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 
+
+const PRIORITY_ORDER = ["Basic", "Premium", "Exclusive"];
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -29,6 +31,18 @@ export default function Home() {
       router.push(url);
     }
   };
+
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a: any, b: any) => {
+      const indexA = PRIORITY_ORDER.indexOf(a.name);
+      const indexB = PRIORITY_ORDER.indexOf(b.name);
+
+      const weightA = indexA === -1 ? 99 : indexA;
+      const weightB = indexB === -1 ? 99 : indexB;
+
+      return weightA - weightB;
+    });
+  }, [categories]);
 
   useEffect(() => {
     // Scroll Reveal Initialization
@@ -180,7 +194,7 @@ export default function Home() {
           </p>
 
           <div className="template-grid reveal-stagger" style={{ marginTop: 'var(--space-12)' }}>
-            {categories.map((cat: any) => (
+            {sortedCategories.map((cat: any) => (
               <div key={cat.id} className="template-card reveal shimmer-border" style={{ cursor: 'pointer' }} onClick={() => window.location.href = `/templates/${cat.slug}`}>
                 <div className="template-card__image" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f5f3ec, #e6dfd1)' }}>
                   <span style={{ fontSize: '3rem', color: '#b8a687', fontFamily: 'var(--font-serif)' }}>{cat.name.charAt(0).toUpperCase()}</span>
@@ -188,34 +202,23 @@ export default function Home() {
                 <div className="template-card__body">
                   <h3 className="template-card__name">{cat.name}</h3>
                   <p className="template-card__desc">{cat.description || `Koleksi desain undangan eksklusif kategori ${cat.name}.`}</p>
-                  <div className="template-card__footer">
+                  <div className="template-card__footer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <span className="template-card__price">
-                      {cat.priceText === 'Gratis' || cat.priceText === 'Mulai Gratis' 
-                        ? <span className="free" style={{ color: 'var(--success)' }}>{cat.priceText}</span> 
+                      {cat.priceText === 'Gratis' || cat.priceText === 'Mulai Gratis'
+                        ? <span className="free" style={{ color: 'var(--success)' }}>{cat.priceText}</span>
                         : cat.priceText}
                     </span>
-                    <Link href={`/templates/${cat.slug}`} className="btn btn--secondary btn--sm">Lihat Desain</Link>
                   </div>
                 </div>
               </div>
             ))}
-            
+            <div style={{ margin: '3rem', display: 'grid', placeItems: 'center', gridColumn: '1 / -1' }}>
+              <button onClick={() => window.location.href = '/templates'} className="btn btn--secondary btn--md">Lihat Semua Template</button>
+            </div>
+
             {categories.length === 0 && (
               <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem' }}>Memuat kategori...</p>
             )}
-          </div>
-
-          <div
-            style={{
-              marginTop: 'var(--space-12)',
-              position: 'relative',
-              zIndex: 20
-            }}
-            className="reveal"
-          >
-            <Link href="/templates" className="btn btn--primary btn--lg">
-              Lihat Semua Template →
-            </Link>
           </div>
 
         </div>
@@ -269,42 +272,43 @@ export default function Home() {
 
           <div className="pricing-grid reveal" style={{ marginTop: 'var(--space-12)' }}>
             <div className="glass-card pricing-card">
-              <h3 className="pricing-card__name">Gratis</h3>
-              <p className="pricing-card__price"><span className="free" style={{ color: 'var(--success)' }}>Rp 0</span></p>
+              <h3 className="pricing-card__name">BASIC</h3>
+              <del className="pricing-card__price_coret">Rp 150k</del>
+              <p className="pricing-card__price" style={{ color: 'var(--accent-gold)' }}>Rp 100k</p>
               <p className="pricing-card__desc">Coba buat undangan pertama Anda</p>
               <ul className="pricing-card__features">
-                <li>1 Template dasar</li>
-                <li>Upload 1 foto</li>
-                <li>Kustomisasi teks</li>
-                <li>Bagikan via link</li>
-                <li className="disabled">Hapus watermark</li>
-                <li className="disabled">Template premium</li>
-                <li className="disabled">QR Code</li>
-                <li className="disabled">Custom domain</li>
+                <li>Custom template design</li>
+                <li>Background music</li>
+                <li>Custom domain</li>
+                <li>Countdown timer</li>
+                <li>Gallery foto</li>
+                <li>Priority support</li>
               </ul>
-              <Link href="/templates" className="btn btn--secondary" style={{ width: '100%' }}>Mulai Gratis</Link>
+              <Link href="/templates/basic" className="btn btn--secondary" style={{ width: '100%' }}>Pilih Basic</Link>
             </div>
 
             <div className="glass-card pricing-card pricing-card--featured gold-pulse">
-              <h3 className="pricing-card__name">Premium</h3>
-              <p className="pricing-card__price">Rp 299K</p>
+              <h3 className="pricing-card__name">PREMIUM</h3>
+              <del className="pricing-card__price_coret">Rp 175k</del>
+              <p className="pricing-card__price" style={{ color: 'var(--accent-gold)' }}>Rp 150K</p>
               <p className="pricing-card__desc">Paket terlengkap dan paling populer</p>
               <ul className="pricing-card__features">
-                <li>Semua template premium</li>
-                <li>Upload foto unlimited</li>
-                <li>Kustomisasi penuh</li>
-                <li>Bagikan semua platform</li>
-                <li>Tanpa watermark</li>
-                <li>RSVP tracking</li>
-                <li>QR Code</li>
-                <li className="disabled">Custom domain</li>
+                <li>Semua fitur Basic</li>
+                <li>Custom template design</li>
+                <li>Background music</li>
+                <li>Video undangan</li>
+                <li>Custom domain</li>
+                <li>Countdown timer</li>
+                <li>Gallery foto</li>
+                <li>Priority support</li>
               </ul>
-              <Link href="/templates" className="btn btn--primary" style={{ width: '100%' }}>Pilih Premium</Link>
+              <Link href="/templates/premium" className="btn btn--primary" style={{ width: '100%' }}>Pilih Premium</Link>
             </div>
 
             <div className="glass-card pricing-card">
-              <h3 className="pricing-card__name">Eksklusif</h3>
-              <p className="pricing-card__price">Rp 599K</p>
+              <h3 className="pricing-card__name">EKSKLUSIF</h3>
+              <del className="pricing-card__price_coret">Rp 300k</del>
+              <p className="pricing-card__price" style={{ color: 'var(--accent-gold)' }}>Rp 200K</p>
               <p className="pricing-card__desc">Untuk pernikahan yang sempurna</p>
               <ul className="pricing-card__features">
                 <li>Semua fitur Premium</li>
@@ -316,7 +320,7 @@ export default function Home() {
                 <li>Gallery foto</li>
                 <li>Priority support</li>
               </ul>
-              <Link href="/templates" className="btn btn--burgundy" style={{ width: '100%' }}>Pilih Eksklusif</Link>
+              <Link href="/templates/eksklusif" className="btn btn--burgundy" style={{ width: '100%' }}>Pilih Eksklusif</Link>
             </div>
           </div>
         </div>
@@ -397,7 +401,7 @@ export default function Home() {
           </p>
           <div className="reveal">
             <Link href="/templates" className="btn btn--primary btn--lg">
-              <FontAwesomeIcon icon={faStar} /> Mulai Sekarang Gratis
+              <FontAwesomeIcon icon={faStar} /> Pilih Template
             </Link>
           </div>
         </div>

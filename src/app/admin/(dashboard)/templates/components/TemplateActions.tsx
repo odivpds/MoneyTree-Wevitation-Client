@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Edit, Trash2, Loader2 } from "lucide-react";
 import { deleteTemplate } from "../actions";
 
-export default function TemplateActions({ id, slug, title }: { id: string, slug: string, title: string }) {
+export default function TemplateActions({ id, slug, categorySlug, title }: { id: string, slug: string, categorySlug: string, title: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -23,9 +23,9 @@ export default function TemplateActions({ id, slug, title }: { id: string, slug:
   return (
     <div className="flex items-center space-x-2">
       <Link 
-        href={`/admin/templates/${slug}/edit`}
+        href={`/admin/templates/${categorySlug}/${slug}/edit`}
         title="Edit Template"
-        className="text-gray-400 hover:text-[#677359] transition-colors"
+        className="cursor-pointer text-gray-400 hover:text-[#677359] transition-colors"
       >
         <Edit size={18} />
       </Link>
@@ -33,7 +33,7 @@ export default function TemplateActions({ id, slug, title }: { id: string, slug:
       <button 
         onClick={() => setIsOpen(true)}
         title="Hapus Template"
-        className="text-gray-400 hover:text-red-500 transition-colors"
+        className="cursor-pointer text-gray-400 hover:text-red-500 transition-colors"
       >
         <Trash2 size={18} />
       </button>
@@ -62,14 +62,14 @@ export default function TemplateActions({ id, slug, title }: { id: string, slug:
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={deleting}
-                className="mt-3 sm:mt-0 inline-flex h-11 items-center justify-center rounded-full border border-[#E6DFD1] bg-white px-6 text-sm font-medium text-[#333] hover:bg-[#faf7f2] transition-colors disabled:opacity-50 shadow-sm"
+                className="cursor-pointer mt-3 sm:mt-0 inline-flex h-11 items-center justify-center rounded-full border border-[#E6DFD1] bg-white px-6 text-sm font-medium text-[#333] hover:bg-[#faf7f2] transition-colors disabled:opacity-50 shadow-sm"
               >
                 Batal
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="inline-flex h-11 items-center justify-center space-x-2 rounded-full bg-red-500 px-6 text-sm font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50 shadow-sm"
+                className="cursor-pointer inline-flex h-11 items-center justify-center space-x-2 rounded-full bg-red-500 px-6 text-sm font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50 shadow-sm"
               >
                 {deleting ? (
                   <>

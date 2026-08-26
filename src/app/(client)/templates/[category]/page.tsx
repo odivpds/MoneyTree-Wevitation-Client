@@ -57,7 +57,7 @@ export default function CategoryTemplatesPage() {
       .catch(err => {
         console.warn('Gagal memuat template dari CMS, menggunakan config lokal:', err.message || err);
       });
-      
+
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => {
@@ -86,7 +86,7 @@ export default function CategoryTemplatesPage() {
       <section className="section bali-pattern-bg bali-corners" style={{ paddingTop: '140px' }}>
         <div className="container text-center">
           <span className="section-label reveal">Koleksi Desain</span>
-          <h1 className="section-title reveal" style={{ fontSize: 'var(--text-5xl)' }}>Kategori: {categoryName}</h1>
+          <h1 className="section-title reveal" style={{ fontSize: 'var(--text-5xl)' }}>Koleksi Desain {categoryName}</h1>
           <p className="section-subtitle reveal">
             Pilih template undangan pernikahan Bali yang sempurna untuk hari istimewa Anda.
           </p>
@@ -118,9 +118,9 @@ export default function CategoryTemplatesPage() {
                       {tpl.badge}
                     </span>
                   )}
-                  <div className="template-card__overlay">
+                  {/* <div className="template-card__overlay">
                     <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--primary">Pilih Template Ini</button>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="template-card__body">
                   <h3 className="template-card__name">{tpl.name}</h3>

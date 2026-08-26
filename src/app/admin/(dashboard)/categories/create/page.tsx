@@ -56,14 +56,14 @@ export default function CreateCategoryPage() {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="minPrice" className="block text-sm font-bold text-[#333] mb-2 uppercase tracking-wide">Harga Min (Ribuan)</label>
+              <label htmlFor="minPrice" className="block text-sm font-bold text-[#333] mb-2 uppercase tracking-wide">Harga Minimum</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
                 <input
                   type="text"
                   id="minPrice"
                   name="minPrice"
-                  placeholder="100"
+                  placeholder="100000"
                   required
                   onInput={(e) => {
                     e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
@@ -74,24 +74,24 @@ export default function CreateCategoryPage() {
             </div>
             
             <div>
-              <label htmlFor="maxPrice" className="block text-sm font-bold text-[#333] mb-2 uppercase tracking-wide">Harga Max (Ribuan)</label>
+              <label htmlFor="maxPrice" className="block text-sm font-bold text-[#333] mb-2 uppercase tracking-wide">Harga Maximum</label>
               <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
                 <input
                   type="text"
                   id="maxPrice"
                   name="maxPrice"
-                  placeholder="300"
+                  placeholder="300000"
                   required
                   onInput={(e) => {
                     e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
                   }}
-                  className="w-full px-4 py-3 bg-[#faf7f2] border border-[#D4C4B7] rounded-xl text-[#333] focus:outline-none focus:ring-2 focus:ring-[#677359] focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-[#faf7f2] border border-[#D4C4B7] rounded-xl text-[#333] focus:outline-none focus:ring-2 focus:ring-[#677359] focus:border-transparent transition-all"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">RB</span>
               </div>
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Masukkan angka dalam ribuan. Contoh: Min 100 dan Max 300 akan menjadi "100 - 300 RB"</p>
+          <p className="text-xs text-gray-500 mt-1">Masukkan angka penuh tanpa titik. Contoh: 100000 dan 300000 akan menjadi "Rp.100.000 - Rp.300.000"</p>
         </div>
 
         <div className="pt-4 flex justify-end">

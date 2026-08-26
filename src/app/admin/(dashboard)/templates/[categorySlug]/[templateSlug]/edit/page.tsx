@@ -2,11 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import EditTemplateForm from "./EditTemplateForm";
 
-export default async function EditTemplatePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function EditTemplatePage({ params }: { params: Promise<{ categorySlug: string, templateSlug: string }> }) {
+  const { categorySlug, templateSlug } = await params;
   
   const template = await prisma.template.findUnique({
-    where: { slug }
+    where: { slug: templateSlug }
   });
 
   if (!template) {
@@ -17,5 +17,5 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ s
     orderBy: { createdAt: "asc" }
   });
 
-  return <EditTemplateForm template={template} categories={categories} />;
+  return <EditTemplateForm template={template} categories={categories} categorySlug={categorySlug} />;
 }

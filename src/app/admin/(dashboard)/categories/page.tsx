@@ -1,61 +1,100 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Plus } from "lucide-react";
+import { Plus, Tag, Banknote, ChevronRight, Layers, LayoutGrid } from "lucide-react";
 import CategoryActions from "./components/CategoryActions";
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
-    orderBy: { createdAt: "asc" }
+    orderBy: { createdAt: "asc" },
+    include: {
+      _count: {
+        select: { templates: true }
+      }
+    }
   });
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-end">
+    <div className="max-w-6xl mx-auto space-y-8 pb-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h2 className="text-4xl font-serif tracking-tight text-[#222] mb-2">Manajemen Kategori</h2>
-          <p className="text-gray-500 text-sm">Kelola kategori desain undangan secara dinamis.</p>
+          <h2 className="text-3xl font-serif tracking-tight text-[#222] mb-1">Kategori Undangan</h2>
+          <p className="text-gray-500 text-sm">
+            Kelola klasifikasi desain dan rentang harga undangan.
+          </p>
         </div>
-        <Link 
-          href="/admin/categories/create" 
-          className="flex items-center space-x-2 bg-[#677359] hover:bg-[#58634c] text-white px-6 py-3 rounded-full text-sm font-medium transition-all shadow-sm"
+        <Link
+          href="/admin/categories/create"
+          className="flex items-center space-x-2 bg-[#677359] hover:bg-[#58634c] text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm active:scale-95"
         >
-          <Plus size={18} strokeWidth={2.5} />
+          <Plus size={16} strokeWidth={2.5} />
           <span>Tambah Kategori</span>
         </Link>
       </div>
 
-      <div className="bg-white rounded-3xl border border-[#E6DFD1] overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-[#F0EBE1] border-b border-[#E6DFD1]">
-            <tr>
-              <th className="p-5 font-bold text-[#333] text-sm uppercase tracking-wider">Nama Kategori</th>
-              <th className="p-5 font-bold text-[#333] text-sm uppercase tracking-wider">Slug</th>
-              <th className="p-5 font-bold text-[#333] text-sm uppercase tracking-wider">Rentang Harga</th>
-              <th className="p-5 font-bold text-[#333] text-sm uppercase tracking-wider text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#E6DFD1]">
-            {categories.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="p-12 text-center text-gray-500">
-                  Belum ada kategori yang ditambahkan.
-                </td>
-              </tr>
-            ) : (
-              categories.map((cat) => (
-                <tr key={cat.id} className="hover:bg-[#faf7f2] transition-colors">
-                  <td className="p-5 font-serif font-bold text-[#222] text-lg">{cat.name}</td>
-                  <td className="p-5 text-gray-500 font-mono text-sm">{cat.slug}</td>
-                  <td className="p-5 text-gray-600 font-medium text-sm">{cat.priceText || '-'}</td>
-                  <td className="p-5">
-                    <CategoryActions id={cat.id} slug={cat.slug} name={cat.name} />
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Grid Section - 2 Columns for spacious feel */}
+      {categories.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-dashed border-[#D4C4B7] p-20 text-center">
+          <LayoutGrid className="mx-auto text-[#D4C4B7] mb-4" size={48} strokeWidth={1} />
+          <p className="text-gray-500 text-sm">Belum ada kategori yang ditambahkan.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {categories.map((cat) => (
+            <div key={cat.id} className="relative group">
+              {/* Menu Aksi (Edit/Hapus) - Positioned Absolutely */}
+              <div className="absolute top-6 right-6 z-10">
+                <CategoryActions id={cat.id} slug={cat.slug} name={cat.name} />
+              </div>
+
+              {/* Main Card Link */}
+              <Link
+                href={`/admin/templates/${cat.slug}`}
+                className="block bg-white rounded-[32px] border border-[#E6DFD1] p-8 transition-all duration-300 hover:shadow-lg hover:border-[#D4C4B7] active:scale-[0.99]"
+              >
+                <div className="flex flex-col h-full">
+                  {/* Top: Icon & Title */}
+                  <div className="flex items-center gap-5 mb-6">
+                    <div className="w-14 h-14 bg-[#faf7f2] rounded-2xl flex items-center justify-center group-hover:bg-[#F0EBE1] transition-colors">
+                      <Tag size={24} className="text-[#677359]" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">{cat.slug}</span>
+                      <h3 className="font-serif font-bold text-[#222] text-xl group-hover:text-[#677359] transition-colors">
+                        {cat.name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Middle: Description */}
+                  <p className="text-gray-500 text-sm leading-relaxed mb-8 line-clamp-2 pr-6">
+                    {cat.description || "Kelola koleksi desain undangan terbaik untuk kategori ini."}
+                  </p>
+
+                  {/* Bottom: Info Bar */}
+                  <div className="mt-auto flex items-center justify-between border-t border-[#f8f5f0] pt-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Rentang Harga</span>
+                      <div className="flex items-center text-[#333] font-semibold text-sm">
+                        <Banknote size={16} className="mr-2 text-[#677359]" />
+                        <span>{cat.priceText || "Belum diatur"}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-[#faf7f2] px-4 py-2 rounded-xl border border-[#E6DFD1] group-hover:bg-white transition-colors">
+                      <Layers size={16} className="text-[#677359]" />
+                      <span className="text-[#677359] font-bold text-sm">
+                        {cat._count.templates} <span className="font-medium opacity-70">Desain</span>
+                      </span>
+                      <ChevronRight size={14} className="text-[#677359]/30 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

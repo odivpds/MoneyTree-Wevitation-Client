@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { updateTemplate } from "../../actions";
+import { updateTemplate } from "../../../actions";
 import { Template, Category } from "@prisma/client";
-import ThumbnailUpload from "../../components/ThumbnailUpload";
+import ThumbnailUpload from "../../../components/ThumbnailUpload";
 
-export default function EditTemplateForm({ template, categories }: { template: Template, categories: Category[] }) {
+export default function EditTemplateForm({ template, categories, categorySlug }: { template: Template, categories: Category[], categorySlug: string }) {
   const [type, setType] = useState(template.type);
 
-  // We bind the original slug to the server action
-  const updateTemplateWithSlug = updateTemplate.bind(null, template.slug);
+  // We bind the categorySlug and the original slug to the server action
+  const updateTemplateWithSlug = updateTemplate.bind(null, categorySlug, template.slug);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -19,7 +19,7 @@ export default function EditTemplateForm({ template, categories }: { template: T
           <h2 className="text-4xl font-serif tracking-tight text-[#222] mb-2">Edit Template: {template.name}</h2>
           <p className="text-gray-500 text-sm">Perbarui data atau kode template ini.</p>
         </div>
-        <Link href="/admin/templates" className="text-gray-500 hover:text-[#222] transition-colors font-medium text-sm underline underline-offset-4">
+        <Link href={`/admin/templates/${categorySlug}`} className="text-gray-500 hover:text-[#222] transition-colors font-medium text-sm underline underline-offset-4">
           Batal & Kembali
         </Link>
       </div>
@@ -49,12 +49,14 @@ export default function EditTemplateForm({ template, categories }: { template: T
           </div>
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Kategori</label>
-            <select name="categoryId" defaultValue={template.categoryId || ""} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-3 text-[#222] focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all">
-              <option value="">Pilih Kategori</option>
+            <input type="hidden" name="categoryId" value={template.categoryId || ""} />
+            <select disabled value={template.categoryId || ""} className="w-full border border-[#E6DFD1] bg-[#f0ebe1] rounded-xl p-3 text-gray-500 cursor-not-allowed">
+              <option value="">Belum Berkategori</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
+            <p className="text-xs text-gray-400 mt-1">Kategori dikunci. Pindahkan dari daftar kategori jika perlu.</p>
           </div>
           <div>
             <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-2">Harga / Paket</label>
@@ -85,7 +87,7 @@ export default function EditTemplateForm({ template, categories }: { template: T
         )}
 
         <div className="pt-8 border-t border-[#E6DFD1] flex justify-end">
-          <button type="submit" className="bg-[#677359] hover:bg-[#58634c] text-white px-8 py-3 rounded-full text-sm font-medium transition-all shadow-sm w-full sm:w-auto">
+          <button type="submit" className="cursor-pointer bg-[#677359] hover:bg-[#58634c] text-white px-8 py-3 rounded-full text-sm font-medium transition-all shadow-sm w-full sm:w-auto">
             Update Template
           </button>
         </div>

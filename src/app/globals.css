@@ -670,7 +670,7 @@ h4 {
 .template-card:hover {
   transform: translateY(-8px);
   border-color: var(--border-gold-hover);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .template-card__image {
@@ -906,6 +906,14 @@ h4 {
   font-weight: 300;
   color: var(--text-primary);
   margin-bottom: var(--space-2);
+}
+
+.pricing-card__price_coret {
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: 200;
+  color: var(--text-primary);
+  color: red;
 }
 
 .pricing-card__price span {

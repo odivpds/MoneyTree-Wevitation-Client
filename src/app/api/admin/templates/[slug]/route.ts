@@ -8,7 +8,8 @@ export async function GET(
   const { slug } = await params;
   try {
     const template = await prisma.template.findUnique({
-      where: { slug }
+      where: { slug },
+      include: { category: true }
     });
     
     if (!template) {

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createTemplate(formData: FormData) {
+export async function createTemplate(categorySlug: string, formData: FormData) {
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;
   const type = formData.get("type") as string;
@@ -42,11 +42,11 @@ export async function createTemplate(formData: FormData) {
     }
   });
 
-  revalidatePath("/admin/templates");
-  redirect("/admin/templates");
+  revalidatePath(`/admin/templates/${categorySlug}`);
+  redirect(`/admin/templates/${categorySlug}`);
 }
 
-export async function updateTemplate(originalSlug: string, formData: FormData) {
+export async function updateTemplate(categorySlug: string, originalSlug: string, formData: FormData) {
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;
   const type = formData.get("type") as string;
@@ -86,8 +86,8 @@ export async function updateTemplate(originalSlug: string, formData: FormData) {
     }
   });
 
-  revalidatePath("/admin/templates");
-  redirect("/admin/templates");
+  revalidatePath(`/admin/templates/${categorySlug}`);
+  redirect(`/admin/templates/${categorySlug}`);
 }
 
 export async function deleteTemplate(id: string) {
