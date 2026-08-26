@@ -3297,3 +3297,87 @@ textarea.form-group__input {
   background: linear-gradient(to top, var(--bg-primary) 0%, transparent 100%);
   pointer-events: none;
 }
+
+/* --- Floating WhatsApp --- */
+.floating-whatsapp {
+  position: fixed;
+  bottom: var(--space-8);
+  right: var(--space-8);
+  width: 60px;
+  height: 60px;
+  background-color: var(--accent-gold);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(182, 157, 116, 0.4);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  animation: pulse-whatsapp 2s infinite;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 6px 15px rgba(182, 157, 116, 0.6);
+  animation: none;
+}
+
+.floating-whatsapp .whatsapp-icon {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+@keyframes pulse-whatsapp {
+  0% {
+    box-shadow: 0 0 0 0 rgba(182, 157, 116, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(182, 157, 116, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(182, 157, 116, 0);
+  }
+}
+
+/* --- Scroll To Top --- */
+.floating-scroll-top {
+  position: fixed;
+  bottom: calc(var(--space-8) + 5px); /* aligned vertically with WA button */
+  right: calc(var(--space-8) + 76px); /* to the left of WA button */
+  width: 50px;
+  height: 50px;
+  background-color: var(--bg-elevated);
+  color: var(--accent-gold);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.floating-scroll-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.floating-scroll-top:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transform: scale(1.1) translateY(0);
+  box-shadow: var(--shadow-lg);
+}
+
+.floating-scroll-top .scroll-top-icon {
+  width: 24px;
+  height: 24px;
+}

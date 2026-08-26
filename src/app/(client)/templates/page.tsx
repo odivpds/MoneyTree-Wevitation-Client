@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { TEMPLATES } from "@/config/templates";
+import { Loader2 } from "lucide-react";
 
 export default function TemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [templatesData, setTemplatesData] = useState<any[]>(TEMPLATES);
+  const [templatesData, setTemplatesData] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
@@ -46,12 +48,16 @@ export default function TemplatesPage() {
     fetch('/api/templates')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setTemplatesData(data);
         }
       })
       .catch(err => {
         console.warn('Gagal memuat template dari CMS, menggunakan config lokal:', err.message || err);
+        setTemplatesData(TEMPLATES);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
     // Fetch categories
@@ -116,7 +122,7 @@ export default function TemplatesPage() {
           </p>
 
           {/* Search Bar */}
-          <div className="search-bar reveal" style={{ marginTop: 'var(--space-8)' }}>
+          <div className="search-bar reveal" style={{ marginTop: 'var(--space-8)', marginBottom: '0' }}>
             <span className="search-bar__icon">🔍</span>
             <input
               type="text"
@@ -132,8 +138,13 @@ export default function TemplatesPage() {
       {/* ===== TEMPLATE CATEGORIES ===== */}
       <section className="section--sm">
         <div className="container">
-
-          {groupedTemplates.length === 0 ? (
+          
+          {isLoading ? (
+            <div className="text-center reveal" style={{ padding: 'var(--space-20) 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+               <Loader2 className="animate-spin" style={{ width: '48px', height: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
+               <p style={{ color: 'var(--text-muted)' }}>Memuat koleksi desain...</p>
+            </div>
+          ) : groupedTemplates.length === 0 ? (
             <div className="text-center reveal" style={{ padding: 'var(--space-20) 0' }}>
               <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</p>
               <h3>Template Tidak Ditemukan</h3>

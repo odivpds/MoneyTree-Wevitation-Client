@@ -314,7 +314,7 @@ function EditorContent() {
       scrollToSection(detectedSections[newIndex].id, newIndex);
     }
   };
-  
+
   const forceOpenInvitation = () => {
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({ type: 'FORCE_OPEN' }, '*');
@@ -380,12 +380,12 @@ function EditorContent() {
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          
+
           if (width > maxWidth) {
             height = Math.round((height * maxWidth) / width);
             width = maxWidth;
           }
-          
+
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
@@ -621,9 +621,9 @@ function EditorContent() {
   }
 
   return (
-    <div className="bali-pattern-bg" style={{ minHeight: "100vh", width: "100%", paddingTop: "0" }}>
+    <div className="bali-pattern-bg" style={{ height: "100vh", width: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       {/* UX-N — Minimalist Header for Editor Mode */}
-      <header className="editor__header">
+      <header className="editor__header" style={{ flexShrink: 0 }}>
         <div className="editor__header-left">
           <span className="editor__logo">Undangan Bali</span>
           <span className="editor__template-name">
@@ -631,7 +631,7 @@ function EditorContent() {
             <span className="template-label">{template}</span>
           </span>
         </div>
-        
+
         <div className="editor__header-right">
           <div className="editor__status-container">
             {isDirty ? (
@@ -646,11 +646,11 @@ function EditorContent() {
               </span>
             )}
           </div>
-          <button 
+          <button
             className="editor__btn-keluar"
             onClick={() => {
               if (isDirty) {
-                if(window.confirm('Ada perubahan yang belum disimpan. Yakin ingin keluar?')) {
+                if (window.confirm('Ada perubahan yang belum disimpan. Yakin ingin keluar?')) {
                   router.push('/');
                 }
               } else {
@@ -663,10 +663,10 @@ function EditorContent() {
         </div>
       </header>
 
-      <div className="editor container" id="editorLayout" style={{ paddingTop: "40px", paddingBottom: "140px" }}>
+      <div className="editor container" id="editorLayout" style={{ paddingTop: "32px", paddingBottom: "32px", flex: 1, minHeight: 0, overflow: "hidden" }}>
 
-        <div className="editor__preview">
-          <div className={`editor__preview-frame bali-frame${activeTab === 'visual' && isVisualEditSupported ? ' editor__preview-frame--visual-active' : ''}`} id="previewFrame">
+        <div className="editor__preview" style={{ height: '100%', alignSelf: 'stretch', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className={`editor__preview-frame bali-frame${activeTab === 'visual' && isVisualEditSupported ? ' editor__preview-frame--visual-active' : ''}`} id="previewFrame" style={{ flex: 1, minHeight: 0, width: '100%', maxWidth: '430px', maxHeight: 'min(750px, 100%)' }}>
             {/* UX-C — Show skeleton during CMS load */}
             {isLoadingTemplates ? (
               <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -698,103 +698,103 @@ function EditorContent() {
               gap: '15px',
               padding: '16px 0'
             }}>
-                <button 
-                  onClick={handlePrevSection} 
-                  disabled={currentSectionIndex === 0} 
-                  aria-label="Elemen sebelumnya"
-                  style={{ 
-                    border: 'none', 
-                    background: 'rgba(255, 255, 255, 0.9)', 
-                    cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer', 
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)',
-                    lineHeight: 1
-                  }} 
-                  title="Elemen Sebelumnya"
-                >
-                  ‹
-                </button>
-                
-                {currentSectionIndex === 0 ? (
-                  <button 
-                    onClick={forceOpenInvitation} 
-                    style={{ 
-                      border: 'none', 
-                      background: 'var(--accent-gold, #cda75f)', 
-                      color: 'white',
-                      cursor: 'pointer', 
-                      fontSize: '14px', 
-                      padding: '10px 20px',
-                      borderRadius: '24px',
-                      fontWeight: 'bold',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      boxShadow: '0 4px 12px rgba(205, 167, 95, 0.4)'
-                    }} 
-                    title="Buka Undangan"
-                  >
-                    <i className="fa-solid fa-envelope-open-text"></i>
-                    Buka
-                  </button>
-                ) : (
-                  <button 
-                    onClick={forceCloseInvitation} 
-                    style={{ 
-                      border: 'none', 
-                      background: 'white', 
-                      color: 'var(--text-primary)',
-                      cursor: 'pointer', 
-                      fontSize: '14px', 
-                      padding: '10px 20px',
-                      borderRadius: '24px',
-                      fontWeight: 'bold',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                    }} 
-                    title="Kembali ke Halaman Depan"
-                  >
-                    <i className="fa-solid fa-arrow-left"></i>
-                    Kembali
-                  </button>
-                )}
+              <button
+                onClick={handlePrevSection}
+                disabled={currentSectionIndex === 0}
+                aria-label="Elemen sebelumnya"
+                style={{
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  color: currentSectionIndex === 0 ? '#ccc' : 'var(--accent-gold, #cda75f)',
+                  lineHeight: 1
+                }}
+                title="Elemen Sebelumnya"
+              >
+                ‹
+              </button>
 
-                <button 
-                  onClick={handleNextSection} 
-                  disabled={currentSectionIndex === detectedSections.length - 1} 
-                  aria-label="Elemen berikutnya"
-                  style={{ 
-                    border: 'none', 
-                    background: 'rgba(255, 255, 255, 0.9)', 
-                    cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer', 
-                    fontSize: '24px',
+              {currentSectionIndex === 0 ? (
+                <button
+                  onClick={forceOpenInvitation}
+                  style={{
+                    border: 'none',
+                    background: 'var(--accent-gold, #cda75f)',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    padding: '10px 20px',
+                    borderRadius: '24px',
                     fontWeight: 'bold',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    color: currentSectionIndex === detectedSections.length - 1 ? '#ccc' : 'var(--accent-gold, #cda75f)',
-                    lineHeight: 1
-                  }} 
-                  title="Elemen Berikutnya"
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(205, 167, 95, 0.4)'
+                  }}
+                  title="Buka Undangan"
                 >
-                  ›
+                  <i className="fa-solid fa-envelope-open-text"></i>
+                  Buka
                 </button>
-              </div>
-            )}
+              ) : (
+                <button
+                  onClick={forceCloseInvitation}
+                  style={{
+                    border: 'none',
+                    background: 'white',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    padding: '10px 20px',
+                    borderRadius: '24px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}
+                  title="Kembali ke Halaman Depan"
+                >
+                  <i className="fa-solid fa-arrow-left"></i>
+                  Kembali
+                </button>
+              )}
+
+              <button
+                onClick={handleNextSection}
+                disabled={currentSectionIndex === detectedSections.length - 1}
+                aria-label="Elemen berikutnya"
+                style={{
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  color: currentSectionIndex === detectedSections.length - 1 ? '#ccc' : 'var(--accent-gold, #cda75f)',
+                  lineHeight: 1
+                }}
+                title="Elemen Berikutnya"
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Floating Edit Button */}
@@ -807,22 +807,22 @@ function EditorContent() {
         </button>
 
         {/* RIGHT (desktop) / TOP (mobile): Edit Panel */}
-        <div className={`editor__panel ${isMobileEditPanelOpen ? 'editor__panel--mobile-open' : ''}`} id="editPanel">
-          <div className="editor__panel-card">
+        <div className={`editor__panel ${isMobileEditPanelOpen ? 'editor__panel--mobile-open' : ''}`} id="editPanel" style={{ height: '100%', alignSelf: 'stretch' }}>
+          <div className="editor__panel-card" style={{ height: '100%', maxHeight: 'min(750px, 100%)', display: 'flex', flexDirection: 'column', width: '100%' }}>
             {/* UX-A — Back button and Mobile Close Button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
               <Link href="/templates" className="editor__back-link" style={{ marginBottom: 0 }}>
                 ← Pilih Template Lain
               </Link>
-              <button 
-                className="mobile-close-panel-btn" 
+              <button
+                className="mobile-close-panel-btn"
                 onClick={() => setIsMobileEditPanelOpen(false)}
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  fontSize: '1.2rem', 
-                  color: 'var(--text-muted)', 
-                  cursor: 'pointer' 
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '1.2rem',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer'
                 }}
               >
                 ✕
@@ -897,7 +897,7 @@ function EditorContent() {
                   <label className="form-group__label">Nama Orangtua Pria</label>
                   <input type="text" name="groomParents" className="form-group__input" placeholder="Putra dari Bpk... & Ibu..." value={formData.groomParents} onChange={handleInputChange} />
                 </div>
-                
+
                 <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', margin: 'var(--space-6) 0 var(--space-4)' }}>Data Mempelai Wanita</p>
                 <div className={`form-group${fieldErrors.brideName ? ' form-group--error' : ''}`}>
                   <label className="form-group__label">Nama Mempelai Wanita *</label>
@@ -1010,11 +1010,11 @@ function EditorContent() {
 
                             {selectedElement.content ? (
                               <div className="visual-upload-image-preview">
-                                <img 
-                                  src={selectedElement.content.startsWith('url') 
-                                    ? selectedElement.content.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '') 
-                                    : selectedElement.content} 
-                                  alt="Selected" 
+                                <img
+                                  src={selectedElement.content.startsWith('url')
+                                    ? selectedElement.content.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '')
+                                    : selectedElement.content}
+                                  alt="Selected"
                                 />
                                 <div className="visual-upload-overlay">
                                   <span className="visual-upload-badge">Ganti Foto</span>

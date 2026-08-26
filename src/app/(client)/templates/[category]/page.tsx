@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { TEMPLATES } from "@/config/templates";
+import { Loader2 } from "lucide-react";
 
 export default function CategoryTemplatesPage() {
   const params = useParams();
@@ -12,8 +13,9 @@ export default function CategoryTemplatesPage() {
   const currentCategory = (typeof rawCategory === 'string' ? rawCategory.toLowerCase() : 'semua');
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [templatesData, setTemplatesData] = useState(TEMPLATES);
+  const [templatesData, setTemplatesData] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
@@ -50,12 +52,16 @@ export default function CategoryTemplatesPage() {
     fetch('/api/templates')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setTemplatesData(data);
         }
       })
       .catch(err => {
         console.warn('Gagal memuat template dari CMS, menggunakan config lokal:', err.message || err);
+        setTemplatesData(TEMPLATES);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
     fetch('/api/categories')
@@ -108,48 +114,54 @@ export default function CategoryTemplatesPage() {
       {/* ===== TEMPLATE GRID ===== */}
       <section className="section--sm">
         <div className="container">
-          <div className="template-grid reveal-stagger">
-            {filteredTemplates.map((tpl) => (
-              <div key={tpl.id} className="template-card shimmer-border" style={{ animation: 'fadeInUp 0.4s ease forwards' }}>
-                <div className="template-card__image">
-                  <img src={tpl.image} alt={`Template ${tpl.name}`} loading="lazy" />
-                  {tpl.badge && (
-                    <span className="template-card__badge" style={tpl.badge === 'Gratis' ? { background: 'linear-gradient(135deg, #2ecc71, #27ae60)' } : {}}>
-                      {tpl.badge}
-                    </span>
-                  )}
-                  {/* <div className="template-card__overlay">
-                    <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--primary">Pilih Template Ini</button>
-                  </div> */}
-                </div>
-                <div className="template-card__body">
-                  <h3 className="template-card__name">{tpl.name}</h3>
-                  <p className="template-card__desc">{tpl.desc}</p>
-                  <div className="template-card__footer">
-                    <span className="template-card__price">
-                      {tpl.price === 'Gratis' ? <span className="free" style={{ color: 'var(--success)' }}>Gratis</span> : tpl.price}
-                    </span>
-                    <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--secondary btn--sm">Pilih →</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Empty State */}
-          {filteredTemplates.length === 0 && (
-            <div className="text-center" style={{ padding: 'var(--space-20) 0' }}>
-              <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</p>
-              <h3 style={{ marginBottom: 'var(--space-2)' }}>Template Tidak Ditemukan</h3>
-              <p className="text-muted">Kategori ini belum memiliki template aktif.</p>
-              <button
-                className="btn btn--secondary"
-                style={{ marginTop: 'var(--space-6)' }}
-                onClick={() => router.push('/templates')}
-              >
-                Lihat Semua Template
-              </button>
+          {isLoading ? (
+            <div className="text-center reveal" style={{ padding: 'var(--space-20) 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+               <Loader2 className="animate-spin" style={{ width: '48px', height: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
+               <p style={{ color: 'var(--text-muted)' }}>Memuat koleksi desain...</p>
             </div>
+          ) : (
+            <>
+              <div className="template-grid reveal-stagger">
+                {filteredTemplates.map((tpl) => (
+                  <div key={tpl.id} className="template-card shimmer-border" style={{ animation: 'fadeInUp 0.4s ease forwards' }}>
+                    <div className="template-card__image">
+                      <img src={tpl.image} alt={`Template ${tpl.name}`} loading="lazy" />
+                      {tpl.badge && (
+                        <span className="template-card__badge" style={tpl.badge === 'Gratis' ? { background: 'linear-gradient(135deg, #2ecc71, #27ae60)' } : {}}>
+                          {tpl.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div className="template-card__body">
+                      <h3 className="template-card__name">{tpl.name}</h3>
+                      <p className="template-card__desc">{tpl.desc}</p>
+                      <div className="template-card__footer">
+                        <span className="template-card__price">
+                          {tpl.price === 'Gratis' ? <span className="free" style={{ color: 'var(--success)' }}>Gratis</span> : tpl.price}
+                        </span>
+                        <button onClick={() => handleSelectTemplate(tpl.id)} className="btn btn--secondary btn--sm">Pilih →</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Empty State */}
+              {filteredTemplates.length === 0 && (
+                <div className="text-center" style={{ padding: 'var(--space-20) 0' }}>
+                  <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</p>
+                  <h3 style={{ marginBottom: 'var(--space-2)' }}>Template Tidak Ditemukan</h3>
+                  <p className="text-muted">Kategori ini belum memiliki template aktif.</p>
+                  <button
+                    className="btn btn--secondary"
+                    style={{ marginTop: 'var(--space-6)' }}
+                    onClick={() => router.push('/templates')}
+                  >
+                    Lihat Semua Template
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

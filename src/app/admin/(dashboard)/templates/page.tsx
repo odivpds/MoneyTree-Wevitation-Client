@@ -12,6 +12,15 @@ export default async function TemplatesCategoriesPage() {
     }
   });
 
+  const PRIORITY_ORDER = ["Basic", "Premium", "Exclusive"];
+  const sortedCategories = [...categories].sort((a, b) => {
+    const indexA = PRIORITY_ORDER.indexOf(a.name);
+    const indexB = PRIORITY_ORDER.indexOf(b.name);
+    const weightA = indexA === -1 ? 99 : indexA;
+    const weightB = indexB === -1 ? 99 : indexB;
+    return weightA - weightB;
+  });
+
   const uncategorizedCount = await prisma.template.count({
     where: { categoryId: null }
   });
@@ -24,7 +33,7 @@ export default async function TemplatesCategoriesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((cat) => (
+        {sortedCategories.map((cat) => (
           <Link
             key={cat.id}
             href={`/admin/templates/${cat.slug}`}
