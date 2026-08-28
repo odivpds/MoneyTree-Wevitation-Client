@@ -1,15 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -18,12 +13,12 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime?
-  password      String?
   image         String?
-  accounts      Account[]
-  sessions      Session[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model Account {
@@ -39,8 +34,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -62,15 +56,15 @@ model VerificationToken {
 }
 
 model Invitation {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  bucketUrl   String?
-  waTemplate  String?
-  status      String   @default("DRAFT") // DRAFT, PUBLISHED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  guests      Guest[]
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String
+  bucketUrl  String?
+  waTemplate String?
+  status     String   @default("DRAFT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  guests     Guest[]
 }
 
 model Guest {
@@ -78,35 +72,35 @@ model Guest {
   name         String
   phone        String?
   invitationId String
-  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 }
 
 model Category {
   id          String     @id @default(cuid())
   slug        String     @unique
   name        String
-  description String?    @db.Text
+  description String?
   priceText   String?
   iconLevel   Int        @default(1)
-  templates   Template[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  templates   Template[]
 }
 
 model Template {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String    @id @default(cuid())
+  slug        String    @unique
   name        String
-  type        String   @default("html") // html, react
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])   @default("tradisional")
+  type        String    @default("html")
   desc        String?
   price       String?
   image       String?
-  htmlContent String?  @db.Text
-  cssContent  String?  @db.Text
-  jsContent   String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  htmlContent String?
+  cssContent  String?
+  jsContent   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
 }

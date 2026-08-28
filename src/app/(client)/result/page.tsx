@@ -4,11 +4,13 @@ import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HtmlAdapter from "@/components/templates/HtmlAdapter";
 import { TEMPLATES } from "@/config/templates";
+import { useAuth } from "@/context/AuthContext";
 
 function ResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateFromUrl = searchParams.get('template');
+  const { user } = useAuth();
 
   const [template, setTemplate] = useState('agung');
   const [templatesData, setTemplatesData] = useState(TEMPLATES);
@@ -41,9 +43,10 @@ function ResultContent() {
       const savedTemplate = templateFromUrl || localStorage.getItem('undanganBali_template') || 'agung';
       setTemplate(savedTemplate);
 
-      const dataKey = savedTemplate ? `undanganBali_data_${savedTemplate}` : 'undanganBali_data';
-      const photoKey = savedTemplate ? `undanganBali_photo_${savedTemplate}` : 'undanganBali_photo';
-      const overrideKey = savedTemplate ? `undanganBali_overrides_${savedTemplate}` : 'undanganBali_overrides';
+      const userKey = user?.email ? `${user.email}_` : '';
+      const dataKey = savedTemplate ? `undanganBali_data_${userKey}${savedTemplate}` : `undanganBali_data_${userKey}default`;
+      const photoKey = savedTemplate ? `undanganBali_photo_${userKey}${savedTemplate}` : `undanganBali_photo_${userKey}default`;
+      const overrideKey = savedTemplate ? `undanganBali_overrides_${userKey}${savedTemplate}` : `undanganBali_overrides_${userKey}default`;
 
       const savedData = localStorage.getItem(dataKey);
       if (savedData) setFormData(prev => ({ ...prev, ...JSON.parse(savedData) }));
@@ -153,7 +156,8 @@ function ResultContent() {
       setPhoto(base64Data);
       
       // Save directly to localStorage so Editor can use it
-      const photoKey = template ? `undanganBali_photo_${template}` : 'undanganBali_photo';
+      const userKey = user?.email ? `${user.email}_` : '';
+      const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
       localStorage.setItem(photoKey, base64Data);
       
     } catch (err) {
@@ -225,7 +229,7 @@ function ResultContent() {
         {/* Right Side: Actions Panel */}
         <div style={{
           width: '400px',
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--bg-elevated)',
           boxShadow: '-10px 0 30px rgba(0,0,0,0.05)',
           borderLeft: '1px solid var(--border-color)',
           padding: '2rem',
@@ -260,7 +264,11 @@ function ResultContent() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--success)' }}>
                 <span>✓ Foto telah terpasang</span>
                 <button 
-                  onClick={() => { setPhoto(null); localStorage.removeItem(`undanganBali_photo_${template}`); }} 
+                  onClick={() => { 
+                    setPhoto(null); 
+                    const userKey = user?.email ? `${user.email}_` : '';
+                    localStorage.removeItem(`undanganBali_photo_${userKey}${template}`); 
+                  }} 
                   style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', textDecoration: 'underline' }}>
                   Hapus
                 </button>

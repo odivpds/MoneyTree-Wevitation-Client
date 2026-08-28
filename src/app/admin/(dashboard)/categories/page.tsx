@@ -3,14 +3,26 @@ import { prisma } from "@/lib/prisma";
 import { Plus, Tag, Banknote, ChevronRight, Layers, LayoutGrid } from "lucide-react";
 import CategoryActions from "./components/CategoryActions";
 
+const PRIORITY_ORDER = ["Basic", "Premium", "Exclusive"];
+
 export default async function CategoriesPage() {
-  const categories = await prisma.category.findMany({
+  const fetchedCategories = await prisma.category.findMany({
     orderBy: { createdAt: "asc" },
     include: {
       _count: {
         select: { templates: true }
       }
     }
+  });
+
+  const categories = [...fetchedCategories].sort((a, b) => {
+    const indexA = PRIORITY_ORDER.indexOf(a.name);
+    const indexB = PRIORITY_ORDER.indexOf(b.name);
+
+    const weightA = indexA === -1 ? 99 : indexA;
+    const weightB = indexB === -1 ? 99 : indexB;
+
+    return weightA - weightB;
   });
 
   return (

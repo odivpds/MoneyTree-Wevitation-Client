@@ -9,7 +9,7 @@ function SetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get('template');
-  const { isLoggedIn, isInitialized } = useAuth();
+  const { isLoggedIn, isInitialized, user } = useAuth();
 
   const [formData, setFormData] = useState({
     groomName: "",
@@ -33,9 +33,9 @@ function SetupContent() {
 
   // Load existing data on mount
   useEffect(() => {
-    if (!templateId) return;
+    if (!templateId || !isInitialized || !user?.email) return;
     try {
-      const storageKey = `undanganBali_data_${templateId}`;
+      const storageKey = `undanganBali_data_${user.email}_${templateId}`;
       const existingData = localStorage.getItem(storageKey);
       if (existingData) {
         const parsed = JSON.parse(existingData);
@@ -47,7 +47,7 @@ function SetupContent() {
     } catch (e) {
       console.warn("Gagal membaca localStorage", e);
     }
-  }, [templateId]);
+  }, [templateId, isInitialized, user?.email]);
 
   // Auth guard redirect
   useEffect(() => {
@@ -82,7 +82,9 @@ function SetupContent() {
 
     // Save to localStorage
     try {
-      const storageKey = templateId ? `undanganBali_data_${templateId}` : 'undanganBali_data';
+      const userKey = user?.email ? `${user.email}_` : '';
+      const templateKey = templateId || 'agung';
+      const storageKey = `undanganBali_data_${userKey}${templateKey}`;
       const existingData = localStorage.getItem(storageKey);
       const parsedExisting = existingData ? JSON.parse(existingData) : {};
       const mergedData = { ...parsedExisting, ...formData };

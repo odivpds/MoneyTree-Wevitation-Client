@@ -41,7 +41,7 @@ function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const template = searchParams.get('template') || 'agung';
-  const { isLoggedIn, isInitialized } = useAuth();
+  const { isLoggedIn, isInitialized, user } = useAuth();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -121,9 +121,10 @@ function EditorContent() {
 
   // Separate try/catch for each localStorage read
   useEffect(() => {
-    const dataKey = template ? `undanganBali_data_${template}` : 'undanganBali_data';
-    const photoKey = template ? `undanganBali_photo_${template}` : 'undanganBali_photo';
-    const overrideKey = template ? `undanganBali_overrides_${template}` : 'undanganBali_overrides';
+    const userKey = user?.email ? `${user.email}_` : '';
+    const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
+    const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
+    const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
 
     try {
       const savedData = localStorage.getItem(dataKey);
@@ -161,7 +162,7 @@ function EditorContent() {
     } catch (e) {
       console.warn('Gagal memuat visual overrides tersimpan:', e);
     }
-  }, [template]);
+  }, [template, user?.email]);
 
   // Countdown timer
   useEffect(() => {
@@ -496,9 +497,10 @@ function EditorContent() {
 
   const saveToLocalStorage = useCallback((): boolean => {
     try {
-      const dataKey = template ? `undanganBali_data_${template}` : 'undanganBali_data';
-      const photoKey = template ? `undanganBali_photo_${template}` : 'undanganBali_photo';
-      const overrideKey = template ? `undanganBali_overrides_${template}` : 'undanganBali_overrides';
+      const userKey = user?.email ? `${user.email}_` : '';
+      const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
+      const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
+      const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
 
       localStorage.setItem(dataKey, JSON.stringify(formData));
       localStorage.setItem(overrideKey, JSON.stringify(domOverrides));
@@ -515,7 +517,7 @@ function EditorContent() {
       displayToast('Gagal menyimpan data. Penyimpanan browser penuh. Coba hapus/ganti foto.', 'error');
       return false;
     }
-  }, [formData, domOverrides, template, photo, displayToast]);
+  }, [formData, domOverrides, template, photo, displayToast, user?.email]);
 
   // Fitur Auto-Save (Debounce 1.5 detik)
   useEffect(() => {
@@ -704,7 +706,7 @@ function EditorContent() {
                 aria-label="Elemen sebelumnya"
                 style={{
                   border: 'none',
-                  background: 'rgba(255, 255, 255, 0.9)',
+                  background: 'var(--bg-elevated)',
                   cursor: currentSectionIndex === 0 ? 'not-allowed' : 'pointer',
                   fontSize: '24px',
                   fontWeight: 'bold',
@@ -750,7 +752,7 @@ function EditorContent() {
                   onClick={forceCloseInvitation}
                   style={{
                     border: 'none',
-                    background: 'white',
+                    background: 'var(--bg-elevated)',
                     color: 'var(--text-primary)',
                     cursor: 'pointer',
                     fontSize: '14px',
@@ -775,7 +777,7 @@ function EditorContent() {
                 aria-label="Elemen berikutnya"
                 style={{
                   border: 'none',
-                  background: 'rgba(255, 255, 255, 0.9)',
+                  background: 'var(--bg-elevated)',
                   cursor: currentSectionIndex === detectedSections.length - 1 ? 'not-allowed' : 'pointer',
                   fontSize: '24px',
                   fontWeight: 'bold',

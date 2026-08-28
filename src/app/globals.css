@@ -104,6 +104,73 @@
   /* Container */
   --container-max: 1200px;
   --container-narrow: 900px;
+
+  /* Navbar Backgrounds (themeable) */
+  --navbar-bg: rgba(255, 255, 255, 0.6);
+  --navbar-bg-scrolled: rgba(255, 255, 255, 0.95);
+
+  /* Hero Overlay (themeable) */
+  --hero-overlay-start: rgba(255, 255, 255, 0.85);
+  --hero-overlay-mid1: rgba(255, 255, 255, 0.6);
+  --hero-overlay-mid2: rgba(255, 255, 255, 0.75);
+  --hero-overlay-end: rgba(255, 255, 255, 1);
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-primary: #0f0f14;
+  --bg-secondary: #16161d;
+  --bg-tertiary: #1c1c26;
+  --bg-elevated: #1e1e28;
+  --surface-subtle: #1a1a24;
+
+  /* Text */
+  --text-primary: #ece8e1;
+  --text-secondary: #b8b3aa;
+  --text-body: #a09a91;
+  --text-muted: #7d776e;
+  --text-light: #5c5750;
+
+  /* Accent — gold stays warm */
+  --accent-gold: #c9a96e;
+  --accent-gold-dark: #b8944f;
+  --accent-gold-light: #d4bf8a;
+  --accent-gold-pale: #2a2518;
+  --accent-gold-hover: #ddb96e;
+
+  --burgundy: #a05068;
+  --burgundy-light: #b86080;
+
+  /* Borders */
+  --border-color: #2a2a36;
+  --border-light: #222230;
+  --border-gold: rgba(201, 169, 110, 0.25);
+  --border-gold-hover: rgba(201, 169, 110, 0.5);
+
+  /* Shadows — stronger for dark bg */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 50px rgba(0, 0, 0, 0.6);
+  --shadow-gold: 0 4px 20px rgba(201, 169, 110, 0.12);
+
+  /* Overlays */
+  --overlay-light: rgba(15, 15, 20, 0.9);
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+
+  --success: #4caf7a;
+  --error: #e05555;
+
+  /* Navbar */
+  --navbar-bg: rgba(15, 15, 20, 0.6);
+  --navbar-bg-scrolled: rgba(15, 15, 20, 0.95);
+
+  /* Hero Overlay */
+  --hero-overlay-start: rgba(15, 15, 20, 0.85);
+  --hero-overlay-mid1: rgba(15, 15, 20, 0.6);
+  --hero-overlay-mid2: rgba(15, 15, 20, 0.75);
+  --hero-overlay-end: rgba(15, 15, 20, 1);
 }
 
 /* --- Reset & Base --- */
@@ -130,7 +197,27 @@ body {
   background-color: var(--bg-primary);
   overflow-x: hidden;
   min-height: 100vh;
+  position: relative;
 }
+
+/* Global Background Pattern (Subtle Elegant Diamond Grid) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(45deg, var(--accent-gold) 1px, transparent 1px),
+    linear-gradient(-45deg, var(--accent-gold) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: -1;
+}
+
+[data-theme="dark"] body::before {
+  opacity: 0.03;
+}
+
 
 /* Scrollbar styling - Hidden but scrollable */
 ::-webkit-scrollbar {
@@ -422,13 +509,13 @@ h4 {
   z-index: var(--z-sticky);
   padding: var(--space-5) 0;
   transition: all var(--transition-base);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--navbar-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
 .navbar.scrolled {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--navbar-bg-scrolled);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-light);
@@ -527,6 +614,13 @@ h4 {
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
+/* --- Features Section --- */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
 /* --- Hero Section --- */
 .hero {
   position: relative;
@@ -537,7 +631,6 @@ h4 {
   text-align: center;
   padding: var(--space-32) var(--space-6) var(--space-20);
   overflow: hidden;
-  background: var(--bg-primary);
 }
 
 .hero__bg {
@@ -557,12 +650,17 @@ h4 {
 .hero__overlay {
   position: absolute;
   inset: 0;
+  /* Use a much lighter gradient or remove it entirely so the pattern shows clearly */
   background: linear-gradient(180deg,
-      rgba(255, 255, 255, 0.85) 0%,
-      rgba(255, 255, 255, 0.6) 40%,
-      rgba(255, 255, 255, 0.75) 70%,
-      rgba(255, 255, 255, 1) 100%);
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 100%);
   z-index: -1;
+}
+
+[data-theme="dark"] .hero__overlay {
+  background: linear-gradient(180deg,
+      rgba(15, 15, 20, 0) 0%,
+      rgba(15, 15, 20, 0) 100%);
 }
 
 .hero__content {
@@ -913,7 +1011,7 @@ h4 {
   font-size: var(--text-4xl);
   font-weight: 200;
   color: var(--text-primary);
-  color: red;
+  color: #800020;
 }
 
 .pricing-card__price span {
@@ -2120,6 +2218,7 @@ textarea.form-group__input {
     font-size: var(--text-5xl);
   }
 
+  .features-grid,
   .template-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2309,6 +2408,7 @@ textarea.form-group__input {
     font-size: var(--text-3xl);
   }
 
+  .features-grid,
   .template-grid {
     grid-template-columns: 1fr;
     max-width: 400px;
@@ -2424,12 +2524,12 @@ textarea.form-group__input {
    ============================================ */
 
 /* --- Repeating Balinese pattern background --- */
-.bali-pattern-bg {
+/* .bali-pattern-bg {
   position: relative;
   background-image: url('/images/ornaments/pattern-bg.png');
   background-repeat: repeat;
   background-size: calc(100% / 3) auto;
-}
+} */
 
 .bali-pattern-bg>* {
   position: relative;
@@ -2442,7 +2542,7 @@ textarea.form-group__input {
   position: relative;
 }
 
-.bali-border-top::before {
+/* .bali-border-top::before {
   content: '';
   position: absolute;
   top: 0;
@@ -2456,14 +2556,14 @@ textarea.form-group__input {
   opacity: 0.15;
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* --- Bottom border ornament --- */
 .bali-border-bottom {
   position: relative;
 }
 
-.bali-border-bottom::after {
+/* .bali-border-bottom::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -2477,7 +2577,7 @@ textarea.form-group__input {
   opacity: 0.15;
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* --- Corner ornaments (all 4 corners) --- */
 .bali-corners {
@@ -2485,7 +2585,7 @@ textarea.form-group__input {
   overflow: hidden;
 }
 
-.bali-corners::before,
+/* .bali-corners::before,
 .bali-corners::after {
   content: '';
   position: absolute;
@@ -2497,7 +2597,7 @@ textarea.form-group__input {
   opacity: 0.18;
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* Top-left corner */
 .bali-corners::before {
@@ -2518,7 +2618,7 @@ textarea.form-group__input {
   overflow: hidden;
 }
 
-.bali-corners-bottom::before,
+/* .bali-corners-bottom::before,
 .bali-corners-bottom::after {
   content: '';
   position: absolute;
@@ -2530,7 +2630,7 @@ textarea.form-group__input {
   opacity: 0.18;
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* Bottom-left corner (flipped vertically) */
 .bali-corners-bottom::before {
@@ -3333,9 +3433,11 @@ textarea.form-group__input {
   0% {
     box-shadow: 0 0 0 0 rgba(182, 157, 116, 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 15px rgba(182, 157, 116, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(182, 157, 116, 0);
   }
@@ -3344,8 +3446,10 @@ textarea.form-group__input {
 /* --- Scroll To Top --- */
 .floating-scroll-top {
   position: fixed;
-  bottom: calc(var(--space-8) + 5px); /* aligned vertically with WA button */
-  right: calc(var(--space-8) + 76px); /* to the left of WA button */
+  bottom: calc(var(--space-8) + 5px);
+  /* aligned vertically with WA button */
+  right: calc(var(--space-8) + 76px);
+  /* to the left of WA button */
   width: 50px;
   height: 50px;
   background-color: var(--bg-elevated);
@@ -3380,4 +3484,80 @@ textarea.form-group__input {
 .floating-scroll-top .scroll-top-icon {
   width: 24px;
   height: 24px;
-}
+}
+
+/* --- Utility Animations --- */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* --- Theme Toggle Button --- */
+.theme-toggle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-gold);
+  box-shadow: var(--shadow-gold);
+  transform: scale(1.08);
+}
+
+.theme-toggle__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle:hover .theme-toggle__icon {
+  transform: rotate(20deg);
+}
+
+/* --- Dark Mode — Component Overrides --- */
+[data-theme="dark"] .form-group__input,
+[data-theme="dark"] select {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-group__input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .form-group__input:focus,
+[data-theme="dark"] select:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+}
+
+/* Shimmer skeleton in dark mode */
+[data-theme="dark"] .skeleton-shimmer::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+}
+
+/* Bali pattern bg */
+[data-theme="dark"] .bali-pattern-bg {
+  background-color: var(--bg-primary);
+}

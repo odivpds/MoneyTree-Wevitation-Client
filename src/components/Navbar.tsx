@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isLoggedIn, user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -35,6 +37,16 @@ export default function Navbar() {
           <li><Link href="/#harga" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Harga</Link></li>
           <li><Link href="/#testimoni" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Testimoni</Link></li>
           <div className="navbar__actions">
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
+              title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+            >
+              <span className="theme-toggle__icon">
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </span>
+            </button>
             {isLoggedIn ? (
               <>
                 <span style={{ color: 'var(--text-primary)', marginRight: 'var(--space-2)' }}>Halo, <strong>{user?.name}</strong></span>
@@ -58,3 +70,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

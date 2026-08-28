@@ -4,11 +4,13 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HtmlAdapter from "@/components/templates/HtmlAdapter";
 import { TEMPLATES } from "@/config/templates";
+import { useAuth } from "@/context/AuthContext";
 
 function PreviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateFromUrl = searchParams.get('template');
+  const { user } = useAuth();
 
   const [template, setTemplate] = useState('agung');
   const [templatesData, setTemplatesData] = useState(TEMPLATES);
@@ -41,9 +43,10 @@ function PreviewContent() {
       const savedTemplate = templateFromUrl || localStorage.getItem('undanganBali_template') || 'agung';
       setTemplate(savedTemplate);
 
-      const dataKey = savedTemplate ? `undanganBali_data_${savedTemplate}` : 'undanganBali_data';
-      const photoKey = savedTemplate ? `undanganBali_photo_${savedTemplate}` : 'undanganBali_photo';
-      const overrideKey = savedTemplate ? `undanganBali_overrides_${savedTemplate}` : 'undanganBali_overrides';
+      const userKey = user?.email ? `${user.email}_` : '';
+      const dataKey = savedTemplate ? `undanganBali_data_${userKey}${savedTemplate}` : `undanganBali_data_${userKey}default`;
+      const photoKey = savedTemplate ? `undanganBali_photo_${userKey}${savedTemplate}` : `undanganBali_photo_${userKey}default`;
+      const overrideKey = savedTemplate ? `undanganBali_overrides_${userKey}${savedTemplate}` : `undanganBali_overrides_${userKey}default`;
 
       const savedData = localStorage.getItem(dataKey);
       if (savedData) setFormData(prev => ({ ...prev, ...JSON.parse(savedData) }));
@@ -258,8 +261,8 @@ function PreviewContent() {
                   <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>apabila Bapak/Ibu/Saudara/i berkenan hadir</p>
                 </div>
 
-                <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', left: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scaleY(-1)' }} />
-                <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scale(-1, -1)' }} />
+                {/* <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', left: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scaleY(-1)' }} />
+                <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scale(-1, -1)' }} /> */}
               </>
             )}
           </div>

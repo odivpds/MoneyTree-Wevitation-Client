@@ -99,7 +99,7 @@ export default function CategoryTemplatesPage() {
 
           {/* Search Bar */}
           <div className="search-bar reveal" style={{ marginTop: 'var(--space-8)' }}>
-            <span className="search-bar__icon">🔍</span>
+            <span className="search-bar__icon"></span>
             <input
               type="text"
               className="search-bar__input"
@@ -116,8 +116,8 @@ export default function CategoryTemplatesPage() {
         <div className="container">
           {isLoading ? (
             <div className="text-center reveal" style={{ padding: 'var(--space-20) 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-               <Loader2 className="animate-spin" style={{ width: '48px', height: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
-               <p style={{ color: 'var(--text-muted)' }}>Memuat koleksi desain...</p>
+              <Loader2 className="animate-spin" style={{ width: '48px', height: '48px', color: 'var(--primary)', marginBottom: 'var(--space-4)' }} />
+              <p style={{ color: 'var(--text-muted)' }}>Memuat koleksi desain...</p>
             </div>
           ) : (
             <>
@@ -149,7 +149,7 @@ export default function CategoryTemplatesPage() {
               {/* Empty State */}
               {filteredTemplates.length === 0 && (
                 <div className="text-center" style={{ padding: 'var(--space-20) 0' }}>
-                  <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</p>
+                  <p style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}></p>
                   <h3 style={{ marginBottom: 'var(--space-2)' }}>Template Tidak Ditemukan</h3>
                   <p className="text-muted">Kategori ini belum memiliki template aktif.</p>
                   <button

@@ -72,35 +72,18 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
       injected = injected.replace(new RegExp(`{{${tag}}}`, 'g'), value || '');
     };
 
-    // Data Pengantin
-    replaceTag('groomName', targetData.groomName);
-    replaceTag('brideName', targetData.brideName);
-    replaceTag('groomParents', targetData.groomParents);
-    replaceTag('brideParents', targetData.brideParents);
-    replaceTag('weddingDate', targetData.weddingDate);
-    replaceTag('mainVenue', targetData.mainVenue);
-    replaceTag('dressCode', targetData.dressCode);
-    replaceTag('greeting', targetData.greeting);
+    // Dynamic replacement for all fields in targetData
+    if (targetData && typeof targetData === 'object') {
+      Object.keys(targetData).forEach(key => {
+        replaceTag(key, (targetData as any)[key]);
+      });
+    }
 
-    // Waktu
-    replaceTag('akadTime', targetData.akadTime);
-    replaceTag('akadVenue', targetData.akadVenue);
-        replaceTag('resepsiTime', targetData.resepsiTime);
-    replaceTag('resepsiVenue', targetData.resepsiVenue);
-
-    // Bank & QRIS
-    replaceTag('qrisImage', targetData.qrisImage || 'https://via.placeholder.com/150');
+    // Special handlers for complex logic
     replaceTag('qrisDisplay', targetData.qrisImage ? 'block' : 'none');
-    
-    replaceTag('bank1Name', targetData.bank1Name || '');
-    replaceTag('bank1No', targetData.bank1No || '');
-    replaceTag('bank1Holder', targetData.bank1Holder || '');
     replaceTag('bank1Display', targetData.bank1Name ? 'block' : 'none');
-    
-    replaceTag('bank2Name', targetData.bank2Name || '');
-    replaceTag('bank2No', targetData.bank2No || '');
-    replaceTag('bank2Holder', targetData.bank2Holder || '');
     replaceTag('bank2Display', targetData.bank2Name ? 'block' : 'none');
+    
     replaceTag('days', targetTimeLeft.days);
     replaceTag('hours', targetTimeLeft.hours);
     replaceTag('minutes', targetTimeLeft.minutes);
