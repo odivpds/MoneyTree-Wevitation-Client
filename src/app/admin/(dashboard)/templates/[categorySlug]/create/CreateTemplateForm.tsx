@@ -10,6 +10,33 @@ export default function CreateTemplateForm({ categories, categorySlug }: { categ
   const currentCategory = categories.find(c => c.slug === categorySlug);
   const defaultCategoryId = currentCategory ? currentCategory.id : "";
   const [type, setType] = useState('html');
+  const [features, setFeatures] = useState<any>({
+    showAkad: true,
+    showResepsi: true,
+    showGift: true,
+    showBank2: true,
+    showGallery: true,
+    showMusic: true,
+    showCountdown: true,
+    showRSVP: true
+  });
+
+  const addRequiredImage = () => {
+    const currentImages = features.requiredImages || [];
+    setFeatures({ ...features, requiredImages: [...currentImages, { key: '', label: '' }] });
+  };
+
+  const updateRequiredImage = (index: number, field: string, value: string) => {
+    const currentImages = [...(features.requiredImages || [])];
+    currentImages[index] = { ...currentImages[index], [field]: value };
+    setFeatures({ ...features, requiredImages: currentImages });
+  };
+
+  const removeRequiredImage = (index: number) => {
+    const currentImages = [...(features.requiredImages || [])];
+    currentImages.splice(index, 1);
+    setFeatures({ ...features, requiredImages: currentImages });
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -81,6 +108,84 @@ export default function CreateTemplateForm({ categories, categorySlug }: { categ
             <textarea name="jsContent" rows={6} className="w-full border border-[#E6DFD1] bg-[#faf7f2] rounded-xl p-4 font-mono text-sm text-[#222] placeholder-gray-400 focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359] transition-all" placeholder="console.log('Template loaded');"></textarea>
           </div>
         )}
+
+        <div className="pt-4 border-t border-[#E6DFD1]">
+          <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-4">Fitur Template</label>
+          <input type="hidden" name="features" value={JSON.stringify(features)} />
+          
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            {[
+              { id: 'showAkad', label: 'Akad / Pemberkatan' },
+              { id: 'showResepsi', label: 'Resepsi' },
+              { id: 'showGift', label: 'Amplop Digital' },
+              { id: 'showBank2', label: 'Bank ke-2' },
+              { id: 'showGallery', label: 'Galeri Foto' },
+              { id: 'showMusic', label: 'Musik Latar' },
+              { id: 'showCountdown', label: 'Hitung Mundur' },
+              { id: 'showRSVP', label: 'Form Kehadiran' }
+            ].map(feature => (
+              <label key={feature.id} className="flex items-center space-x-3 cursor-pointer bg-[#faf7f2] p-3 rounded-xl border border-[#E6DFD1] hover:bg-[#f3eedd] transition-colors">
+                <input 
+                  type="checkbox" 
+                  className="form-checkbox h-5 w-5 text-[#677359] rounded focus:ring-[#677359] border-gray-300"
+                  checked={features[feature.id] !== false && features[feature.id] !== 'false'}
+                  onChange={(e) => setFeatures({ ...features, [feature.id]: e.target.checked })}
+                />
+                <span className="text-sm font-medium text-[#333]">{feature.label}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-8 border-t border-[#E6DFD1] pt-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <label className="block text-sm font-bold text-[#333] uppercase tracking-wider mb-1">Kebutuhan Foto Klien</label>
+                <p className="text-xs text-gray-500">Tambahkan daftar foto yang wajib diupload klien (misal: Foto Sampul, Galeri).</p>
+              </div>
+              <button type="button" onClick={addRequiredImage} className="text-xs bg-[#E6DFD1] hover:bg-[#d6cfbe] text-[#333] px-4 py-2 rounded-lg font-medium transition-colors">
+                + Tambah Foto
+              </button>
+            </div>
+            
+            {(features.requiredImages || []).length === 0 ? (
+              <div className="text-center py-6 bg-[#faf7f2] border border-dashed border-[#E6DFD1] rounded-xl">
+                <p className="text-sm text-gray-400">Belum ada kebutuhan foto dinamis yang ditambahkan.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {(features.requiredImages || []).map((img: any, idx: number) => (
+                  <div key={idx} className="flex gap-4 items-start bg-[#faf7f2] p-4 rounded-xl border border-[#E6DFD1]">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Variabel Kode (Key)</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="w-full border border-[#E6DFD1] bg-white rounded-lg p-2 text-sm focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359]" 
+                        placeholder="Contoh: coverPhoto" 
+                        value={img.key} 
+                        onChange={(e) => updateRequiredImage(idx, 'key', e.target.value)} 
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-500 mb-1">Label Form (Dilihat Klien)</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="w-full border border-[#E6DFD1] bg-white rounded-lg p-2 text-sm focus:outline-none focus:border-[#677359] focus:ring-1 focus:ring-[#677359]" 
+                        placeholder="Contoh: Foto Sampul Depan" 
+                        value={img.label} 
+                        onChange={(e) => updateRequiredImage(idx, 'label', e.target.value)} 
+                      />
+                    </div>
+                    <button type="button" onClick={() => removeRequiredImage(idx)} className="mt-6 text-red-400 hover:text-red-600 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="pt-8 border-t border-[#E6DFD1] flex justify-end">
           <button type="submit" className="cursor-pointer bg-[#677359] hover:bg-[#58634c] text-white px-8 py-3 rounded-full text-sm font-medium transition-all shadow-sm w-full sm:w-auto">

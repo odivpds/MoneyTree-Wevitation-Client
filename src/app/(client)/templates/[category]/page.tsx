@@ -89,7 +89,7 @@ export default function CategoryTemplatesPage() {
   return (
     <>
       {/* ===== PAGE HEADER ===== */}
-      <section className="section bali-pattern-bg bali-corners" style={{ paddingTop: '140px' }}>
+      <section className="section bali-pattern-bg bali-corners" style={{ paddingTop: '140px', paddingBottom: 'var(--space-8)' }}>
         <div className="container text-center">
           <span className="section-label reveal">Koleksi Desain</span>
           <h1 className="section-title reveal" style={{ fontSize: 'var(--text-5xl)' }}>Koleksi Desain {categoryName}</h1>
@@ -112,7 +112,7 @@ export default function CategoryTemplatesPage() {
       </section>
 
       {/* ===== TEMPLATE GRID ===== */}
-      <section className="section--sm">
+      <section className="section--sm" style={{ paddingTop: 0 }}>
         <div className="container">
           {isLoading ? (
             <div className="text-center reveal" style={{ padding: 'var(--space-20) 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

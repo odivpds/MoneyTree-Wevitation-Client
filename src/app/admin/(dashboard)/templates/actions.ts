@@ -14,9 +14,19 @@ export async function createTemplate(categorySlug: string, formData: FormData) {
   const cssContent = formData.get("cssContent") as string;
   const jsContent = formData.get("jsContent") as string;
   const image = formData.get("image") as string;
+  const featuresStr = formData.get("features") as string;
 
   if (!name || !slug || !type) {
     throw new Error("Data wajib tidak boleh kosong.");
+  }
+
+  let features = null;
+  if (featuresStr) {
+    try {
+      features = JSON.parse(featuresStr);
+    } catch (e) {
+      throw new Error("Format JSON fitur tidak valid.");
+    }
   }
 
   // Cek duplicate slug
@@ -39,6 +49,7 @@ export async function createTemplate(categorySlug: string, formData: FormData) {
       htmlContent: (type === 'html' || type === 'html-js') ? htmlContent : null,
       cssContent: (type === 'html' || type === 'html-js') ? cssContent : null,
       jsContent: type === 'html-js' ? jsContent : null,
+      features: features,
     }
   });
 
@@ -56,9 +67,19 @@ export async function updateTemplate(categorySlug: string, originalSlug: string,
   const cssContent = formData.get("cssContent") as string;
   const jsContent = formData.get("jsContent") as string;
   const image = formData.get("image") as string;
+  const featuresStr = formData.get("features") as string;
 
   if (!name || !slug || !type) {
     throw new Error("Data wajib tidak boleh kosong.");
+  }
+
+  let features = null;
+  if (featuresStr) {
+    try {
+      features = JSON.parse(featuresStr);
+    } catch (e) {
+      throw new Error("Format JSON fitur tidak valid.");
+    }
   }
 
   // Jika slug diubah, pastikan tidak bentrok dengan template lain
@@ -83,6 +104,7 @@ export async function updateTemplate(categorySlug: string, originalSlug: string,
       htmlContent: (type === 'html' || type === 'html-js') ? htmlContent : null,
       cssContent: (type === 'html' || type === 'html-js') ? cssContent : null,
       jsContent: type === 'html-js' ? jsContent : null,
+      features: features,
     }
   });
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 export default function Footer() {
   return (
     <footer className="footer bali-footer">
@@ -11,12 +11,6 @@ export default function Footer() {
               Platform undangan pernikahan digital premium bertemakan kebudayaan Bali.
               Wujudkan undangan impian Anda dengan sentuhan tradisi yang elegan.
             </p>
-            {/* <div className="footer__socials">
-              <Link href="#" aria-label="Instagram">📷</Link>
-              <Link href="#" aria-label="WhatsApp">💬</Link>
-              <Link href="#" aria-label="Facebook">📘</Link>
-              <Link href="#" aria-label="YouTube">🎬</Link>
-            </div> */}
           </div>
 
           <div>
@@ -44,10 +38,10 @@ export default function Footer() {
           <div>
             <h4 className="footer__heading">Kontak</h4>
             <ul className="footer__links">
-              <li><Link href="#">📍 Denpasar, Bali</Link></li>
-              <li><Link href="#">📞 +62 812-3456-7890</Link></li>
-              <li><Link href="#">✉️ hello@undanganbali.com</Link></li>
-              <li><Link href="#">🕐 09:00 - 21:00 WITA</Link></li>
+              <li><Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MapPin size={16} color="var(--accent-gold)" /> Denpasar, Bali</Link></li>
+              <li><Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Phone size={16} color="var(--accent-gold)" /> +62 812-3456-7890</Link></li>
+              <li><Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Mail size={16} color="var(--accent-gold)" /> hello@undanganbali.com</Link></li>
+              <li><Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Clock size={16} color="var(--accent-gold)" /> 09:00 - 21:00 WITA</Link></li>
             </ul>
           </div>
         </div>

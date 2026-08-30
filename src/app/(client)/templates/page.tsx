@@ -113,7 +113,7 @@ export default function TemplatesPage() {
   return (
     <>
       {/* ===== PAGE HEADER ===== */}
-      <section className="section bali-pattern-bg bali-corners" style={{ paddingTop: '140px' }}>
+      <section className="section bali-pattern-bg bali-corners" style={{ paddingTop: '140px', paddingBottom: 'var(--space-8)' }}>
         <div className="container text-center">
           <span className="section-label reveal">Koleksi Desain</span>
           <h1 className="section-title reveal" style={{ fontSize: 'var(--text-5xl)' }}>Galeri Template</h1>
@@ -136,7 +136,7 @@ export default function TemplatesPage() {
       </section>
 
       {/* ===== TEMPLATE CATEGORIES ===== */}
-      <section className="section--sm">
+      <section className="section--sm" style={{ paddingTop: 0 }}>
         <div className="container">
 
           {isLoading ? (

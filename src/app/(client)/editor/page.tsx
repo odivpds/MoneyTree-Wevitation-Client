@@ -602,9 +602,13 @@ function EditorContent() {
 
   const currentTemplateConfig = templatesData.find(t => t.id === template || t.slug === template);
   const isVisualEditSupported = currentTemplateConfig?.type === 'html-js';
+  const features = (currentTemplateConfig as any)?.features || null;
 
   // UX-O — Calculate progress
-  const requiredFields = ['groomName', 'brideName', 'weddingDate', 'mainVenue', 'akadDate', 'akadTime', 'akadVenue'];
+  let requiredFields = ['groomName', 'brideName', 'weddingDate', 'mainVenue'];
+  if (!features || (features.showAkad !== false && features.showAkad !== 'false')) {
+    requiredFields.push('akadDate', 'akadTime', 'akadVenue');
+  }
   const filledCount = requiredFields.filter(f => formData[f as keyof typeof formData]?.trim() !== '').length;
   const progressPercent = Math.round((filledCount / requiredFields.length) * 100);
 
@@ -929,45 +933,53 @@ function EditorContent() {
             {/* TAB: ACARA */}
             {activeTab === 'acara' && (
               <div className="editor__tab-content" role="tabpanel" id="tabpanel-acara" aria-labelledby="tab-acara">
-                <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Akad / Pawiwahan</p>
-                <div className="form-group">
-                  <label className="form-group__label">Tanggal Akad</label>
-                  <div style={{ position: 'relative' }}>
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
-                    <input type="date" name="akadDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadDate} onChange={handleInputChange} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-group__label">Waktu Akad</label>
-                  <div style={{ position: 'relative' }}>
-                    <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
-                    <input type="time" name="akadTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadTime} onChange={handleInputChange} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-group__label">Tempat Akad</label>
-                  <input type="text" name="akadVenue" className="form-group__input" placeholder="Contoh: Pura Keluarga, Br. Taman" value={formData.akadVenue} onChange={handleInputChange} />
-                </div>
+                {(!features || (features.showAkad !== false && features.showAkad !== 'false')) && (
+                  <>
+                    <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Akad / Pawiwahan</p>
+                    <div className="form-group">
+                      <label className="form-group__label">Tanggal Akad</label>
+                      <div style={{ position: 'relative' }}>
+                        <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                        <input type="date" name="akadDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadDate} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-group__label">Waktu Akad</label>
+                      <div style={{ position: 'relative' }}>
+                        <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                        <input type="time" name="akadTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.akadTime} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-group__label">Tempat Akad</label>
+                      <input type="text" name="akadVenue" className="form-group__input" placeholder="Contoh: Pura Keluarga, Br. Taman" value={formData.akadVenue} onChange={handleInputChange} />
+                    </div>
+                  </>
+                )}
                 {/* <div className="bali-divider bali-divider--sm" style={{ margin: 'var(--space-4) 0' }}><img src="/images/ornaments/divider.png" alt="" /></div> */}
-                <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Resepsi</p>
-                <div className="form-group">
-                  <label className="form-group__label">Tanggal Resepsi</label>
-                  <div style={{ position: 'relative' }}>
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
-                    <input type="date" name="resepsiDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiDate} onChange={handleInputChange} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-group__label">Waktu Resepsi</label>
-                  <div style={{ position: 'relative' }}>
-                    <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
-                    <input type="time" name="resepsiTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiTime} onChange={handleInputChange} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-group__label">Tempat Resepsi</label>
-                  <input type="text" name="resepsiVenue" className="form-group__input" placeholder="Contoh: The Royal Pita Maha, Ubud" value={formData.resepsiVenue} onChange={handleInputChange} />
-                </div>
+                {(!features || (features.showResepsi !== false && features.showResepsi !== 'false')) && (
+                  <>
+                    <p style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)' }}>Resepsi</p>
+                    <div className="form-group">
+                      <label className="form-group__label">Tanggal Resepsi</label>
+                      <div style={{ position: 'relative' }}>
+                        <FontAwesomeIcon icon={faCalendarAlt} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                        <input type="date" name="resepsiDate" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiDate} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-group__label">Waktu Resepsi</label>
+                      <div style={{ position: 'relative' }}>
+                        <FontAwesomeIcon icon={faClock} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-gold)' }} />
+                        <input type="time" name="resepsiTime" className="form-group__input" style={{ cursor: 'pointer', paddingLeft: '44px' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.resepsiTime} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-group__label">Tempat Resepsi</label>
+                      <input type="text" name="resepsiVenue" className="form-group__input" placeholder="Contoh: The Royal Pita Maha, Ubud" value={formData.resepsiVenue} onChange={handleInputChange} />
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

@@ -260,9 +260,6 @@ function PreviewContent() {
                   <p style={{ fontFamily: 'var(--font-script)', fontSize: 'var(--text-3xl)', color: 'var(--accent-gold)' }}>Merupakan suatu kehormatan bagi kami</p>
                   <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>apabila Bapak/Ibu/Saudara/i berkenan hadir</p>
                 </div>
-
-                {/* <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', left: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scaleY(-1)' }} />
-                <img src="/images/ornaments/corner.png" alt="" style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '120px', height: '120px', opacity: 0.4, pointerEvents: 'none', transform: 'scale(-1, -1)' }} /> */}
               </>
             )}
           </div>

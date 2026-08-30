@@ -13,6 +13,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
   const [cssContent, setCssContent] = useState<string>('');
   const [jsContent, setJsContent] = useState<string>('');
   const [templateType, setTemplateType] = useState<string>('html');
+  const [templateFeatures, setTemplateFeatures] = useState<Record<string, any>>({});
   const [error, setError] = useState<string | null>(null);
 
   // Gunakan state terpisah untuk iframe debounce
@@ -29,6 +30,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
         setCssContent(resData.cssContent || '');
         setJsContent(resData.jsContent || '');
         setTemplateType(resData.type || 'html');
+        setTemplateFeatures(resData.features || {});
         setError(null);
       })
       .catch((apiErr) => {
@@ -76,6 +78,18 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     if (targetData && typeof targetData === 'object') {
       Object.keys(targetData).forEach(key => {
         replaceTag(key, (targetData as any)[key]);
+      });
+    }
+
+    // Dynamic replacement for features (JSON from CMS)
+    if (templateFeatures && typeof templateFeatures === 'object') {
+      Object.keys(templateFeatures).forEach(key => {
+        // e.g., if key is showGallery, create a tag galleryDisplay -> 'block' or 'none'
+        if (key.startsWith('show')) {
+          const featureName = key.replace('show', ''); // 'Gallery'
+          const displayTag = featureName.charAt(0).toLowerCase() + featureName.slice(1) + 'Display'; // 'galleryDisplay'
+          replaceTag(displayTag, templateFeatures[key] ? 'block' : 'none');
+        }
       });
     }
 
@@ -345,10 +359,18 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
             const main = document.getElementById('main-content');
             if(splash) {
               splash.classList.add('open');
-              setTimeout(() => { splash.classList.add('fade-out'); document.body.style.overflow = 'auto'; }, 1500);
+              splash.style.transition = 'opacity 0.5s ease';
+              splash.style.opacity = '0';
+              splash.style.pointerEvents = 'none';
+              setTimeout(() => { 
+                splash.classList.add('fade-out'); 
+                splash.style.display = 'none';
+                document.body.style.overflow = 'auto'; 
+              }, 500);
             }
             if(main) {
               main.classList.remove('hidden');
+              main.style.display = 'block';
               if (typeof WOW !== 'undefined') { new WOW().init(); } else if (typeof window.WOW !== 'undefined') { new window.WOW().init(); }
             }
           }
@@ -356,8 +378,12 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
             const splash = document.getElementById('splash-screen');
             const main = document.getElementById('main-content');
             if(splash) {
-              splash.classList.remove('fade-out');
-              splash.classList.remove('open');
+              splash.classList.remove('fade-out', 'open');
+              splash.style.display = '';
+              setTimeout(() => {
+                splash.style.opacity = '1';
+                splash.style.pointerEvents = 'auto';
+              }, 10);
               document.body.style.overflow = 'hidden';
             }
             if(main) {
@@ -422,7 +448,7 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     }
 
     return finalSrcDoc;
-  }, [debouncedData, htmlContent, cssContent, jsContent, templateType]); // Hapus timeLeft dari dependency jika tidak ingin timer mereload iframe tiap detik! (Tetapi jika timeLeft tidak diubah di iframe, timer preview akan stuck. Untuk saat ini kita abaikan reload tiap detik demi stabilitas visual editor, atau timeLeft bisa tetap disertakan jika user belum komplain)
+  }, [debouncedData, htmlContent, cssContent, jsContent, templateType, templateFeatures]); // Hapus timeLeft dari dependency jika tidak ingin timer mereload iframe tiap detik!
 
   if (error) return <div style={{ color: 'red', padding: '1rem' }}>{error}</div>;
 

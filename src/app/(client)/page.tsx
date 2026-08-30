@@ -113,14 +113,14 @@ export default function Home() {
     <>
       {/* Floating Petals */}
       <div className="petal-container" id="petalContainer">
-        <span className="petal">🌸</span>
-        <span className="petal">🌺</span>
-        <span className="petal">🌸</span>
-        <span className="petal">✿</span>
-        <span className="petal">🌸</span>
-        <span className="petal">🌺</span>
-        <span className="petal">✿</span>
-        <span className="petal">🌸</span>
+        <span className="petal" style={{ color: 'var(--accent-gold)' }}>✿</span>
+        <span className="petal" style={{ color: 'var(--accent-gold-light)' }}>❀</span>
+        <span className="petal" style={{ color: 'var(--accent-gold-dark)' }}>✧</span>
+        <span className="petal" style={{ color: 'var(--accent-gold)' }}>✿</span>
+        <span className="petal" style={{ color: 'var(--accent-gold-light)' }}>❀</span>
+        <span className="petal" style={{ color: 'var(--accent-gold)' }}>❁</span>
+        <span className="petal" style={{ color: 'var(--accent-gold-dark)' }}>✧</span>
+        <span className="petal" style={{ color: 'var(--accent-gold)' }}>✿</span>
       </div>
 
       {/* ===== HERO SECTION ===== */}
@@ -198,24 +198,55 @@ export default function Home() {
           </p>
 
           <div className="template-grid reveal-stagger" style={{ marginTop: 'var(--space-12)' }}>
-            {sortedCategories.map((cat: any) => (
-              <div key={cat.id} className="template-card reveal shimmer-border" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', height: '100%' }} onClick={() => window.location.href = `/templates/${cat.slug}`}>
-                <div className="template-card__image" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f5f3ec, #e6dfd1)' }}>
-                  <span style={{ fontSize: '3rem', color: '#b8a687', fontFamily: 'var(--font-serif)' }}>{cat.name.charAt(0).toUpperCase()}</span>
-                </div>
-                <div className="template-card__body" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <h3 className="template-card__name">{cat.name}</h3>
-                  <p className="template-card__desc" style={{ flexGrow: 1 }}>{cat.description || `Koleksi desain undangan eksklusif kategori ${cat.name}.`}</p>
-                  <div className="template-card__footer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 'auto' }}>
-                    <span className="template-card__price">
-                      {cat.priceText === 'Gratis' || cat.priceText === 'Mulai Gratis'
-                        ? <span className="free" style={{ color: 'var(--success)' }}>{cat.priceText}</span>
-                        : cat.priceText}
-                    </span>
+            {sortedCategories.map((cat: any) => {
+              // Menentukan icon atau gambar berdasarkan nama kategori
+              const isExclusive = cat.slug.includes('exclusive');
+              const isPremium = cat.slug.includes('premium');
+
+              // Fallback background image (Anda bisa menggantinya dengan URL gambar dari database nanti)
+              const bgPattern = isExclusive
+                ? 'radial-gradient(circle at top right, #3a3222, #1a1611)'
+                : isPremium
+                  ? 'linear-gradient(135deg, #dfc698, #b89862)'
+                  : 'linear-gradient(135deg, #f5f3ec, #e6dfd1)';
+
+              const iconColor = isExclusive ? '#dfc698' : isPremium ? '#fff' : '#b8a687';
+
+              return (
+                <div key={cat.id} className="template-card reveal shimmer-border" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }} onClick={() => window.location.href = `/templates/${cat.slug}`}>
+                  <div className="template-card__image" style={{
+                    height: '200px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: bgPattern,
+                    position: 'relative'
+                  }}>
+                    {/* Jika Anda punya field cat.image di masa depan, gunakan tag <img> di sini */}
+
+                    {/* Menggunakan Icon sebagai fallback yang elegan */}
+                    {isExclusive ? (
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z" /><path d="M11 3 8 9l4 13 4-13-3-6" /><path d="M2 9h20" /></svg>
+                    ) : isPremium ? (
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" /></svg>
+                    ) : (
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></svg>
+                    )}
+                  </div>
+                  <div className="template-card__body" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <h3 className="template-card__name">{cat.name}</h3>
+                    <p className="template-card__desc" style={{ flexGrow: 1 }}>{cat.description || `Koleksi desain undangan eksklusif kategori ${cat.name}.`}</p>
+                    <div className="template-card__footer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 'auto' }}>
+                      <span className="template-card__price">
+                        {cat.priceText === 'Gratis' || cat.priceText === 'Mulai Gratis'
+                          ? <span className="free" style={{ color: 'var(--success)' }}>{cat.priceText}</span>
+                          : cat.priceText}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <div style={{ margin: '3rem', display: 'grid', placeItems: 'center', gridColumn: '1 / -1' }}>
               <button onClick={() => window.location.href = '/templates'} className="btn btn--secondary btn--md">Lihat Semua Template</button>
             </div>

@@ -1,5 +1,4 @@
 # Panduan Pembuatan Template HTML Wevitation (Untuk Tim Developer)
-
 Sistem Wevitation telah dilengkapi dengan **Visual Builder** yang canggih. Sistem ini dapat mengubah template HTML statis apa pun menjadi undangan yang bisa di-*edit* secara visual (drag & drop / click-to-edit) oleh klien (pengguna awam).
 
 Sistem ini sangat dinamis dan **sudah dirancang untuk bekerja dengan template HTML/CSS/JS yang berbeda-beda**, apa pun desainnya. Sistem secara otomatis mendeteksi tag teks (`h1`-`h6`, `p`, `span`, `li`), gambar (`img`), dan latar belakang (`background-image`).
@@ -67,12 +66,42 @@ Khusus untuk elemen yang menampung *string* panjang tanpa spasi (contoh: **Nomor
 Jika tidak, teks yang kepanjangan akan menabrak / tumpah keluar dari kotak pembungkusnya saat dibuka di layar HP yang sempit.
 ✅ **Benar:** `.bank-acc { word-break: break-all; }`
 
-## 6. Background Image (Latar Belakang)
-Jika Anda menggunakan gambar sebagai latar belakang dan ingin klien bisa menggantinya lewat editor, gunakan atribut HTML `style` *inline*. Anda bisa menggunakan variabel khusus `{{photoUrl}}` yang merepresentasikan foto *cover* yang diunggah klien.
-✅ **Benar:** `<div class="hero-banner" style="background-image: url('{{photoUrl}}');"></div>`
-Sistem akan mendeteksi *inline style* ini dan memunculkan kontrol "📸 Edit Gambar" di aplikasi.
+## 6. Latar Belakang & Foto Bebas (Dynamic Photo Variables)
+Jika Anda menggunakan gambar sebagai latar belakang atau elemen bebas dan ingin klien bisa menggantinya lewat editor, gunakan atribut HTML `style` *inline* atau atribut `src`.
+
+Sistem Wevitation memiliki sistem **Dynamic Photo Builder**. Admin CMS akan menentukan kode variabel foto apa saja yang wajib diunggah klien (contoh: `coverPhoto`, `gallery1`, dll). Anda wajib memasukkan kode variabel ini ke dalam HTML Anda.
+
+✅ **Benar (Sebagai Background):** `<div class="hero-banner" style="background-image: url('{{coverPhoto}}');"></div>`
+✅ **Benar (Sebagai Gambar):** `<img src="{{gallery1}}" class="gal-img" />`
+Sistem akan mendeteksi *inline style* maupun *src* ini, secara otomatis menyuntikkan foto klien, dan memunculkan kontrol "📸 Edit Gambar" di aplikasi.
 ❌ **Salah:** Menetapkan URL *background-image* sepenuhnya dari dalam file `.css` terpisah. Sistem Visual Editor tidak akan mendeteksinya.
 
 ## 7. Hati-hati dengan "Overlay Transparan" (Z-Index)
 Jika Anda menaruh elemen transparan yang melayang (seperti hiasan bunga di pojok, bingkai absolut, atau efek *overlay* gelap) yang menutupi teks, pastikan Anda menambahkan CSS `pointer-events: none;` pada elemen *overlay* tersebut. 
 Jika tidak, *overlay* itu akan menghalangi *mouse* klien, sehingga klien tidak bisa mengklik dan mengedit teks yang berada di baliknya lewat sistem Visual Editor.
+
+## 8. Sistem Template "Data-Driven" (Tanpa Coding)
+Anda **tidak perlu** membuat 3 file HTML yang berbeda untuk kelas *Basic*, *Premium*, dan *Exclusive*. Cukup buat **Satu HTML Terlengkap (Exclusive)** yang mencakup semua section (Akad, Resepsi, Galeri, dsb).
+Sistem CMS kami menggunakan pengaturan sakelar (Checkboxes) untuk menyembunyikan/menampilkan bagian-bagian tertentu berdasarkan level template yang dibeli klien.
+Misalnya, jika tim Admin mematikan fitur "Akad / Pemberkatan" di panel CMS, maka form pengisian Akad akan otomatis hilang, dan logika tampilan HTML (menggunakan display toggle) akan menyembunyikan bagian tersebut secara otomatis.
+
+## 9. Standardisasi ID untuk Cover / Splash Screen (SANGAT PENTING)
+Agar tombol "Buka Undangan" dapat ditembus secara paksa (Bypass) oleh sistem Visual Editor kami saat klien sedang mengedit, Anda **wajib** menggunakan standarisasi penamaan ID berikut pada struktur dasar HTML Anda:
+- Gunakan `id="splash-screen"` untuk elemen pembungkus halaman depan (Cover/Amplop).
+- Gunakan `id="main-content"` untuk elemen pembungkus seluruh isi konten undangan.
+
+❌ **Salah:** `<div id="cover-overlay"> ... </div>` dan `<div id="invitation-content"> ... </div>`
+✅ **Benar:** `<div id="splash-screen"> ... </div>` dan `<div id="main-content"> ... </div>`
+
+---
+
+## 🤖 [PROMPT AI] Asisten Konversi Template
+*Tim Developer dapat menyalin prompt di bawah ini dan memberikannya ke ChatGPT/Claude/Gemini beserta kode HTML mentah (hardcode) buatan mereka, agar AI otomatis mengubahnya menjadi format Wevitation.*
+
+> **Prompt untuk AI:**
+> "Halo AI, saya memiliki kode HTML statis (hardcoded) undangan pernikahan. Tolong bantu saya mengubah kode ini menjadi format *Wevitation Template*. Aturan wajib:
+> 1. Ganti semua data hardcode menjadi variabel Wevitation: `{{groomName}}`, `{{brideName}}`, `{{groomParents}}`, `{{brideParents}}`, `{{weddingDate}}`, `{{akadTime}}`, `{{akadVenue}}`, `{{resepsiTime}}`, `{{resepsiVenue}}`, `{{mainVenue}}`, `{{greeting}}`, `{{dressCode}}`, `{{bank1Name}}`, `{{bank1No}}`, `{{bank1Holder}}`, `{{bank2Name}}`, `{{bank2No}}`, `{{bank2Holder}}`, `{{qrisImage}}`.
+> 2. Variabel hitung mundur: `{{days}}`, `{{hours}}`, `{{minutes}}`, `{{seconds}}`.
+> 3. Jangan ubah desain atau style, hanya *replace* teks datanya saja.
+> 4. Pastikan setiap tag pembungkus bank (rekening) ganda, memiliki style `display: {{bank1Display}};` atau `display: {{bank2Display}};` pada wrapper luar, BUKAN pada container yang memakai Flexbox.
+> 5. Jika ada section utama (seperti Hero, Couple, Acara, Gallery), pastikan tag tersebut memiliki atribut ID atau Class (misal `<section id="acara">`) agar terbaca oleh sistem navigasi editor."

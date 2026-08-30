@@ -10,6 +10,7 @@ export interface TemplateConfig {
   price: string;
   image: string;
   badge?: string;
+  features?: any;
 }
 
 export const TEMPLATES: TemplateConfig[] = [

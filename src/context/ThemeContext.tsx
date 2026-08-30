@@ -12,7 +12,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Read saved preference on mount
@@ -23,11 +23,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setTheme(saved);
         document.documentElement.setAttribute("data-theme", saved);
       } else {
-        // Respect system preference
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const initial = prefersDark ? "dark" : "light";
-        setTheme(initial);
-        document.documentElement.setAttribute("data-theme", initial);
+        // Default to dark as primary theme
+        setTheme("dark");
+        document.documentElement.setAttribute("data-theme", "dark");
       }
     } catch {
       // localStorage not available
