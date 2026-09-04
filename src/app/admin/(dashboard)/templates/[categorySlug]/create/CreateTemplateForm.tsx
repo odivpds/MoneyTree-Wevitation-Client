@@ -13,6 +13,8 @@ export default function CreateTemplateForm({ categories, categorySlug }: { categ
   const [features, setFeatures] = useState<any>({
     showAkad: true,
     showResepsi: true,
+    showMaps: true,
+    showInstagram: true,
     showGift: true,
     showBank2: true,
     showGallery: true,
@@ -117,6 +119,8 @@ export default function CreateTemplateForm({ categories, categorySlug }: { categ
             {[
               { id: 'showAkad', label: 'Akad / Pemberkatan' },
               { id: 'showResepsi', label: 'Resepsi' },
+              { id: 'showMaps', label: 'Google Maps' },
+              { id: 'showInstagram', label: 'Instagram IG' },
               { id: 'showGift', label: 'Amplop Digital' },
               { id: 'showBank2', label: 'Bank ke-2' },
               { id: 'showGallery', label: 'Galeri Foto' },

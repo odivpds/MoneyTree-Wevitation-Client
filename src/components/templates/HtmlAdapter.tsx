@@ -106,6 +106,28 @@ const HtmlAdapter = forwardRef<HTMLIFrameElement, HtmlAdapterProps>(function Htm
     // Jika tidak ada foto, gunakan pixel transparan agar background-color template (var(--c-brown)) bisa terlihat
     const photoUrl = photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     replaceTag('photoUrl', photoUrl);
+    
+    // Injeksi ID undangan (berguna untuk API fetch)
+    const activeInvitationId = targetData.invitationId || 'preview-id';
+    replaceTag('invitationId', activeInvitationId);
+
+    // Flexible Maps Iframe: accept either raw iframe or a keyword to auto-generate
+    const getMapIframe = (keyword: string | undefined, fallbackVenue: string) => {
+      const input = (keyword || "").trim();
+      if (input.toLowerCase().startsWith("<iframe")) {
+        // User pasted a raw iframe embed code
+        return input;
+      }
+      // Otherwise, treat as keyword and auto-generate
+      const query = encodeURIComponent(input || fallbackVenue || "Bali");
+      return `<iframe src="https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+    };
+
+    const finalAkadIframe = getMapIframe(targetData.akadMapKeyword, targetData.akadVenue);
+    const finalResepsiIframe = getMapIframe(targetData.resepsiMapKeyword, targetData.resepsiVenue || targetData.akadVenue);
+
+    replaceTag('akadMapIframe', finalAkadIframe);
+    replaceTag('resepsiMapIframe', finalResepsiIframe);
 
     return injected;
   };

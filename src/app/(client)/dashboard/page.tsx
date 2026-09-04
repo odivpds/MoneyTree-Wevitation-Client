@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { TEMPLATES } from "@/config/templates";
-import styles from "./page.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPen, faEye, faTrash, faCalendar, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -85,58 +84,59 @@ export default function DashboardPage() {
 
   if (!isClient || !isInitialized || !isLoggedIn) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Memuat...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500 flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#677359] border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-medium">Memuat...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`container ${styles.dashboardSection}`}>
-      <div className={styles.dashboardHeader}>
+    <div className="container mx-auto px-6 py-12 max-w-7xl">
+      <div className="mb-10">
         <div>
-          <h1 className={styles.welcomeTitle}>Halo, {user?.name}</h1>
-          <p className={styles.welcomeText}>Kelola undangan pernikahan digital Anda di sini.</p>
+          <h1 className="text-4xl font-bold font-serif text-[#222]">Halo, {user?.name}</h1>
+          <p className="text-gray-500 mt-2">Kelola undangan pernikahan digital Anda di sini.</p>
         </div>
       </div>
 
-      <div className={styles.grid}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Create New Card */}
-        <Link href="/templates" className={styles.createCard}>
-          <FontAwesomeIcon icon={faPlus} className={styles.createIcon} />
-          <h3>Buat Undangan Baru</h3>
-          <p style={{ marginTop: '0.5rem', fontSize: 'var(--text-sm)' }}>Pilih dari koleksi template eksklusif kami</p>
+        <Link href="/templates" className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#D4C4B7] rounded-3xl bg-[#faf7f2] hover:bg-white transition-all text-center cursor-pointer group hover:border-[#677359]">
+          <FontAwesomeIcon icon={faPlus} className="text-4xl text-[#D4C4B7] mb-4 group-hover:text-[#677359] group-hover:scale-110 transition-all duration-300" />
+          <h3 className="text-xl font-bold font-serif text-[#222] group-hover:text-[#677359] transition-colors">Buat Undangan Baru</h3>
+          <p className="mt-2 text-sm text-gray-500">Pilih dari koleksi template eksklusif kami</p>
         </Link>
 
         {/* Draft Cards */}
         {drafts.map((draft) => (
-          <div key={draft.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle}>{draft.groomName} & {draft.brideName}</h3>
-              <span className={styles.cardBadge}>{draft.templateName}</span>
+          <div key={draft.id} className="bg-white border border-[#E6DFD1] rounded-3xl p-6 shadow-sm flex flex-col hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="font-serif font-bold text-xl text-[#222] leading-tight flex-1 pr-2">{draft.groomName} & {draft.brideName}</h3>
+              <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#faf7f2] text-xs font-bold text-[#677359] border border-[#E6DFD1] whitespace-nowrap">{draft.templateName}</span>
             </div>
 
-            <div className={styles.cardBody}>
-              <div className={styles.cardDetail}>
-                <FontAwesomeIcon icon={faCalendar} style={{ opacity: 0.7, width: '16px' }} />
+            <div className="flex-1 mb-6 space-y-3 text-sm text-gray-600">
+              <div className="flex items-center space-x-3">
+                <FontAwesomeIcon icon={faCalendar} className="text-[#D4C4B7] w-4" />
                 <span>{draft.weddingDate}</span>
               </div>
-              <div className={styles.cardDetail}>
-                <FontAwesomeIcon icon={faMapMarkerAlt} style={{ opacity: 0.7, width: '16px' }} />
-                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {draft.mainVenue}
-                </span>
+              <div className="flex items-center space-x-3">
+                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-[#D4C4B7] w-4" />
+                <span className="truncate">{draft.mainVenue}</span>
               </div>
             </div>
 
-            <div className={styles.cardActions}>
-              <Link href={`/setup?template=${draft.templateId}`} className={`${styles.btnAction} ${styles.btnPrimary}`}>
-                <FontAwesomeIcon icon={faPen} /> Edit
+            <div className="flex items-center space-x-2 pt-4 border-t border-[#E6DFD1]">
+              <Link href={`/setup?template=${draft.templateId}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#677359] text-white hover:bg-[#58634c]">
+                <FontAwesomeIcon icon={faPen} /> <span>Edit</span>
               </Link>
-              <Link href={`/preview?template=${draft.templateId}`} className={`${styles.btnAction} ${styles.btnSecondary}`}>
-                <FontAwesomeIcon icon={faEye} /> Preview
+              <Link href={`/preview?template=${draft.templateId}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#faf7f2] text-[#333] border border-[#E6DFD1] hover:bg-[#F0EBE1]">
+                <FontAwesomeIcon icon={faEye} /> <span>Preview</span>
               </Link>
-              <button onClick={() => handleDelete(draft.id)} className={`${styles.btnAction} ${styles.btnDanger}`} title="Hapus">
+              <button onClick={() => handleDelete(draft.id)} className="inline-flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-white text-red-500 border border-red-200 hover:bg-red-50" title="Hapus">
                 <FontAwesomeIcon icon={faTrash} />
               </button>
             </div>

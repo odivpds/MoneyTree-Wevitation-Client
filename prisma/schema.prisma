@@ -65,12 +65,32 @@ model Invitation {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   guests     Guest[]
+  rsvps      Rsvp[]
+  guestbook  GuestbookMessage[]
 }
 
 model Guest {
   id           String     @id @default(cuid())
   name         String
   phone        String?
+  invitationId String
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Rsvp {
+  id           String     @id @default(cuid())
+  name         String
+  attendance   String
+  invitationId String
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model GuestbookMessage {
+  id           String     @id @default(cuid())
+  name         String
+  message      String
   invitationId String
   createdAt    DateTime   @default(now())
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)

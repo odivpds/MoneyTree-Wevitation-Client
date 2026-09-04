@@ -10,7 +10,10 @@ export interface InvitationData {
   akadVenue: string;
   resepsiTime: string;
   resepsiVenue: string;
-  mapLink: string;
+  akadMapUrl?: string;
+  akadMapKeyword?: string;
+  resepsiMapUrl?: string;
+  resepsiMapKeyword?: string;
   accentColor: string;
   fontFamily: string;
   greeting: string;
@@ -23,6 +26,7 @@ export interface InvitationData {
   bank2No?: string;
   bank2Holder?: string;
   qrisImage?: string;
+  invitationId?: string;
 }
 
 export interface TemplateProps {

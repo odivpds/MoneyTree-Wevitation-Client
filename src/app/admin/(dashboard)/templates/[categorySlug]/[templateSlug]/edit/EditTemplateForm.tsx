@@ -12,6 +12,9 @@ export default function EditTemplateForm({ template, categories, categorySlug }:
     template.features && Object.keys(template.features).length > 0 ? template.features : {
       showAkad: true,
       showResepsi: true,
+      showAkadMap: true,
+      showResepsiMap: true,
+      showInstagram: true,
       showGift: true,
       showBank2: true,
       showGallery: true,
@@ -122,7 +125,10 @@ export default function EditTemplateForm({ template, categories, categorySlug }:
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             {[
               { id: 'showAkad', label: 'Akad / Pemberkatan' },
+              { id: 'showAkadMap', label: 'Maps Akad' },
               { id: 'showResepsi', label: 'Resepsi' },
+              { id: 'showResepsiMap', label: 'Maps Resepsi' },
+              { id: 'showInstagram', label: 'Instagram IG' },
               { id: 'showGift', label: 'Amplop Digital' },
               { id: 'showBank2', label: 'Bank ke-2' },
               { id: 'showGallery', label: 'Galeri Foto' },

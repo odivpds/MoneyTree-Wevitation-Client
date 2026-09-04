@@ -28,15 +28,18 @@ Untuk data-data vital yang diisi klien melalui tab "Info" / "Acara" (Formulir St
 - `{{brideName}}` (Nama Mempelai Wanita)
 - `{{groomParents}}` (Nama Orang Tua Pria)
 - `{{brideParents}}` (Nama Orang Tua Wanita)
+- `{{groomInstagram}}` (Username Instagram Pria)
+- `{{brideInstagram}}` (Username Instagram Wanita)
 - `{{greeting}}` (Salam Pembuka, misal: Om Swastyastu)
 - `{{weddingDate}}` (Tanggal Pernikahan Utama)
-- `{{akadTime}}`, `{{akadVenue}}` (Waktu & Tempat Akad/Pemberkatan)
-- `{{resepsiTime}}`, `{{resepsiVenue}}` (Waktu & Tempat Resepsi)
+- `{{akadDate}}`, `{{akadTime}}`, `{{akadVenue}}`, `{{akadMapUrl}}`, `{{akadMapIframe}}` (Tanggal, Waktu, Tempat, dan Map Akad)
+- `{{resepsiDate}}`, `{{resepsiTime}}`, `{{resepsiVenue}}`, `{{resepsiMapUrl}}`, `{{resepsiMapIframe}}` (Tanggal, Waktu, Tempat, dan Map Resepsi)
 - `{{mainVenue}}`, `{{dressCode}}` (Informasi tambahan)
 
 **Daftar variabel Hitung Mundur (Countdown):**
-Sistem akan otomatis menghitung mundur ke tanggal pernikahan dan mengisi tag ini.
-- `{{days}}`, `{{hours}}`, `{{minutes}}`, `{{seconds}}`
+Sistem akan otomatis menghitung mundur ke tanggal dan waktu tujuan (`{{countdownDate}}` dan `{{countdownTime}}`) lalu mengisi tag ini.
+- `{{countdownDate}}`, `{{countdownTime}}` (Tanggal & Waktu Countdown Mentah)
+- `{{days}}`, `{{hours}}`, `{{minutes}}`, `{{seconds}}` (Angka Hitung Mundur Otomatis)
 
 **Daftar variabel Hadiah (Gift & Amplop Digital):**
 - `{{qrisImage}}` (URL Gambar QRIS)
@@ -44,7 +47,11 @@ Sistem akan otomatis menghitung mundur ke tanggal pernikahan dan mengisi tag ini
 - `{{bank2Name}}`, `{{bank2No}}`, `{{bank2Holder}}` (Informasi Bank 2)
 
 ## 4. Logika Tampilan Kondisional (Display Toggles) - PENTING!
-Sistem Wevitation memiliki variabel penyembunyi (`{{bank1Display}}`, `{{bank2Display}}`, dan `{{qrisDisplay}}`). Variabel ini akan diganti oleh sistem menjadi teks `block` (jika klien mengisi datanya) atau `none` (jika klien mengosongkannya).
+Sistem Wevitation memiliki variabel penyembunyi komponen. Variabel ini akan diganti oleh sistem menjadi teks `block` (jika klien mengaktifkan/mengisi datanya) atau `none` (jika klien mematikan/mengosongkannya).
+- **Keuangan**: `{{bank1Display}}`, `{{bank2Display}}`, `{{qrisDisplay}}`, `{{giftDisplay}}`
+- **Peta Lokasi**: `{{akadMapDisplay}}`, `{{resepsiMapDisplay}}`
+- **Acara Utama**: `{{akadDisplay}}`, `{{resepsiDisplay}}` (Fitur sakelar kustom dari CMS)
+- **Fitur Tambahan**: `{{galleryDisplay}}`, `{{musicDisplay}}`, `{{countdownDisplay}}`, `{{rSVPDisplay}}`, `{{instagramDisplay}}`
 ✅ **Cara Pakai:** `<div style="display: {{bank1Display}};"> ... konten bank ... </div>`
 
 ⚠️ **Aturan Ketat CSS Layouting:**
@@ -95,13 +102,27 @@ Agar tombol "Buka Undangan" dapat ditembus secara paksa (Bypass) oleh sistem Vis
 
 ---
 
+## 10. Standarisasi Fitur RSVP & Buku Tamu (Guestbook)
+Sistem Wevitation memiliki API Backend yang siap menerima dan menyimpan data kehadiran (RSVP) serta ucapan dari tamu. Namun, agar form di dalam template Anda bisa berkomunikasi dengan server Wevitation, Anda **wajib** menyamakan ID HTML dan menambahkan logika JavaScript standar.
+
+**Syarat HTML:**
+- Form RSVP harus memiliki `id="rsvp-form"`, input nama tamu dengan `id="rsvp-name"`, dan pilihan kehadiran dengan `id="rsvp-attendance"`.
+- Form Buku Tamu harus memiliki `id="ucapan-form"`, input nama tamu dengan `id="ucapan-name"`, input pesan dengan `id="ucapan-message"`, serta div/wadah daftar pesan dengan `id="guestbook-list"`.
+
+**Syarat JavaScript:**
+Anda harus menambahkan *script* standar milik Wevitation ke dalam file `.js` template Anda. *Script* ini bertugas menangkap event *submit*, mengambil `data-invitation-id` dari body HTML, mengirimkan *fetch* request ke `/api/public/invitations/`, serta memunculkan pesan ke DOM dengan metode anti-XSS (`textContent`). Tim developer bisa menyalin struktur script ini dari template rujukan (contoh: `undangan-bali-v2/script.js`).
+
+---
+
 ## 🤖 [PROMPT AI] Asisten Konversi Template
 *Tim Developer dapat menyalin prompt di bawah ini dan memberikannya ke ChatGPT/Claude/Gemini beserta kode HTML mentah (hardcode) buatan mereka, agar AI otomatis mengubahnya menjadi format Wevitation.*
 
 > **Prompt untuk AI:**
 > "Halo AI, saya memiliki kode HTML statis (hardcoded) undangan pernikahan. Tolong bantu saya mengubah kode ini menjadi format *Wevitation Template*. Aturan wajib:
-> 1. Ganti semua data hardcode menjadi variabel Wevitation: `{{groomName}}`, `{{brideName}}`, `{{groomParents}}`, `{{brideParents}}`, `{{weddingDate}}`, `{{akadTime}}`, `{{akadVenue}}`, `{{resepsiTime}}`, `{{resepsiVenue}}`, `{{mainVenue}}`, `{{greeting}}`, `{{dressCode}}`, `{{bank1Name}}`, `{{bank1No}}`, `{{bank1Holder}}`, `{{bank2Name}}`, `{{bank2No}}`, `{{bank2Holder}}`, `{{qrisImage}}`.
+> 1. Ganti semua data hardcode menjadi variabel Wevitation: `{{groomName}}`, `{{brideName}}`, `{{groomParents}}`, `{{brideParents}}`, `{{weddingDate}}`, `{{akadDate}}`, `{{akadTime}}`, `{{akadVenue}}`, `{{akadMapUrl}}`, `{{resepsiDate}}`, `{{resepsiTime}}`, `{{resepsiVenue}}`, `{{resepsiMapUrl}}`, `{{mainVenue}}`, `{{greeting}}`, `{{dressCode}}`, `{{bank1Name}}`, `{{bank1No}}`, `{{bank1Holder}}`, `{{bank2Name}}`, `{{bank2No}}`, `{{bank2Holder}}`, `{{qrisImage}}`.
 > 2. Variabel hitung mundur: `{{days}}`, `{{hours}}`, `{{minutes}}`, `{{seconds}}`.
 > 3. Jangan ubah desain atau style, hanya *replace* teks datanya saja.
-> 4. Pastikan setiap tag pembungkus bank (rekening) ganda, memiliki style `display: {{bank1Display}};` atau `display: {{bank2Display}};` pada wrapper luar, BUKAN pada container yang memakai Flexbox.
-> 5. Jika ada section utama (seperti Hero, Couple, Acara, Gallery), pastikan tag tersebut memiliki atribut ID atau Class (misal `<section id="acara">`) agar terbaca oleh sistem navigasi editor."
+> 4. Pastikan setiap tag pembungkus fitur yang bisa dimatikan/dinyalakan oleh pengguna, memiliki atribut style `display: {{namaFiturDisplay}};`. Contoh: `{{bank1Display}}`, `{{bank2Display}}`, `{{qrisDisplay}}`, `{{giftDisplay}}`, `{{akadDisplay}}`, `{{akadMapDisplay}}`, `{{resepsiDisplay}}`, `{{resepsiMapDisplay}}`, `{{galleryDisplay}}`, `{{musicDisplay}}`, `{{countdownDisplay}}`, `{{rSVPDisplay}}`. Jangan taruh style display inline ini pada elemen yang memerlukan Flexbox, buatlah elemen *wrapper* luar jika perlu.
+> 5. Jika ada section utama (seperti Hero, Couple, Acara, Gallery), pastikan tag tersebut memiliki atribut ID atau Class (misal `<section id="acara">`) agar terbaca oleh sistem navigasi editor.
+> 6. Standarkan form RSVP menjadi `id="rsvp-form"`, input nama `id="rsvp-name"`, dan select kehadiran `id="rsvp-attendance"`.
+> 7. Standarkan form Buku Tamu menjadi `id="ucapan-form"`, input nama `id="ucapan-name"`, textarea pesan `id="ucapan-message"`, dan wadah pesan `<div id="guestbook-list"></div>`."
