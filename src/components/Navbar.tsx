@@ -41,19 +41,21 @@ export default function Navbar() {
             <li><Link href="/#harga" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Harga</Link></li>
             <li><Link href="/#testimoni" className="navbar__link" onClick={() => setIsMenuOpen(false)}>Testimoni</Link></li>
             <div className="navbar__actions">
-              <button
-                className="theme-toggle"
-                onClick={toggleTheme}
-                aria-label={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
-                title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-              >
-                <span className="theme-toggle__icon">
-                  {theme === 'dark' ? '☀️' : '🌙'}
-                </span>
-              </button>
+              {!isLoggedIn && (
+                <button
+                  className="theme-toggle"
+                  onClick={toggleTheme}
+                  aria-label={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
+                  title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+                >
+                  <span className="theme-toggle__icon">
+                    {theme === 'dark' ? '☀️' : '🌙'}
+                  </span>
+                </button>
+              )}
               {isLoggedIn ? (
                 <div style={{ position: 'relative' }}>
-                  <button 
+                  <button
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'inherit', fontSize: '1rem' }}
                   >
@@ -64,7 +66,7 @@ export default function Navbar() {
                       <circle cx="12" cy="19" r="1"></circle>
                     </svg>
                   </button>
-                  
+
                   {isUserDropdownOpen && (
                     <div style={{
                       position: 'absolute', top: '100%', right: 0, marginTop: '0.75rem',
@@ -72,11 +74,29 @@ export default function Navbar() {
                       borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)',
                       padding: '0.5rem', minWidth: '160px', zIndex: 100
                     }}>
-                      <button 
+                      <button
+                        onClick={() => {
+                          toggleTheme();
+                          setIsUserDropdownOpen(false);
+                        }}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '0.75rem 1rem',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          color: 'var(--text-primary)', borderRadius: '4px',
+                          fontSize: '0.9rem', fontWeight: 500, fontFamily: 'inherit',
+                          display: 'flex', alignItems: 'center', gap: '0.5rem'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-subtle)'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+                      </button>
+                      <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }}></div>
+                      <button
                         onClick={() => {
                           setIsUserDropdownOpen(false);
                           setShowLogoutModal(true);
-                        }} 
+                        }}
                         style={{
                           width: '100%', textAlign: 'left', padding: '0.75rem 1rem',
                           background: 'none', border: 'none', cursor: 'pointer',
@@ -127,24 +147,24 @@ export default function Navbar() {
             <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: '1rem', fontSize: '1.75rem' }}>Konfirmasi Keluar</h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6' }}>Apakah Anda yakin ingin keluar dari akun Anda? Anda harus masuk kembali untuk mengelola undangan Anda.</p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button 
-                onClick={() => setShowLogoutModal(false)} 
-                className="btn btn--outline" 
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="btn btn--outline"
                 style={{ flex: 1, padding: '0.75rem' }}
               >
                 Batal
               </button>
-              <button 
+              <button
                 onClick={() => {
                   logout();
                   setShowLogoutModal(false);
                   setIsMenuOpen(false);
-                  
+
                   if (pathname.startsWith('/setup') || pathname.startsWith('/result')) {
                     router.push('/');
                   }
-                }} 
-                className="btn btn--primary" 
+                }}
+                className="btn btn--primary"
                 style={{ flex: 1, padding: '0.75rem', backgroundColor: '#e63946', borderColor: '#e63946' }}
               >
                 Ya, Keluar

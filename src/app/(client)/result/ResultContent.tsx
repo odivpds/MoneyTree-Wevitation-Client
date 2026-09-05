@@ -274,23 +274,24 @@ Terima kasih 🙏`;
           display: flex;
           flex-direction: column;
           min-height: 100vh;
-          padding-top: 80px;
+          padding-top: 60px; /* adjusted for navbar */
         }
         .result-left {
           flex: 1;
           position: relative;
-          overflow-y: auto;
           display: flex;
           justify-content: center;
-          align-items: flex-start;
+          align-items: center;
           width: 100%;
+          min-height: 50vh;
+          padding: 2rem 1rem;
         }
         .result-right {
           width: 100%;
           background: var(--bg-elevated);
-          box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+          box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
           border-top: 1px solid var(--border-color);
-          padding: 1.5rem;
+          padding: 2rem 1.5rem;
           display: flex;
           flex-direction: column;
           z-index: 10;
@@ -300,23 +301,31 @@ Terima kasih 🙏`;
             flex-direction: row;
             height: 100vh;
             overflow: hidden;
+            padding-top: 70px;
+          }
+          .result-left {
+            overflow-y: auto;
+            align-items: flex-start;
+            padding: 2rem;
           }
           .result-right {
-            width: 420px;
+            width: 480px;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
             border-top: none;
             border-left: 1px solid var(--border-color);
             overflow-y: auto;
             flex-shrink: 0;
+            padding: 2.5rem 2rem;
           }
           .result-mockup-wrap {
-            transform: scale(0.9);
-            margin: 40px 0;
+            transform: scale(0.95);
+            margin: auto;
           }
         }
         @media (max-width: 1023px) {
           .result-mockup-wrap {
             transform: scale(0.85);
-            margin: 24px 0;
+            margin: 0;
           }
         }
       `}</style>
@@ -458,11 +467,11 @@ Terima kasih 🙏`;
           {/* Section 2: Status Publikasi */}
           <div style={{ ...sectionStyle, background: 'rgba(255, 200, 50, 0.04)', borderColor: 'rgba(255, 200, 50, 0.15)' }}>
             <div style={sectionTitleStyle}>
-              <span></span> Status: Draft (Belum Dipublikasi)
+              <span>⚠️</span> Status: Draft (Belum Dipublikasi)
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '0.5rem' }}>
-              Undangan Anda saat ini masih berupa <strong style={{ color: 'var(--accent-gold)' }}>draft</strong> dan tersimpan di perangkat ini.
-              Setelah puas dengan desainnya, hubungi admin untuk <strong style={{ color: 'var(--accent-gold)' }}>mempublikasikan</strong> undangan Anda agar mendapatkan:
+              Undangan Anda saat ini masih berupa <strong style={{ color: 'var(--accent-gold)' }}>draft</strong> dan tersimpan di perangkat ini. 
+              Lanjutkan ke <strong style={{ color: 'var(--accent-gold)' }}>Pembayaran</strong> untuk mengaktifkan undangan Anda dan mendapatkan fitur:
             </p>
             <ul style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.8, paddingLeft: '1.2rem', margin: '0.5rem 0 0 0' }}>
               <li>Link undangan unik yang bisa dibagikan</li>
@@ -528,21 +537,41 @@ Terima kasih 🙏`;
               Langkah Selanjutnya
             </div>
 
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '1rem', textAlign: 'center', lineHeight: '1.5' }}>
+              Undangan Anda sudah siap! Anda bisa langsung melanjutkan ke pembayaran untuk mempublikasikan undangan ini.
+            </p>
+
             <button
-              onClick={() => router.push(`/editor?template=${template}`)}
+              onClick={() => router.push(`/checkout?template=${template}`)}
               className="btn btn--primary btn--lg"
               style={{
                 width: '100%',
                 boxShadow: 'var(--shadow-lg)',
-                marginBottom: '0.75rem',
+                marginBottom: '1.5rem',
                 padding: '0.85rem',
               }}
             >
-              Lanjut Edit Detail
+              Lanjut ke Pembayaran
             </button>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '1rem', textAlign: 'center' }}>
-              Sesuaikan ukuran font, letak teks, warna, dan elemen visual lainnya.
-            </p>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+              opacity: 0.5
+            }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+              <span style={{ padding: '0 10px', fontSize: '0.75rem' }}>OPSIONAL</span>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+            </div>
+
+            <button
+              onClick={() => router.push(`/editor?template=${template}`)}
+              style={{ ...btnSecondaryStyle, width: '100%', marginBottom: '0.75rem' }}
+            >
+              Edit Visual / Tata Letak
+            </button>
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
