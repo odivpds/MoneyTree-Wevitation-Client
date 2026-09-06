@@ -8,10 +8,11 @@ import { useAuth } from "@/context/AuthContext";
 
 interface ResultContentProps {
   templateId: string;
+  draftId: string | null;
   initialTemplate: TemplateConfig | null;
 }
 
-export default function ResultContent({ templateId, initialTemplate }: ResultContentProps) {
+export default function ResultContent({ templateId, draftId, initialTemplate }: ResultContentProps) {
   const router = useRouter();
   const { user, isInitialized } = useAuth();
 
@@ -48,9 +49,9 @@ export default function ResultContent({ templateId, initialTemplate }: ResultCon
 
     try {
       const userKey = user?.email ? `${user.email}_` : '';
-      const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
-      const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
-      const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
+      const dataKey = draftId ? `undanganBali_data_${userKey}${draftId}` : `undanganBali_data_${userKey}${template || 'default'}`;
+      const photoKey = draftId ? `undanganBali_photo_${userKey}${draftId}` : `undanganBali_photo_${userKey}${template || 'default'}`;
+      const overrideKey = draftId ? `undanganBali_overrides_${userKey}${draftId}` : `undanganBali_overrides_${userKey}${template || 'default'}`;
 
       const savedData = localStorage.getItem(dataKey);
       if (savedData) {
@@ -470,7 +471,7 @@ Terima kasih 🙏`;
               <span>⚠️</span> Status: Draft (Belum Dipublikasi)
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '0.5rem' }}>
-              Undangan Anda saat ini masih berupa <strong style={{ color: 'var(--accent-gold)' }}>draft</strong> dan tersimpan di perangkat ini. 
+              Undangan Anda saat ini masih berupa <strong style={{ color: 'var(--accent-gold)' }}>draft</strong> dan tersimpan di perangkat ini.
               Lanjutkan ke <strong style={{ color: 'var(--accent-gold)' }}>Pembayaran</strong> untuk mengaktifkan undangan Anda dan mendapatkan fitur:
             </p>
             <ul style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.8, paddingLeft: '1.2rem', margin: '0.5rem 0 0 0' }}>
@@ -480,56 +481,7 @@ Terima kasih 🙏`;
             </ul>
           </div>
 
-          {/* Section 3: Draft Pesan WhatsApp */}
-          <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>
-              Draft Pesan WhatsApp
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-              Preview pesan yang bisa Anda gunakan sebagai referensi. Setelah dipublikasi, link undangan akan otomatis ditambahkan.
-            </p>
-            <div style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              padding: '0.75rem',
-              marginBottom: '0.75rem',
-              maxHeight: '180px',
-              overflowY: 'auto',
-              fontSize: '0.8rem',
-              color: 'var(--text-primary)',
-              lineHeight: 1.6,
-              whiteSpace: 'pre-wrap',
-            }}>
-              {getWaDraft()}
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={handleCopyWa}
-                style={{
-                  ...btnSecondaryStyle,
-                  flex: 1,
-                  background: waCopied ? '#22c55e' : 'transparent',
-                  color: waCopied ? '#fff' : 'var(--accent-gold)',
-                  borderColor: waCopied ? '#22c55e' : 'var(--accent-gold)',
-                }}
-              >
-                {waCopied ? '✓ Pesan Tersalin!' : 'Salin Draft'}
-              </button>
-              <button
-                onClick={handleShareWa}
-                style={{
-                  ...btnSecondaryStyle,
-                  flex: 1,
-                  background: '#25D366',
-                  color: '#fff',
-                  borderColor: '#25D366',
-                }}
-              >
-                Buka WhatsApp
-              </button>
-            </div>
-          </div>
+
 
           {/* Section 4: Langkah Selanjutnya */}
           <div style={sectionStyle}>
@@ -542,7 +494,7 @@ Terima kasih 🙏`;
             </p>
 
             <button
-              onClick={() => router.push(`/checkout?template=${template}`)}
+              onClick={() => router.push(`/checkout?template=${template}${draftId ? `&draftId=${draftId}` : ''}`)}
               className="btn btn--primary btn--lg"
               style={{
                 width: '100%',
@@ -567,7 +519,7 @@ Terima kasih 🙏`;
             </div>
 
             <button
-              onClick={() => router.push(`/editor?template=${template}`)}
+              onClick={() => router.push(`/editor?template=${template}${draftId ? `&draftId=${draftId}` : ''}`)}
               style={{ ...btnSecondaryStyle, width: '100%', marginBottom: '0.75rem' }}
             >
               Edit Visual / Tata Letak
@@ -575,17 +527,17 @@ Terima kasih 🙏`;
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                onClick={() => router.push(`/setup?template=${template}`)}
+                onClick={() => router.push(`/setup?template=${template}${draftId ? `&draftId=${draftId}` : ''}`)}
                 style={{ ...btnSecondaryStyle, flex: 1 }}
               >
                 Ubah Data
               </button>
-              <button
+              {/* <button
                 onClick={() => router.push('/')}
                 style={{ ...btnSecondaryStyle, flex: 1 }}
               >
                 Dashboard
-              </button>
+              </button> */}
             </div>
           </div>
 

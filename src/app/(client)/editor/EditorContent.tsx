@@ -39,10 +39,11 @@ const getReadableTagName = (tagName: string) => {
 
 interface EditorContentProps {
   templateId: string;
+  draftId: string | null;
   initialTemplate: TemplateConfig | null;
 }
 
-function EditorContentInner({ templateId, initialTemplate }: EditorContentProps) {
+function EditorContentInner({ templateId, draftId, initialTemplate }: EditorContentProps) {
   const router = useRouter();
   const template = templateId;
   const { isLoggedIn, isInitialized, user } = useAuth();
@@ -114,9 +115,10 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
   // Separate try/catch for each localStorage read
   useEffect(() => {
     const userKey = user?.email ? `${user.email}_` : '';
-    const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
-    const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
-    const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
+    const templateKey = draftId || template || 'default';
+    const dataKey = `undanganBali_data_${userKey}${templateKey}`;
+    const photoKey = `undanganBali_photo_${userKey}${templateKey}`;
+    const overrideKey = `undanganBali_overrides_${userKey}${templateKey}`;
 
     try {
       const savedData = localStorage.getItem(dataKey);
@@ -156,7 +158,7 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
     } catch (e) {
       console.warn('Gagal memuat visual overrides tersimpan:', e);
     }
-  }, [template, user?.email]);
+  }, [template, draftId, user?.email]);
 
   // Countdown timer
   useEffect(() => {
@@ -492,9 +494,10 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
   const saveToLocalStorage = useCallback((): boolean => {
     try {
       const userKey = user?.email ? `${user.email}_` : '';
-      const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
-      const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
-      const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
+      const templateKey = draftId || template || 'default';
+      const dataKey = `undanganBali_data_${userKey}${templateKey}`;
+      const photoKey = `undanganBali_photo_${userKey}${templateKey}`;
+      const overrideKey = `undanganBali_overrides_${userKey}${templateKey}`;
 
       localStorage.setItem(dataKey, JSON.stringify(formData));
       localStorage.setItem(overrideKey, JSON.stringify(domOverrides));
@@ -511,7 +514,7 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
       displayToast('Gagal menyimpan data. Penyimpanan browser penuh. Coba hapus/ganti foto.', 'error');
       return false;
     }
-  }, [formData, domOverrides, template, photo, displayToast, user?.email]);
+  }, [formData, domOverrides, template, draftId, photo, displayToast, user?.email]);
 
   // Fitur Auto-Save (Debounce 1.5 detik)
   useEffect(() => {
@@ -556,12 +559,12 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
     if (saveToLocalStorage()) {
       displayToast('Data tersimpan! Menuju halaman preview...', 'success');
       setTimeout(() => {
-        router.push('/preview');
+        router.push(`/preview?template=${template}${draftId ? `&draftId=${draftId}` : ''}`);
       }, 1500);
     } else {
       setIsSaving(false);
     }
-  }, [validateForm, isSaving, saveToLocalStorage, displayToast, router]);
+  }, [validateForm, isSaving, saveToLocalStorage, displayToast, router, template, draftId]);
 
   // UX-L — Preview with same validation
   const handlePreview = useCallback(() => {
@@ -570,11 +573,11 @@ function EditorContentInner({ templateId, initialTemplate }: EditorContentProps)
 
     setIsSaving(true);
     if (saveToLocalStorage()) {
-      router.push(`/preview?template=${template}`);
+      router.push(`/preview?template=${template}${draftId ? `&draftId=${draftId}` : ''}`);
     } else {
       setIsSaving(false);
     }
-  }, [validateForm, isSaving, saveToLocalStorage, router, template]);
+  }, [validateForm, isSaving, saveToLocalStorage, router, template, draftId]);
 
   // UX-B — Toast for accent color change
   const handleAccentColorChange = useCallback((color: { value: string; label: string }) => {

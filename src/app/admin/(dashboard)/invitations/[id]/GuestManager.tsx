@@ -52,14 +52,14 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
     fetchGuests();
   }, [invitationId]);
 
-  const saveGuestsToDb = async (namesData: {name: string, phone?: string}[]) => {
+  const saveGuestsToDb = async (namesData: { name: string, phone?: string }[]) => {
     try {
       const res = await fetch(`/api/admin/invitations/${invitationId}/guests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ names: namesData }),
       });
-      
+
       if (res.ok) {
         await fetchGuests();
         return true;
@@ -116,7 +116,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
       }
       return { name: line.trim() };
     });
-    
+
     const success = await saveGuestsToDb(namesData);
     if (success) {
       setBulkNames("");
@@ -138,16 +138,16 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
         const ws = wb.Sheets[wsname];
         // Read as array of arrays
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 }) as any[][];
-        
+
         // Skip header row if exists, assume Col 0 is Name, Col 1 is Phone
         const namesData = [];
         for (let i = 0; i < data.length; i++) {
           const row = data[i];
           if (!row || row.length === 0) continue;
-          
+
           let name = row[0] ? String(row[0]).trim() : '';
           let phone = row[1] ? String(row[1]).trim() : '';
-          
+
           // Basic heuristic to skip header
           if (i === 0 && name.toLowerCase().includes('nama')) continue;
           if (!name) continue;
@@ -158,7 +158,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
               phone = '62' + phone.substring(1);
             }
           }
-          
+
           namesData.push(phone ? { name, phone } : { name });
         }
 
@@ -233,7 +233,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left Column: Actions */}
       <div className="lg:col-span-1 space-y-6">
-        
+
         {/* Bulk Add Box */}
         <div className="bg-white border border-[#E6DFD1] rounded-3xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-4">
@@ -241,19 +241,19 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
               <Users size={18} className="text-[#677359]" />
               Add Guests
             </h3>
-            <button 
+            <button
               onClick={handleDownloadTemplate}
               className="text-xs text-gray-400 hover:text-[#677359] flex items-center gap-1 transition-colors"
             >
               <Download size={12} /> Template Excel
             </button>
           </div>
-          
+
           <div className="mb-4">
-            <input 
-              type="file" 
-              accept=".xlsx, .xls, .csv" 
-              className="hidden" 
+            <input
+              type="file"
+              accept=".xlsx, .xls, .csv"
+              className="hidden"
               ref={fileInputRef}
               onChange={handleFileUpload}
             />
@@ -266,7 +266,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
               <span>Upload dari Excel</span>
             </button>
           </div>
-          
+
           <div className="flex items-center gap-4 my-4">
             <div className="h-px bg-[#E6DFD1] flex-1"></div>
             <span className="text-xs text-gray-400 font-medium uppercase">Atau Ketik Manual</span>
@@ -343,7 +343,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
                       {generateLink(guest.name)}
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleCopyLink(guest.id, guest.name)}
@@ -353,7 +353,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
                       {copiedLinkId === guest.id ? <Check size={14} className="text-[#677359]" /> : <Copy size={14} />}
                       <span className="hidden sm:inline">{copiedLinkId === guest.id ? "Copied" : "Link"}</span>
                     </button>
-                    
+
                     <button
                       onClick={() => handleCopyMessage(guest.id, guest.name)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#F0EBE1] text-[#555] text-sm transition-colors border border-[#E6DFD1]"
@@ -362,7 +362,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
                       {copiedMsgId === guest.id ? <Check size={14} className="text-[#677359]" /> : <MessageSquare size={14} />}
                       <span className="hidden sm:inline">{copiedMsgId === guest.id ? "Copied" : "Pesan"}</span>
                     </button>
-                    
+
                     <a
                       href={`https://wa.me/${guest.phone || ''}?text=${encodeURIComponent(getWhatsAppMessage(guest.name))}`}
                       target="_blank"
@@ -372,7 +372,7 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
                       <Send size={14} />
                       <span>Kirim WA</span>
                     </a>
-                    
+
                     <button
                       onClick={() => confirmDeleteGuest(guest.id)}
                       disabled={deletingGuest === guest.id}
@@ -409,11 +409,10 @@ export default function GuestManager({ invitationId, slug, initialWaTemplate }: 
                   if (dialog.onConfirm) dialog.onConfirm();
                   closeDialog();
                 }}
-                className={`inline-flex items-center justify-center rounded-full text-sm font-medium transition-colors h-9 px-4 py-2 ${
-                  dialog.type === 'confirm' 
-                    ? 'bg-red-500 text-white hover:bg-red-600' 
+                className={`inline-flex items-center justify-center rounded-full text-sm font-medium transition-colors h-9 px-4 py-2 ${dialog.type === 'confirm'
+                    ? 'bg-red-500 text-white hover:bg-red-600'
                     : 'bg-[#677359] text-white hover:bg-[#58634c]'
-                }`}
+                  }`}
               >
                 {dialog.type === 'confirm' ? 'Hapus' : 'OK'}
               </button>

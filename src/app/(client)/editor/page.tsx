@@ -9,7 +9,7 @@ import EditorContent from './EditorContent';
 export default async function EditorPage({
   searchParams,
 }: {
-  searchParams: Promise<{ template?: string }>;
+  searchParams: Promise<{ template?: string; draftId?: string }>;
 }) {
   const params = await searchParams;
   const slug = params.template || 'agung';
@@ -20,6 +20,7 @@ export default async function EditorPage({
     <Suspense fallback={<div className="container" style={{ paddingTop: '150px', textAlign: 'center' }}>Memuat editor...</div>}>
       <EditorContent
         templateId={slug}
+        draftId={params.draftId || null}
         initialTemplate={templateData}
       />
     </Suspense>

@@ -9,9 +9,9 @@ import ResultContent from './ResultContent';
 export default async function ResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ template?: string }>;
+  searchParams: Promise<{ template?: string; draftId?: string }>;
 }) {
-  const { template: templateId } = await searchParams;
+  const { template: templateId, draftId } = await searchParams;
   const slug = templateId || 'agung';
 
   const templateData = await getTemplateById(slug);
@@ -20,6 +20,7 @@ export default async function ResultPage({
     <Suspense fallback={<div className="container" style={{ paddingTop: '150px', textAlign: 'center' }}>Memuat...</div>}>
       <ResultContent
         templateId={slug}
+        draftId={draftId || null}
         initialTemplate={templateData}
       />
     </Suspense>

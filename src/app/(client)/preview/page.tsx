@@ -9,7 +9,7 @@ import PreviewContent from './PreviewContent';
 export default async function PreviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ template?: string, pure?: string }>;
+  searchParams: Promise<{ template?: string, pure?: string, draftId?: string }>;
 }) {
   const params = await searchParams;
   const slug = params.template || 'agung';
@@ -21,6 +21,7 @@ export default async function PreviewPage({
     <Suspense fallback={<div className="container" style={{ paddingTop: '150px', textAlign: 'center' }}>Memuat preview...</div>}>
       <PreviewContent
         templateId={slug}
+        draftId={params.draftId || null}
         initialTemplate={templateData}
         isPure={isPure}
       />

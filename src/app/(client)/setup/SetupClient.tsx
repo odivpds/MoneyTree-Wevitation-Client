@@ -6,10 +6,11 @@ import { useAuth } from "@/context/AuthContext";
 
 interface SetupPageClientProps {
   templateId: string | null;
+  draftId: string | null;
   initialFeatures: any;
 }
 
-function SetupContent({ templateId, initialFeatures }: SetupPageClientProps) {
+function SetupContent({ templateId, draftId, initialFeatures }: SetupPageClientProps) {
   const router = useRouter();
   const { isLoggedIn, isInitialized, user } = useAuth();
 
@@ -49,8 +50,14 @@ function SetupContent({ templateId, initialFeatures }: SetupPageClientProps) {
   useEffect(() => {
     if (!templateId || !isInitialized || !user?.email) return;
 
+    if (!draftId) {
+      const newDraftId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+      router.replace(`/setup?template=${templateId}&draftId=${newDraftId}`);
+      return;
+    }
+
     try {
-      const storageKey = `undanganBali_data_${user.email}_${templateId}`;
+      const storageKey = `undanganBali_data_${user.email}_${draftId}`;
       const existingData = localStorage.getItem(storageKey);
       if (existingData) {
         const parsed = JSON.parse(existingData);
@@ -64,14 +71,15 @@ function SetupContent({ templateId, initialFeatures }: SetupPageClientProps) {
     } catch (e) {
       console.warn("Gagal membaca localStorage", e);
     }
-  }, [templateId, isInitialized, user?.email]);
+  }, [templateId, draftId, isInitialized, user?.email, router]);
 
   // Auth guard redirect
   useEffect(() => {
     if (isInitialized && !isLoggedIn) {
-      router.push(`/login?next=${encodeURIComponent('/setup?template=' + templateId)}`);
+      const currentUrl = `/setup?template=${templateId}${draftId ? `&draftId=${draftId}` : ''}`;
+      router.push(`/login?next=${encodeURIComponent(currentUrl)}`);
     }
-  }, [isLoggedIn, isInitialized, router, templateId]);
+  }, [isLoggedIn, isInitialized, router, templateId, draftId]);
 
   const fileToBase64 = (file: File, maxWidth = 1024): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -146,21 +154,47 @@ function SetupContent({ templateId, initialFeatures }: SetupPageClientProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!draftId) return;
+
     // Save to localStorage
     try {
       const userKey = user?.email ? `${user.email}_` : '';
-      const templateKey = templateId || 'agung';
-      const storageKey = `undanganBali_data_${userKey}${templateKey}`;
+      const storageKey = `undanganBali_data_${userKey}${draftId}`;
       const existingData = localStorage.getItem(storageKey);
       const parsedExisting = existingData ? JSON.parse(existingData) : {};
       const mergedData = { ...parsedExisting, ...formData };
       localStorage.setItem(storageKey, JSON.stringify(mergedData));
+
+      // Update the master drafts list
+      if (user?.email) {
+        const masterKey = `undanganBali_user_drafts_${user.email}`;
+        const masterData = localStorage.getItem(masterKey);
+        let drafts = masterData ? JSON.parse(masterData) : [];
+        const draftIndex = drafts.findIndex((d: any) => d.draftId === draftId);
+        
+        const draftMeta = {
+          draftId,
+          templateId: templateId || 'agung',
+          groomName: formData.groomName,
+          brideName: formData.brideName,
+          weddingDate: (formData as any).akadDate || "Belum diatur",
+          mainVenue: (formData as any).akadVenue || "Belum diatur",
+          updatedAt: Date.now()
+        };
+
+        if (draftIndex >= 0) {
+          drafts[draftIndex] = { ...drafts[draftIndex], ...draftMeta };
+        } else {
+          drafts.push(draftMeta);
+        }
+        localStorage.setItem(masterKey, JSON.stringify(drafts));
+      }
     } catch (err) {
       console.warn("Gagal menyimpan data setup ke localStorage:", err);
     }
 
     // Redirect to result page instead of editor
-    router.push(`/result?template=${templateId || 'agung'}`);
+    router.push(`/result?template=${templateId || 'agung'}&draftId=${draftId}`);
   };
 
   return (

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPen, faEye, faTrash, faCalendar, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface InvitationDraft {
-  id: string; // The storage key
+  id: string; // The draftId
   templateId: string;
   templateName: string;
   groomName: string;
@@ -38,47 +38,53 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (isLoggedIn && user?.email) {
-      // Load drafts from localStorage
-      const loadedDrafts: InvitationDraft[] = [];
-      const prefix = `draft_${user.email}_`;
+      const masterKey = `undanganBali_user_drafts_${user.email}`;
+      const masterData = localStorage.getItem(masterKey);
+      
+      if (masterData) {
+        try {
+          const rawDrafts = JSON.parse(masterData);
+          const loadedDrafts = rawDrafts.map((d: any) => {
+            const template = TEMPLATES.find(t => t.id === d.templateId);
+            return {
+              id: d.draftId,
+              templateId: d.templateId,
+              templateName: template ? template.name : d.templateId,
+              groomName: d.groomName || 'Pria',
+              brideName: d.brideName || 'Wanita',
+              weddingDate: d.weddingDate || 'Belum diatur',
+              mainVenue: d.mainVenue || 'Belum diatur',
+              updatedAt: d.updatedAt || Date.now()
+            };
+          });
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          try {
-            const templateId = key.replace(prefix, "");
-            const template = TEMPLATES.find(t => t.id === templateId);
-            const dataStr = localStorage.getItem(key);
-
-            if (dataStr) {
-              const data = JSON.parse(dataStr);
-              loadedDrafts.push({
-                id: key,
-                templateId,
-                templateName: template ? template.name : templateId,
-                groomName: data.groomName || 'Pria',
-                brideName: data.brideName || 'Wanita',
-                weddingDate: data.weddingDate || 'Belum diatur',
-                mainVenue: data.mainVenue || 'Belum diatur',
-                updatedAt: data.updatedAt || Date.now() // Optional if not saved previously
-              });
-            }
-          } catch (error) {
-            console.error("Error parsing draft from localStorage", error);
-          }
+          loadedDrafts.sort((a: any, b: any) => b.updatedAt - a.updatedAt);
+          setDrafts(loadedDrafts);
+        } catch (error) {
+          console.error("Error parsing master drafts from localStorage", error);
         }
       }
-
-      // Sort by newest if we had reliable timestamps, for now just sort by templateId
-      loadedDrafts.sort((a, b) => a.templateName.localeCompare(b.templateName));
-      setDrafts(loadedDrafts);
     }
   }, [isLoggedIn, user]);
 
-  const handleDelete = (key: string) => {
+  const handleDelete = (draftId: string) => {
     if (confirm("Apakah Anda yakin ingin menghapus undangan ini?")) {
-      localStorage.removeItem(key);
-      setDrafts(drafts.filter(d => d.id !== key));
+      const userKey = user?.email ? `${user.email}_` : '';
+      localStorage.removeItem(`undanganBali_data_${userKey}${draftId}`);
+      localStorage.removeItem(`undanganBali_photo_${userKey}${draftId}`);
+      localStorage.removeItem(`undanganBali_overrides_${userKey}${draftId}`);
+
+      if (user?.email) {
+        const masterKey = `undanganBali_user_drafts_${user.email}`;
+        const masterData = localStorage.getItem(masterKey);
+        if (masterData) {
+          const rawDrafts = JSON.parse(masterData);
+          const newDrafts = rawDrafts.filter((d: any) => d.draftId !== draftId);
+          localStorage.setItem(masterKey, JSON.stringify(newDrafts));
+        }
+      }
+
+      setDrafts(drafts.filter(d => d.id !== draftId));
     }
   };
 
@@ -130,10 +136,10 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center space-x-2 pt-4 border-t border-[#E6DFD1]">
-              <Link href={`/setup?template=${draft.templateId}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#677359] text-white hover:bg-[#58634c]">
+              <Link href={`/setup?template=${draft.templateId}&draftId=${draft.id}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#677359] text-white hover:bg-[#58634c]">
                 <FontAwesomeIcon icon={faPen} /> <span>Edit</span>
               </Link>
-              <Link href={`/preview?template=${draft.templateId}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#faf7f2] text-[#333] border border-[#E6DFD1] hover:bg-[#F0EBE1]">
+              <Link href={`/preview?template=${draft.templateId}&draftId=${draft.id}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#faf7f2] text-[#333] border border-[#E6DFD1] hover:bg-[#F0EBE1]">
                 <FontAwesomeIcon icon={faEye} /> <span>Preview</span>
               </Link>
               <button onClick={() => handleDelete(draft.id)} className="inline-flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-white text-red-500 border border-red-200 hover:bg-red-50" title="Hapus">

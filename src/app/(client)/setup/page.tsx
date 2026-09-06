@@ -9,9 +9,9 @@ import SetupPageClient from './SetupClient';
 export default async function SetupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ template?: string }>;
+  searchParams: Promise<{ template?: string; draftId?: string }>;
 }) {
-  const { template: templateId } = await searchParams;
+  const { template: templateId, draftId } = await searchParams;
 
   // Fetch template features di server sebelum render
   const templateData = templateId ? await getTemplateById(templateId) : null;
@@ -19,6 +19,7 @@ export default async function SetupPage({
   return (
     <SetupPageClient
       templateId={templateId || null}
+      draftId={draftId || null}
       initialFeatures={templateData?.features ?? null}
     />
   );

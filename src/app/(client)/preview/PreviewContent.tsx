@@ -8,11 +8,12 @@ import { useAuth } from "@/context/AuthContext";
 
 interface PreviewContentProps {
   templateId: string;
+  draftId: string | null;
   initialTemplate: TemplateConfig | null;
   isPure: boolean;
 }
 
-export default function PreviewContent({ templateId, initialTemplate, isPure }: PreviewContentProps) {
+export default function PreviewContent({ templateId, draftId, initialTemplate, isPure }: PreviewContentProps) {
   const router = useRouter();
   const { user } = useAuth();
 
@@ -46,9 +47,10 @@ export default function PreviewContent({ templateId, initialTemplate, isPure }: 
   useEffect(() => {
     try {
       const userKey = user?.email ? `${user.email}_` : '';
-      const dataKey = template ? `undanganBali_data_${userKey}${template}` : `undanganBali_data_${userKey}default`;
-      const photoKey = template ? `undanganBali_photo_${userKey}${template}` : `undanganBali_photo_${userKey}default`;
-      const overrideKey = template ? `undanganBali_overrides_${userKey}${template}` : `undanganBali_overrides_${userKey}default`;
+      const templateKey = draftId || template || 'default';
+      const dataKey = `undanganBali_data_${userKey}${templateKey}`;
+      const photoKey = `undanganBali_photo_${userKey}${templateKey}`;
+      const overrideKey = `undanganBali_overrides_${userKey}${templateKey}`;
 
       const savedData = localStorage.getItem(dataKey);
       if (savedData) {
@@ -64,7 +66,7 @@ export default function PreviewContent({ templateId, initialTemplate, isPure }: 
       const savedOverrides = localStorage.getItem(overrideKey);
       if (savedOverrides) setDomOverrides(JSON.parse(savedOverrides));
     } catch (e) { }
-  }, [template, user?.email]);
+  }, [template, draftId, user?.email]);
 
   // Apply accent color
   useEffect(() => {
@@ -134,7 +136,7 @@ export default function PreviewContent({ templateId, initialTemplate, isPure }: 
 
         {/* ACTION BUTTONS (Floating) */}
         <div style={{ position: 'fixed', top: '100px', right: 'var(--space-4)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <button onClick={() => router.push(`/editor?template=${template}`)} className="btn btn--secondary" style={{ boxShadow: 'var(--shadow-lg)' }}>
+          <button onClick={() => router.push(`/editor?template=${template}${draftId ? `&draftId=${draftId}` : ''}`)} className="btn btn--secondary" style={{ boxShadow: 'var(--shadow-lg)' }}>
             ✏️ Edit Ulang
           </button>
           <button onClick={() => {
