@@ -54,7 +54,10 @@ export default function Navbar() {
                 </button>
               )}
               {isLoggedIn ? (
-                <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>
+                  <Link href="/dashboard" className="btn btn--primary btn--sm" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--accent-gold)', borderRadius: 'var(--radius-md)' }}>
+                    <span style={{ fontWeight: 600 }}>Draft Template</span>
+                  </Link>
                   <button
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'inherit', fontSize: '1rem' }}

@@ -171,7 +171,7 @@ function SetupContent({ templateId, draftId, initialFeatures }: SetupPageClientP
         const masterData = localStorage.getItem(masterKey);
         let drafts = masterData ? JSON.parse(masterData) : [];
         const draftIndex = drafts.findIndex((d: any) => d.draftId === draftId);
-        
+
         const draftMeta = {
           draftId,
           templateId: templateId || 'agung',

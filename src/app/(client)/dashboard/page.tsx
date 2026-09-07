@@ -90,64 +90,114 @@ export default function DashboardPage() {
 
   if (!isClient || !isInitialized || !isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500 flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-[#677359] border-t-transparent rounded-full animate-spin"></div>
-          <p className="font-medium">Memuat...</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div className="loader"></div>
+          <p style={{ fontWeight: 500 }}>Memuat...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-12 max-w-7xl">
-      <div className="mb-10">
-        <div>
-          <h1 className="text-4xl font-bold font-serif text-[#222]">Halo, {user?.name}</h1>
-          <p className="text-gray-500 mt-2">Kelola undangan pernikahan digital Anda di sini.</p>
+    <div className="section bali-pattern-bg bali-corners" style={{ minHeight: '100vh', paddingTop: '120px', paddingBottom: '60px' }}>
+      <div className="container" style={{ maxWidth: '1000px' }}>
+        
+        {/* Header Section */}
+        <div style={{ marginBottom: 'var(--space-8)', textAlign: 'center' }}>
+          <span className="section-label">Draft Template</span>
+          <h1 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>Halo, {user?.name}</h1>
+          <p className="section-subtitle">Kelola draf undangan pernikahan digital Anda di sini.</p>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Create New Card */}
-        <Link href="/templates" className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#D4C4B7] rounded-3xl bg-[#faf7f2] hover:bg-white transition-all text-center cursor-pointer group hover:border-[#677359]">
-          <FontAwesomeIcon icon={faPlus} className="text-4xl text-[#D4C4B7] mb-4 group-hover:text-[#677359] group-hover:scale-110 transition-all duration-300" />
-          <h3 className="text-xl font-bold font-serif text-[#222] group-hover:text-[#677359] transition-colors">Buat Undangan Baru</h3>
-          <p className="mt-2 text-sm text-gray-500">Pilih dari koleksi template eksklusif kami</p>
-        </Link>
+        {/* Toolbar Section */}
+        <div style={{ 
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          marginBottom: 'var(--space-6)', paddingBottom: 'var(--space-4)', 
+          borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap', gap: 'var(--space-4)'
+        }}>
+          <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', fontSize: '1.5rem', margin: 0 }}>
+            Draft Anda ({drafts.length})
+          </h2>
+          <Link href="/templates" className="btn btn--primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <FontAwesomeIcon icon={faPlus} />
+            <span>Buat Undangan Baru</span>
+          </Link>
+        </div>
 
-        {/* Draft Cards */}
-        {drafts.map((draft) => (
-          <div key={draft.id} className="bg-white border border-[#E6DFD1] rounded-3xl p-6 shadow-sm flex flex-col hover:shadow-md transition-all">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="font-serif font-bold text-xl text-[#222] leading-tight flex-1 pr-2">{draft.groomName} & {draft.brideName}</h3>
-              <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#faf7f2] text-xs font-bold text-[#677359] border border-[#E6DFD1] whitespace-nowrap">{draft.templateName}</span>
+        {/* Grid Section */}
+        {drafts.length === 0 ? (
+          <div className="glass-card" style={{ textAlign: 'center', padding: 'var(--space-12) var(--space-6)' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(182, 157, 116, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto var(--space-4)' }}>
+              <FontAwesomeIcon icon={faCalendar} style={{ fontSize: '1.5rem', color: 'var(--accent-gold)' }} />
             </div>
-
-            <div className="flex-1 mb-6 space-y-3 text-sm text-gray-600">
-              <div className="flex items-center space-x-3">
-                <FontAwesomeIcon icon={faCalendar} className="text-[#D4C4B7] w-4" />
-                <span>{draft.weddingDate}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-[#D4C4B7] w-4" />
-                <span className="truncate">{draft.mainVenue}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2 pt-4 border-t border-[#E6DFD1]">
-              <Link href={`/setup?template=${draft.templateId}&draftId=${draft.id}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#677359] text-white hover:bg-[#58634c]">
-                <FontAwesomeIcon icon={faPen} /> <span>Edit</span>
-              </Link>
-              <Link href={`/preview?template=${draft.templateId}&draftId=${draft.id}`} className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-[#faf7f2] text-[#333] border border-[#E6DFD1] hover:bg-[#F0EBE1]">
-                <FontAwesomeIcon icon={faEye} /> <span>Preview</span>
-              </Link>
-              <button onClick={() => handleDelete(draft.id)} className="inline-flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-medium transition-colors bg-white text-red-500 border border-red-200 hover:bg-red-50" title="Hapus">
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
-            </div>
+            <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', fontSize: '1.5rem', marginBottom: 'var(--space-2)' }}>
+              Belum Ada Draft
+            </h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-6)', maxWidth: '400px', margin: '0 auto var(--space-6)' }}>
+              Anda belum membuat draf undangan apa pun. Mulai buat draf pertama Anda sekarang!
+            </p>
+            <Link href="/templates" className="btn btn--secondary">
+              Lihat Koleksi Template
+            </Link>
           </div>
-        ))}
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-6)' }}>
+            {/* Draft Cards */}
+            {drafts.map((draft) => (
+              <div key={draft.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden' }}>
+                
+                {/* Card Header (Template Tag) */}
+                <div style={{ background: 'rgba(182, 157, 116, 0.08)', padding: 'var(--space-3) var(--space-5)', borderBottom: '1px solid var(--border-gold)', display: 'flex', justifyContent: 'flex-end' }}>
+                   <span style={{ 
+                      color: 'var(--accent-gold)', fontSize: '0.75rem', 
+                      fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase'
+                    }}>
+                      Template: {draft.templateName}
+                    </span>
+                </div>
+
+                {/* Card Body */}
+                <div style={{ padding: 'var(--space-5)', flex: 1 }}>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', fontSize: '1.4rem', marginBottom: 'var(--space-4)', lineHeight: 1.2 }}>
+                    {draft.groomName} & {draft.brideName}
+                  </h3>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      <FontAwesomeIcon icon={faCalendar} style={{ color: 'var(--accent-gold)', marginTop: '3px', width: '14px' }} />
+                      <span>{draft.weddingDate}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      <FontAwesomeIcon icon={faMapMarkerAlt} style={{ color: 'var(--accent-gold)', marginTop: '3px', width: '14px' }} />
+                      <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{draft.mainVenue}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer (Actions) */}
+                <div style={{ display: 'flex', alignItems: 'center', padding: 'var(--space-4) var(--space-5)', borderTop: '1px solid var(--border-color)', background: 'var(--surface-subtle)', gap: '10px' }}>
+                  <Link href={`/setup?template=${draft.templateId}&draftId=${draft.id}`} className="btn btn--primary btn--sm" style={{ flex: 1, justifyContent: 'center' }}>
+                    <FontAwesomeIcon icon={faPen} /> <span>Edit</span>
+                  </Link>
+                  <Link href={`/result?template=${draft.templateId}&draftId=${draft.id}`} className="btn btn--secondary btn--sm" style={{ flex: 1, justifyContent: 'center' }}>
+                    <FontAwesomeIcon icon={faEye} /> <span>Preview</span>
+                  </Link>
+                  <button onClick={() => handleDelete(draft.id)} style={{ 
+                    background: 'transparent', border: 'none', color: 'var(--error)', 
+                    width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'opacity 0.2s', padding: 0
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.opacity = '0.7'}
+                  onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                  title="Hapus Draft">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

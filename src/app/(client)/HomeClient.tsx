@@ -145,7 +145,7 @@ export default function HomeClient({ initialCategories }: HomeClientProps) {
             <div className="glass-card feature-card reveal">
               <div className="feature-card__icon"><FontAwesomeIcon icon={faPalette} /></div>
               <h3 className="feature-card__title">Pilih Template</h3>
-              <p className="feature-card__desc">Koleksi template eksklusif bertemakan Bali — dari tradisional hingga modern minimalis.</p>
+              <p className="feature-card__desc">Koleksi template eksklusif bertemakan Bali dari tradisional hingga modern minimalis.</p>
             </div>
             <div className="glass-card feature-card reveal">
               <div className="feature-card__icon">
@@ -410,7 +410,7 @@ export default function HomeClient({ initialCategories }: HomeClientProps) {
           </p>
           <div className="reveal">
             <Link href="/templates" className="btn btn--primary btn--lg">
-              <FontAwesomeIcon icon={faStar} /> Pilih Template
+              Pilih Template
             </Link>
           </div>
         </div>
