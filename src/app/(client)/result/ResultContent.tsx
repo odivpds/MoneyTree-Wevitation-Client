@@ -275,17 +275,16 @@ Terima kasih 🙏`;
           display: flex;
           flex-direction: column;
           min-height: 100vh;
-          padding-top: 60px; /* adjusted for navbar */
+          padding-top: 60px;
         }
         .result-left {
-          flex: 1;
           position: relative;
           display: flex;
           justify-content: center;
           align-items: center;
           width: 100%;
-          min-height: 50vh;
-          padding: 2rem 1rem;
+          padding: 4rem 2rem 2rem;
+          overflow: hidden;
         }
         .result-right {
           width: 100%;
@@ -305,9 +304,14 @@ Terima kasih 🙏`;
             padding-top: 70px;
           }
           .result-left {
-            overflow-y: auto;
-            align-items: flex-start;
-            padding: 2rem;
+            flex: 1;
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem 2rem;
           }
           .result-right {
             width: 480px;
@@ -320,13 +324,11 @@ Terima kasih 🙏`;
           }
           .result-mockup-wrap {
             transform: scale(0.95);
-            margin: auto;
           }
         }
         @media (max-width: 1023px) {
           .result-mockup-wrap {
             transform: scale(0.85);
-            margin: 0;
           }
         }
       `}</style>

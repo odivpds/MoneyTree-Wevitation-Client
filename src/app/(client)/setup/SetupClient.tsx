@@ -31,8 +31,6 @@ function SetupContent({ templateId, draftId, initialFeatures }: SetupPageClientP
     resepsiVenue: "",
     resepsiMapUrl: "",
     resepsiMapKeyword: "",
-    countdownDate: "",
-    countdownTime: "",
     bank1Name: "",
     bank1No: "",
     bank1Holder: "",
@@ -315,21 +313,7 @@ function SetupContent({ templateId, draftId, initialFeatures }: SetupPageClientP
               </>
             )}
 
-            {(!features || (features.showCountdown !== false && features.showCountdown !== 'false')) && (
-              <>
-                <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)', marginTop: 'var(--space-6)', fontSize: '1.5rem' }}>Hitung Mundur (Countdown)</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                  <div className="form-group">
-                    <label className="form-group__label">Tanggal Tujuan *</label>
-                    <input required type="date" name="countdownDate" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.countdownDate} onChange={handleChange} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-group__label">Waktu Tujuan *</label>
-                    <input required type="time" name="countdownTime" className="form-group__input" style={{ cursor: 'pointer' }} onClick={(e) => e.currentTarget.showPicker?.()} value={formData.countdownTime} onChange={handleChange} />
-                  </div>
-                </div>
-              </>
-            )}
+
 
             {(!features || (features.showGift !== false && features.showGift !== 'false')) && (
               <>
